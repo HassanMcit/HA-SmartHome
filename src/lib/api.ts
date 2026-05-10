@@ -242,6 +242,7 @@ export interface CreateTransactionData {
   category: string;
   description?: string;
   date?: string;
+  targetUserId?: string;
 }
 
 export interface TransactionStats {

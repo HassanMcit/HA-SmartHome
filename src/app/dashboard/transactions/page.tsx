@@ -1,186 +1,387 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { transactionsApi, Transaction, formatCurrency, getCategoryInfo, INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/lib/api';
-import { ArrowDownRight, ArrowUpRight, Plus, Trash2 } from 'lucide-react';
+import { transactionsApi, adminApi, Transaction, User, formatCurrency, getCategoryInfo, INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { ArrowDownRight, ArrowUpRight, Plus, Trash2, Users, Loader2, Activity, Calendar, Tag, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export default function TransactionsPage() {
+  const { user: currentUser } = useAuth();
+  const isAdmin = currentUser?.role === 'admin';
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>(currentUser?.id || '');
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  
+  // Form state
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [targetUserId, setTargetUserId] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
+  
   const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; transactionId: string; description: string }>({
     isOpen: false,
     transactionId: '',
     description: '',
   });
 
-  const fetchTransactions = async () => {
+  const fetchUsers = async () => {
+    if (!isAdmin) return;
     try {
-      const data = await transactionsApi.getAll();
-      setTransactions(data);
-    } catch { toast.error('حدث خطأ في تحميل المعاملات'); }
-    finally { setLoading(false); }
+      const data = await adminApi.getUsers();
+      setUsers(data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
   };
 
-  useEffect(() => { fetchTransactions(); }, []);
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const data = await transactionsApi.getAll();
+      
+      const filtered = (isAdmin && selectedUserId && selectedUserId !== 'all') 
+        ? data.filter(t => t.userId === selectedUserId)
+        : data;
+
+      setTransactions(filtered);
+    } catch {
+      toast.error('حدث خطأ في تحميل المعاملات');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser) {
+      if (isAdmin) fetchUsers();
+      setSelectedUserId(currentUser.id);
+    }
+  }, [currentUser, isAdmin]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [selectedUserId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !category) { toast.error('المبلغ والفئة مطلوبان'); return; }
+    if (!amount || !category) {
+      toast.error('المبلغ والفئة مطلوبان');
+      return;
+    }
+    
+    const finalTargetUserId = isAdmin ? (targetUserId || selectedUserId) : currentUser?.id;
+
     setSubmitting(true);
     try {
-      await transactionsApi.create({ type, amount: parseFloat(amount), category, description, date });
+      await transactionsApi.create({ 
+        type, 
+        amount: parseFloat(amount), 
+        category, 
+        description, 
+        date,
+        targetUserId: finalTargetUserId
+      });
       toast.success('تم إضافة المعاملة بنجاح');
-      setOpen(false); setAmount(''); setDescription(''); setCategory('');
+      setOpen(false);
+      setAmount('');
+      setDescription('');
+      setCategory('');
       setDate(new Date().toISOString().split('T')[0]);
       fetchTransactions();
-    } catch { toast.error('حدث خطأ أثناء الإضافة'); }
-    finally { setSubmitting(false); }
+    } catch {
+      toast.error('حدث خطأ أثناء الإضافة');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleDelete = async () => {
     if (!deleteDialog.transactionId) return;
-    try { 
-      await transactionsApi.delete(deleteDialog.transactionId); 
-      toast.success('تم حذف المعاملة بنجاح'); 
+    try {
+      await transactionsApi.delete(deleteDialog.transactionId);
+      toast.success('تم حذف المعاملة بنجاح');
       setDeleteDialog({ isOpen: false, transactionId: '', description: '' });
-      fetchTransactions(); 
+      fetchTransactions();
+    } catch {
+      toast.error('حدث خطأ أثناء الحذف');
     }
-    catch { toast.error('حدث خطأ أثناء الحذف'); }
   };
+
+  if (!currentUser) return null;
 
   const cats = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '5rem' }}>
+    <div className="flex flex-col gap-8 pb-12 animate-fade-in">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
-        <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: 4 }}>المعاملات المالية</h2>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>سجل بجميع إيراداتك ومصروفاتك</p>
-        </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger render={
-            <Button style={{ background: '#6366f1', border: 'none', borderRadius: 10, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Cairo, sans-serif', cursor: 'pointer' }}>
-              <Plus style={{ width: 16, height: 16 }} /> إضافة معاملة
-            </Button>
-          } />
-          <DialogContent className="sm:max-w-[425px] bg-[#1a1a35] border-slate-700 text-white">
-            <DialogHeader><DialogTitle className="text-right">إضافة معاملة جديدة</DialogTitle></DialogHeader>
-            <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-              <div className="flex gap-1 p-1 bg-[#0f0f23] rounded-lg">
-                {(['expense', 'income'] as const).map(t => (
-                  <button key={t} type="button" onClick={() => { setType(t); setCategory(''); }}
-                    className={`flex-1 py-2 rounded-md font-semibold text-sm transition-all ${type === t ? (t === 'expense' ? 'bg-red-500 text-white' : 'bg-emerald-500 text-white') : 'bg-transparent text-slate-400'}`}>
-                    {t === 'expense' ? 'مصروف' : 'إيراد'}
-                  </button>
-                ))}
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[13px] text-slate-300 font-medium">المبلغ</label>
-                <input type="number" step="0.01" required value={amount} onChange={e => setAmount(e.target.value)} dir="ltr"
-                  className="bg-[#242444] border border-[#2d2d5e] rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-indigo-500 transition-colors" />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[13px] text-slate-300 font-medium">الفئة</label>
-                <Select value={category} onValueChange={(val) => setCategory(val || '')}>
-                  <SelectTrigger className="bg-[#242444] border-slate-700 text-right" dir="rtl"><SelectValue placeholder="اختر الفئة" /></SelectTrigger>
-                  <SelectContent className="bg-[#242444] border-slate-700 text-white" dir="rtl">
-                    {cats.map(c => <SelectItem key={c.value} value={c.value}>{c.icon} {c.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[13px] text-slate-300 font-medium">الوصف (اختياري)</label>
-                <input type="text" value={description} onChange={e => setDescription(e.target.value)}
-                  className="bg-[#242444] border border-[#2d2d5e] rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-indigo-500 transition-colors text-right" />
-              </div>
-              <div className="flex flex-col gap-1.5 mb-2">
-                <label className="text-[13px] text-slate-300 font-medium">التاريخ</label>
-                <input type="date" value={date} onChange={e => setDate(e.target.value)} dir="ltr"
-                  className="bg-[#242444] border border-[#2d2d5e] rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-indigo-500 transition-colors" />
-              </div>
-              <button type="submit" disabled={submitting || !amount || !category}
-                className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white rounded-lg py-3 text-[15px] font-semibold transition-colors mt-2">
-                {submitting ? 'جاري الحفظ...' : 'حفظ المعاملة'}
-              </button>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-black text-white mb-1 flex items-center gap-3">
+              <Activity className="w-8 h-8 text-indigo-400" />
+              المعاملات المالية
+            </h2>
+            <p className="text-slate-400 text-sm sm:text-base font-medium">سجل وراقب كافة تحركاتك المالية</p>
+          </div>
 
-      {/* List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>جاري التحميل...</div>
-        ) : transactions.length === 0 ? (
-          <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>لا توجد معاملات بعد</div>
-        ) : transactions.map((tx) => {
-          const cat = getCategoryInfo(tx.category, tx.type);
-          return (
-            <div key={tx.id} className="glass-card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div style={{ width: 46, height: 46, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0,
-                  background: tx.type === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)' }}>
-                  {cat.icon}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                onClick={() => setTargetUserId(selectedUserId)}
+                className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+              >
+                <Plus className="w-5 h-5 ml-2" />
+                إضافة معاملة
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none sm:max-w-[480px]">
+              <DialogHeader className="text-right">
+                <DialogTitle className="text-2xl font-black mb-6">إضافة معاملة جديدة</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="flex gap-2 p-1.5 bg-black/20 rounded-2xl border border-white/5">
+                  {(['expense', 'income'] as const).map(t => (
+                    <button 
+                      key={t} 
+                      type="button" 
+                      onClick={() => { setType(t); setCategory(''); }}
+                      className={cn(
+                        "flex-1 py-3 rounded-xl font-black text-sm transition-all",
+                        type === t 
+                          ? (t === 'expense' ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20") 
+                          : "text-slate-400 hover:text-white hover:bg-white/5"
+                      )}
+                    >
+                      {t === 'expense' ? 'مصروف' : 'إيراد'}
+                    </button>
+                  ))}
                 </div>
-                <div>
-                  <div style={{ fontWeight: 600, color: '#e2e8f0', fontSize: 15, marginBottom: 4 }}>{tx.description || cat.label}</div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 99, background: '#242444', color: '#94a3b8', border: '1px solid #2d2d5e' }}>{cat.label}</span>
-                    <span style={{ fontSize: 12, color: '#64748b' }}>•</span>
-                    <span style={{ fontSize: 12, color: '#64748b' }}>{new Date(tx.date).toLocaleDateString('ar-EG')}</span>
+
+                {isAdmin && (
+                  <div className="space-y-2 text-right">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
+                    <Select value={targetUserId} onValueChange={setTargetUserId}>
+                      <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
+                        <SelectValue placeholder="اختر المستخدم" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                        {users.map(u => (
+                          <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2 text-right">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">المبلغ</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        required 
+                        value={amount} 
+                        onChange={e => setAmount(e.target.value)} 
+                        className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
+                        placeholder="0.00"
+                        dir="ltr"
+                      />
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ج.م</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-right">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
+                        <SelectValue placeholder="اختر الفئة" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl max-h-[250px]" dir="rtl">
+                        {cats.map(c => (
+                          <SelectItem key={c.value} value={c.value}>
+                            <span className="flex items-center gap-2">
+                              <span>{c.icon}</span>
+                              <span>{c.label}</span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-                <div style={{ fontWeight: 700, fontSize: 16, display: 'flex', alignItems: 'center', gap: 4, color: tx.type === 'income' ? '#10b981' : '#ef4444' }}>
-                  {tx.type === 'income' ? <ArrowUpRight style={{ width: 18, height: 18 }} /> : <ArrowDownRight style={{ width: 18, height: 18 }} />}
-                  {formatCurrency(tx.amount)}
+
+                <div className="space-y-2 text-right">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">الوصف</label>
+                  <input 
+                    type="text" 
+                    value={description} 
+                    onChange={e => setDescription(e.target.value)} 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all text-right"
+                    placeholder="مثال: شراء بقالة، راتب شهري..."
+                  />
                 </div>
-                <button onClick={() => setDeleteDialog({ isOpen: true, transactionId: tx.id, description: tx.description || cat.label })} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#475569', padding: 0 }}>
-                  <Trash2 style={{ width: 15, height: 15 }} />
-                </button>
-              </div>
-            </div>
-          );
-        })}
+
+                <div className="space-y-2 text-right">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">التاريخ</label>
+                  <div className="relative">
+                    <input 
+                      type="date" 
+                      value={date} 
+                      onChange={e => setDate(e.target.value)} 
+                      className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all"
+                      dir="ltr"
+                    />
+                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  </div>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  disabled={submitting || !amount || !category}
+                  className={cn(
+                    "w-full h-14 text-white rounded-2xl font-black text-lg shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 mt-4",
+                    type === 'expense' ? "bg-red-500 hover:bg-red-600 shadow-red-500/20" : "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20"
+                  )}
+                >
+                  {submitting ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 'حفظ المعاملة'}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {isAdmin && (
+          <div className="w-full sm:w-[300px]">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 block mr-1">تصفية حسب المستخدم</label>
+            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+              <SelectTrigger className="w-full bg-white/5 border-white/10 text-white rounded-xl h-12 shadow-inner">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-indigo-400" />
+                  <SelectValue placeholder="الكل" />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl">
+                <SelectItem value="all">كل العائلة</SelectItem>
+                {users.map(u => (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.name} {u.id === currentUser.id ? '(أنت)' : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
+
+      {/* Transactions List */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+          <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">جاري تحميل المعاملات</p>
+        </div>
+      ) : transactions.length === 0 ? (
+        <div className="glass-card py-24 flex flex-col items-center justify-center text-center px-6">
+          <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-6">
+            <AlertCircle className="w-10 h-10 text-slate-600" />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">لا توجد معاملات مسجلة</h3>
+          <p className="text-slate-500 max-w-xs mx-auto">ابدأ بتسجيل أولى معاملاتك المالية لتتبع دخلك ومصروفاتك.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {transactions.map((tx) => {
+            const cat = getCategoryInfo(tx.category, tx.type);
+            const isIncome = tx.type === 'income';
+            
+            return (
+              <div key={tx.id} className="glass-card p-4 sm:p-5 flex items-center justify-between gap-4 group hover:border-white/10 transition-all active:scale-[0.99]">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className={cn(
+                    "w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-2xl shadow-inner transition-transform group-hover:scale-110 shrink-0",
+                    isIncome ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
+                  )}>
+                    {cat.icon}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-bold text-white truncate text-sm sm:text-base">{tx.description || cat.label}</h4>
+                      {isAdmin && (
+                        <span className="text-[9px] px-2 py-0.5 bg-white/5 text-slate-400 rounded-full font-bold whitespace-nowrap">
+                          {users.find(u => u.id === tx.userId)?.name || 'مستخدم'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 text-[10px] sm:text-xs font-bold text-slate-500">
+                      <span className="flex items-center gap-1">
+                        <Tag className="w-3 h-3" />
+                        {cat.label}
+                      </span>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(tx.date).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <div className={cn(
+                    "text-base sm:text-xl font-black tabular-nums flex items-center gap-1",
+                    isIncome ? "text-emerald-500" : "text-red-500"
+                  )}>
+                    {isIncome ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
+                    {formatCurrency(tx.amount)}
+                  </div>
+                  <button 
+                    onClick={() => setDeleteDialog({ isOpen: true, transactionId: tx.id, description: tx.description || cat.label })}
+                    className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-slate-700 text-white p-0 overflow-hidden sm:max-w-[400px]">
-          <div className="p-6 text-right">
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-0 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none">
+          <div className="p-8 text-right">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
+              <Trash2 className="w-7 h-7" />
+            </div>
             <DialogHeader>
-              <DialogTitle className="text-[20px] font-bold text-white flex items-center justify-end gap-2">
-                <Trash2 className="w-5 h-5 text-red-500" />
-                حذف المعاملة
-              </DialogTitle>
+              <DialogTitle className="text-2xl font-black text-white">حذف المعاملة</DialogTitle>
             </DialogHeader>
-            <p className="text-slate-400 text-[14px] mt-4 leading-relaxed">
+            <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
               هل أنت متأكد من حذف معاملة <span className="text-white font-bold">"{deleteDialog.description}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
             </p>
           </div>
-          <div className="bg-[#242444]/50 border-t border-slate-700 p-4 flex gap-3 flex-row-reverse">
+          <div className="bg-white/5 border-t border-white/5 p-6 flex flex-col sm:flex-row-reverse gap-3">
             <Button 
-              className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2" 
+              className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all" 
               onClick={handleDelete}
             >
               حذف نهائي
             </Button>
             <Button 
               variant="outline" 
-              className="flex-1 border-slate-700 bg-transparent text-slate-300 hover:text-white hover:bg-slate-700 py-2" 
+              className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all" 
               onClick={() => setDeleteDialog({ isOpen: false, transactionId: '', description: '' })}
             >
               إلغاء
