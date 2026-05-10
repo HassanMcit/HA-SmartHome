@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { ShieldCheck, Check, X, Users, Activity, Trash2, UserCog, Key } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function AdminPage() {
+function AdminPage(): React.ReactNode {
   const { user, loading: authLoading } = useAuth();
   const [requests, setRequests] = useState<RegistrationRequest[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -373,3 +373,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+export default AdminPage;
