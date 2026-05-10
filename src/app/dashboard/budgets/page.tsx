@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { budgetsApi, adminApi, Budget, User, formatCurrency, getCategoryInfo, EXPENSE_CATEGORIES } from '@/lib/api';
+import { budgetsApi, adminApi, Budget, User, formatCurrency, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { Plus, Trash2, Users, Loader2, Target, AlertCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Plus, Target, Trash2, Users, Loader2, AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -19,13 +19,10 @@ export default function BudgetsPage() {
   const [selectedUserId, setSelectedUserId] = useState<string>(currentUser?.id || '');
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  
-  // Form state
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [targetUserId, setTargetUserId] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
-  
   const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; budgetId: string; categoryName: string }>({
     isOpen: false,
     budgetId: '',
@@ -45,7 +42,7 @@ export default function BudgetsPage() {
   const fetchBudgets = async () => {
     try {
       setLoading(true);
-      const data = await budgetsApi.getAll(selectedUserId || undefined);
+      const data = await budgetsApi.getAll(selectedUserId === 'all' ? undefined : (selectedUserId || undefined));
       setBudgets(data);
     } catch {
       toast.error('حدث خطأ في تحميل الميزانية');
@@ -75,8 +72,10 @@ export default function BudgetsPage() {
     }
     
     const finalTargetUserId = isAdmin ? (targetUserId || selectedUserId) : currentUser?.id;
+    console.log('[Budget Form] Target User ID:', finalTargetUserId);
+    console.log('Sending budget for user:', finalTargetUserId);
     
-    if (!finalTargetUserId) {
+    if (!finalTargetUserId || finalTargetUserId === 'all') {
       toast.error('يرجى اختيار المستخدم');
       return;
     }
@@ -131,7 +130,7 @@ export default function BudgetsPage() {
 
           {isAdmin && (
             <Button 
-              onClick={() => { setOpen(true); setTargetUserId(selectedUserId); }}
+              onClick={() => { setOpen(true); setTargetUserId(selectedUserId === 'all' ? currentUser.id : selectedUserId); }}
               className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
             >
               <Plus className="w-5 h-5 ml-2" />
@@ -151,6 +150,7 @@ export default function BudgetsPage() {
                 </div>
               </SelectTrigger>
               <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl">
+                <SelectItem value="all" className="focus:bg-indigo-500/20 font-bold text-indigo-400">كل العائلة</SelectItem>
                 {users.map(u => (
                   <SelectItem key={u.id} value={u.id} className="focus:bg-indigo-500/20">
                     {u.name} {u.id === currentUser.id ? '(أنت)' : ''}
@@ -234,50 +234,46 @@ export default function BudgetsPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">جاري تحميل البيانات</p>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">جاري تحميل الميزانية</p>
         </div>
       ) : budgets.length === 0 ? (
         <div className="glass-card py-24 flex flex-col items-center justify-center text-center px-6">
           <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-6">
-            <AlertCircle className="w-10 h-10 text-slate-600" />
+            <Target className="w-10 h-10 text-slate-600" />
           </div>
           <h3 className="text-xl font-bold text-white mb-2">لا توجد ميزانيات محددة</h3>
-          <p className="text-slate-500 max-w-xs mx-auto">
-            {isAdmin ? 'ابدأ بإضافة ميزانية لهذا المستخدم لتتبع إنفاقه.' : 'لم يتم تحديد ميزانية لك لهذا الشهر بعد.'}
-          </p>
+          <p className="text-slate-500 max-w-xs mx-auto">ابدأ بتحديد ميزانياتك الشهرية لمراقبة مصروفاتك بشكل فعال.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {budgets.map((budget) => {
-            const cat = getCategoryInfo(budget.category, 'expense');
-            const pct = Math.min(100, Math.round((budget.spent / budget.amount) * 100));
-            const over = budget.spent > budget.amount;
-            const barColor = over ? 'bg-red-500' : pct > 85 ? 'bg-amber-500' : 'bg-indigo-500';
-            
+            const percent = Math.min((budget.spent / budget.amount) * 100, 100);
+            const isNearLimit = percent > 80;
+            const isOverLimit = percent >= 100;
+
             return (
-              <div key={budget.id} className="glass-card p-6 flex flex-col group hover:border-white/10 transition-all">
-                <div className="flex justify-between items-start mb-6">
+              <div key={budget.id} className="glass-card p-6 flex flex-col gap-6 group hover:border-white/10 transition-all">
+                <div className="flex justify-between items-start">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition-transform">
-                      {cat.icon}
+                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-2xl shadow-inner">
+                      {EXPENSE_CATEGORIES.find(c => c.value === budget.category)?.icon || '💰'}
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-white group-hover:text-indigo-400 transition-colors">{cat.label}</h4>
-                        {isAdmin && budget.userName && (
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-bold text-white">{EXPENSE_CATEGORIES.find(c => c.value === budget.category)?.label || budget.category}</h4>
+                        {isAdmin && (
                           <span className="text-[10px] px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full font-bold">
-                            {budget.userName}
+                            {budget.userName || 'مستخدم'}
                           </span>
                         )}
                       </div>
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-0.5">الحد: {formatCurrency(budget.amount)}</p>
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">ميزانية شهرية</p>
                     </div>
                   </div>
-                  
                   {isAdmin && (
                     <button 
-                      onClick={() => setDeleteDialog({ isOpen: true, budgetId: budget.id, categoryName: cat.label })}
-                      className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all active:scale-90"
+                      onClick={() => setDeleteDialog({ isOpen: true, budgetId: budget.id, categoryName: budget.category })}
+                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -285,38 +281,40 @@ export default function BudgetsPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex justify-between text-xs font-bold">
+                  <div className="flex justify-between items-end">
                     <div className="flex flex-col gap-1">
-                      <span className="text-slate-500 uppercase tracking-widest text-[10px]">المصروف</span>
-                      <span className={cn("text-sm tabular-nums", over ? "text-red-500" : "text-white")}>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">المصروف</span>
+                      <span className={cn(
+                        "text-xl font-black tabular-nums",
+                        isOverLimit ? "text-red-500" : isNearLimit ? "text-orange-500" : "text-white"
+                      )}>
                         {formatCurrency(budget.spent)}
                       </span>
                     </div>
-                    <div className="flex flex-col gap-1 text-left">
-                      <span className="text-slate-500 uppercase tracking-widest text-[10px]">المتبقي</span>
-                      <span className={cn("text-sm tabular-nums", over ? "text-red-500" : "text-emerald-500")}>
-                        {formatCurrency(budget.remaining)}
-                      </span>
+                    <div className="text-right flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">الهدف</span>
+                      <span className="text-sm font-bold text-slate-300">{formatCurrency(budget.amount)}</span>
                     </div>
                   </div>
 
-                  <div className="relative h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                  <div className="w-full h-3 bg-black/20 rounded-full overflow-hidden border border-white/5">
                     <div 
-                      className={cn("h-full rounded-full transition-all duration-1000 ease-out", barColor)}
-                      style={{ width: `${pct}%` }}
+                      className={cn(
+                        "h-full rounded-full transition-all duration-1000 ease-out",
+                        isOverLimit ? "bg-red-500" : isNearLimit ? "bg-orange-500" : "bg-indigo-500"
+                      )}
+                      style={{ width: `${percent}%` }}
                     />
                   </div>
-                  
+
                   <div className="flex justify-between items-center">
-                    <p className={cn("text-[10px] font-black uppercase tracking-[0.2em]", over ? "text-red-500" : "text-slate-500")}>
-                      {pct}% {over ? 'تجاوز!' : 'مستهلك'}
-                    </p>
-                    {over && (
-                      <div className="flex items-center gap-1 text-red-500 animate-pulse">
-                        <AlertCircle className="w-3 h-3" />
-                        <span className="text-[10px] font-bold">خارج الميزانية</span>
-                      </div>
-                    )}
+                    <span className="text-[10px] font-black text-slate-500">{Math.round(percent)}% تم استهلاكه</span>
+                    <span className={cn(
+                      "text-[10px] font-black uppercase px-2 py-0.5 rounded-md",
+                      isOverLimit ? "bg-red-500/10 text-red-500" : "bg-white/5 text-slate-400"
+                    )}>
+                      {isOverLimit ? 'تجاوزت الحد' : `متبقي: ${formatCurrency(budget.remaining)}`}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -336,7 +334,7 @@ export default function BudgetsPage() {
               <DialogTitle className="text-2xl font-black text-white">حذف الميزانية</DialogTitle>
             </DialogHeader>
             <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
-              هل أنت متأكد من حذف ميزانية فئة <span className="text-white font-bold">"{deleteDialog.categoryName}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
+              هل أنت متأكد من حذف ميزانية <span className="text-white font-bold">"{EXPENSE_CATEGORIES.find(c => c.value === deleteDialog.categoryName)?.label || deleteDialog.categoryName}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
             </p>
           </div>
           <div className="bg-white/5 border-t border-white/5 p-6 flex flex-col sm:flex-row-reverse gap-3">

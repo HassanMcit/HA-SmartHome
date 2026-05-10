@@ -81,6 +81,7 @@ export default function TransactionsPage() {
     }
     
     const finalTargetUserId = isAdmin ? (targetUserId || selectedUserId) : currentUser?.id;
+    console.log('[Transaction Form] Target User ID:', finalTargetUserId);
 
     setSubmitting(true);
     try {
