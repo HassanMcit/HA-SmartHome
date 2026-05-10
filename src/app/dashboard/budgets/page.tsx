@@ -129,10 +129,10 @@ export default function BudgetsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-4 sm:mt-0">
           {isAdmin && (
             <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-              <SelectTrigger className="w-full sm:w-[200px] bg-white/5 border-white/10 text-white rounded-xl h-11">
+              <SelectTrigger className="w-full sm:w-[200px] bg-white/5 border-white/10 text-white rounded-xl h-12 sm:h-11 shadow-inner">
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-indigo-400" />
                   <SelectValue placeholder="اختر المستخدم" />
@@ -151,7 +151,7 @@ export default function BudgetsPage() {
           {isAdmin && (
             <Dialog open={open} onOpenChange={(val) => { setOpen(val); if(val) setTargetUserId(selectedUserId); }}>
               <DialogTrigger asChild>
-                <Button className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all">
+                <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all">
                   <Plus className="w-5 h-5 ml-2" />
                   إضافة ميزانية
                 </Button>
@@ -258,7 +258,14 @@ export default function BudgetsPage() {
                       {cat.icon}
                     </div>
                     <div>
-                      <h4 className="font-bold text-white group-hover:text-indigo-400 transition-colors">{cat.label}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-white group-hover:text-indigo-400 transition-colors">{cat.label}</h4>
+                        {isAdmin && budget.userName && (
+                          <span className="text-[10px] px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full font-bold">
+                            {budget.userName}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-0.5">الحد: {formatCurrency(budget.amount)}</p>
                     </div>
                   </div>
