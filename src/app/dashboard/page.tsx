@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { transactionsApi, TransactionStats, Transaction, formatCurrency } from '@/lib/api';
-import { ArrowDownRight, ArrowUpRight, Wallet, Activity, CreditCard } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Wallet, Activity, CreditCard, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<TransactionStats | null>(null);
@@ -30,86 +31,94 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+      <div className="flex justify-center items-center h-[50vh]">
+        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '2rem' }}>
+    <div className="flex flex-col gap-8 pb-8 animate-fade-in">
       {/* Header */}
       <div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '0.25rem' }}>الرئيسية</h2>
-        <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>نظرة عامة على نشاطك المالي هذا الشهر</p>
+        <h2 className="text-2xl sm:text-3xl font-black text-white mb-1">الرئيسية</h2>
+        <p className="text-slate-400 text-sm sm:text-base font-medium">نظرة عامة على نشاطك المالي هذا الشهر</p>
       </div>
 
-      {/* Stats Cards - 3 columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+      {/* Stats Cards - Responsive Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {/* Balance */}
-        <div className="glass-card" style={{ padding: '1.5rem', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', background: 'rgba(99,102,241,0.1)', borderRadius: '50%', filter: 'blur(20px)' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-            <p style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>إجمالي الرصيد</p>
-            <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '50%', background: 'rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Wallet style={{ width: '1rem', height: '1rem', color: '#818cf8' }} />
+        <div className="glass-card p-6 relative overflow-hidden group hover:border-indigo-500/30 transition-all">
+          <div className="absolute -top-6 -right-6 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all" />
+          <div className="flex justify-between items-start mb-4">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">إجمالي الرصيد</p>
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 shadow-lg shadow-indigo-500/5">
+              <Wallet className="w-5 h-5" />
             </div>
           </div>
-          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff' }}>{formatCurrency(stats?.balance || 0)}</p>
+          <p className="text-3xl font-black text-white tracking-tight">{formatCurrency(stats?.balance || 0)}</p>
         </div>
 
         {/* Income */}
-        <div className="glass-card" style={{ padding: '1.5rem', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', background: 'rgba(16,185,129,0.1)', borderRadius: '50%', filter: 'blur(20px)' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-            <p style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>الدخل هذا الشهر</p>
-            <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '50%', background: 'rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <ArrowUpRight style={{ width: '1rem', height: '1rem', color: '#10b981' }} />
+        <div className="glass-card p-6 relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+          <div className="absolute -top-6 -right-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all" />
+          <div className="flex justify-between items-start mb-4">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">الدخل هذا الشهر</p>
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/5">
+              <ArrowUpRight className="w-5 h-5" />
             </div>
           </div>
-          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>{formatCurrency(stats?.totalIncome || 0)}</p>
+          <p className="text-3xl font-black text-emerald-500 tracking-tight">{formatCurrency(stats?.totalIncome || 0)}</p>
         </div>
 
         {/* Expenses */}
-        <div className="glass-card" style={{ padding: '1.5rem', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', background: 'rgba(239,68,68,0.1)', borderRadius: '50%', filter: 'blur(20px)' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-            <p style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>المصروفات هذا الشهر</p>
-            <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '50%', background: 'rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <ArrowDownRight style={{ width: '1rem', height: '1rem', color: '#ef4444' }} />
+        <div className="glass-card p-6 relative overflow-hidden group hover:border-red-500/30 transition-all sm:col-span-2 lg:col-span-1">
+          <div className="absolute -top-6 -right-6 w-24 h-24 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-all" />
+          <div className="flex justify-between items-start mb-4">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">المصروفات هذا الشهر</p>
+            <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-400 shadow-lg shadow-red-500/5">
+              <ArrowDownRight className="w-5 h-5" />
             </div>
           </div>
-          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#ef4444' }}>{formatCurrency(stats?.totalExpenses || 0)}</p>
+          <p className="text-3xl font-black text-red-500 tracking-tight">{formatCurrency(stats?.totalExpenses || 0)}</p>
         </div>
       </div>
 
-      {/* Bottom 2 panels */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+      {/* Bottom Panels - Responsive Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Transactions */}
-        <div className="glass-card" style={{ overflow: 'hidden' }}>
-          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(45,45,94,0.8)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Activity style={{ width: '1.1rem', height: '1.1rem', color: '#818cf8', flexShrink: 0 }} />
-            <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#fff' }}>أحدث المعاملات</h3>
+        <div className="glass-card overflow-hidden flex flex-col">
+          <div className="px-6 py-5 border-b border-white/5 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+              <Activity className="w-4 h-4" />
+            </div>
+            <h3 className="font-bold text-white">أحدث المعاملات</h3>
           </div>
-          <div style={{ padding: '1.25rem 1.5rem' }}>
+          <div className="p-6">
             {recentTransactions.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#64748b', padding: '2rem 0', fontSize: '0.875rem' }}>لا توجد معاملات حديثة</p>
+              <div className="flex flex-col items-center justify-center py-12 text-slate-500 gap-2">
+                <p className="text-sm font-medium">لا توجد معاملات حديثة</p>
+              </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="space-y-4">
                 {recentTransactions.map((tx) => (
-                  <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.875rem', borderRadius: '12px', background: 'rgba(30,30,60,0.5)', border: '1px solid rgba(45,45,94,0.6)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: tx.type === 'income' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)' }}>
-                        {tx.type === 'income'
-                          ? <ArrowUpRight style={{ width: '1rem', height: '1rem', color: '#10b981' }} />
-                          : <ArrowDownRight style={{ width: '1rem', height: '1rem', color: '#ef4444' }} />}
+                  <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all group">
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110",
+                        tx.type === 'income' ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
+                      )}>
+                        {tx.type === 'income' ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                       </div>
                       <div>
-                        <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.125rem' }}>{tx.description || tx.category}</p>
-                        <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{new Date(tx.date).toLocaleDateString('ar-EG')}</p>
+                        <p className="text-sm sm:text-base font-bold text-slate-100 mb-0.5 line-clamp-1">{tx.description || tx.category}</p>
+                        <p className="text-xs text-slate-500 font-medium">{new Date(tx.date).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })}</p>
                       </div>
                     </div>
-                    <p style={{ fontWeight: 700, fontSize: '0.9rem', color: tx.type === 'income' ? '#10b981' : '#ef4444', flexShrink: 0 }}>
+                    <p className={cn(
+                      "font-black text-sm sm:text-base tabular-nums",
+                      tx.type === 'income' ? "text-emerald-500" : "text-red-500"
+                    )}>
                       {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
                     </p>
                   </div>
@@ -120,16 +129,20 @@ export default function DashboardPage() {
         </div>
 
         {/* Category Breakdown */}
-        <div className="glass-card" style={{ overflow: 'hidden' }}>
-          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(45,45,94,0.8)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <CreditCard style={{ width: '1.1rem', height: '1.1rem', color: '#ec4899', flexShrink: 0 }} />
-            <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#fff' }}>توزيع المصروفات</h3>
+        <div className="glass-card overflow-hidden flex flex-col">
+          <div className="px-6 py-5 border-b border-white/5 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-pink-400">
+              <CreditCard className="w-4 h-4" />
+            </div>
+            <h3 className="font-bold text-white">توزيع المصروفات</h3>
           </div>
-          <div style={{ padding: '1.25rem 1.5rem' }}>
+          <div className="p-6">
             {Object.keys(stats?.categoryBreakdown || {}).length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#64748b', padding: '2rem 0', fontSize: '0.875rem' }}>لا توجد بيانات مصروفات</p>
+              <div className="flex flex-col items-center justify-center py-12 text-slate-500 gap-2">
+                <p className="text-sm font-medium">لا توجد بيانات مصروفات</p>
+              </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="space-y-6">
                 {Object.entries(stats?.categoryBreakdown || {})
                   .sort(([, a], [, b]) => b - a)
                   .slice(0, 6)
@@ -137,14 +150,18 @@ export default function DashboardPage() {
                     const total = stats?.totalExpenses || 1;
                     const pct = Math.round((amount / total) * 100);
                     return (
-                      <div key={category}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
-                          <span style={{ fontSize: '0.875rem', color: '#cbd5e1' }}>{category}</span>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#fff' }}>{formatCurrency(amount)}</span>
+                      <div key={category} className="group">
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">{category}</span>
+                          <span className="text-sm font-black text-white tabular-nums">{formatCurrency(amount)}</span>
                         </div>
-                        <div style={{ width: '100%', height: '8px', background: '#1e1e3f', borderRadius: '99px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, #6366f1, #818cf8)', borderRadius: '99px', transition: 'width 0.5s ease' }} />
+                        <div className="w-full h-2.5 bg-white/5 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full transition-all duration-1000 ease-out" 
+                            style={{ width: `${pct}%` }}
+                          />
                         </div>
+                        <p className="text-[10px] font-bold text-slate-500 mt-1 text-left">{pct}% من الإجمالي</p>
                       </div>
                     );
                   })}

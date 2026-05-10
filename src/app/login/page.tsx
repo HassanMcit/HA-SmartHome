@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Eye, EyeOff, LogIn, Home } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Home, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,7 +20,10 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) { toast.error('يرجى إدخال البريد الإلكتروني وكلمة المرور'); return; }
+    if (!email || !password) { 
+      toast.error('يرجى إدخال البريد الإلكتروني وكلمة المرور'); 
+      return; 
+    }
     setLoading(true);
     try {
       await login(email, password);
@@ -30,183 +36,115 @@ export default function LoginPage() {
     }
   };
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    height: 50,
-    background: '#242444',
-    border: '1px solid #2d2d5e',
-    borderRadius: 10,
-    padding: '0 14px',
-    color: '#e2e8f0',
-    fontSize: 14,
-    fontFamily: 'Cairo, sans-serif',
-    outline: 'none',
-    textAlign: 'right',
-    boxSizing: 'border-box',
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: 'block',
-    fontSize: 13,
-    fontWeight: 600,
-    color: '#cbd5e1',
-    marginBottom: 8,
-  };
-
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1.5rem',
-      background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a35 50%, #0f0f23 100%)',
-      direction: 'rtl',
-      position: 'relative',
-    }}>
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0f0f23] relative overflow-hidden selection:bg-indigo-500/30">
       {/* Background blobs */}
-      <div style={{ position: 'absolute', top: 0, left: '25%', width: 350, height: 350, borderRadius: '50%', background: '#6366f1', opacity: 0.07, filter: 'blur(60px)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: 0, right: '25%', width: 350, height: 350, borderRadius: '50%', background: '#8b5cf6', opacity: 0.07, filter: 'blur(60px)', pointerEvents: 'none' }} />
+      <div className="absolute top-[-10%] left-[20%] w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-indigo-600/10 blur-[80px] sm:blur-[120px] pointer-events-none animate-pulse" />
+      <div className="absolute bottom-[-10%] right-[20%] w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-purple-600/10 blur-[80px] sm:blur-[120px] pointer-events-none animate-pulse delay-700" />
 
-      <div style={{ width: '100%', maxWidth: 440, position: 'relative', zIndex: 1 }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{
-            width: 80, height: 80, borderRadius: 20,
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 16px',
-            boxShadow: '0 0 0 0 rgba(99,102,241,0.4)',
-            animation: 'pulse-glow 2s infinite',
-          }}>
-            <Home style={{ width: 40, height: 40, color: '#fff' }} />
+      <div className="w-full max-w-[440px] relative z-10 animate-fade-in">
+        {/* Logo Section */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20 pulse-glow">
+            <Home className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
-          <h1 style={{ fontSize: 32, fontWeight: 800, background: 'linear-gradient(135deg, #6366f1, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <h1 className="text-3xl sm:text-4xl font-black gradient-text tracking-tight">
             مدبّر
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: 14, marginTop: 6 }}>إدارة المنزل الذكية</p>
+          <p className="text-slate-400 text-sm sm:text-base mt-2 font-medium">إدارة المنزل الذكية</p>
         </div>
 
         {/* Card */}
-        <div style={{
-          background: 'rgba(26,26,53,0.85)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(99,102,241,0.2)',
-          borderRadius: 20,
-          padding: '2.5rem',
-        }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#fff', textAlign: 'center', marginBottom: 28 }}>
+        <div className="glass-card p-6 sm:p-10 border-white/5">
+          <h2 className="text-xl sm:text-2xl font-bold text-white text-center mb-8">
             تسجيل الدخول
           </h2>
 
-          <form onSubmit={handleSubmit}>
-            {/* Email */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={labelStyle}>البريد الإلكتروني</label>
-              <input
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email Field */}
+            <div className="space-y-2">
+              <Label className="text-slate-300 text-sm font-semibold pr-1">البريد الإلكتروني</Label>
+              <Input
                 type="email"
                 placeholder="example@home.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                style={inputStyle}
+                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-left"
+                dir="ltr"
                 disabled={loading}
               />
             </div>
 
-            {/* Password */}
-            <div style={{ marginBottom: 14 }}>
-              <label style={labelStyle}>كلمة المرور</label>
-              <div style={{ position: 'relative' }}>
-                <input
+            {/* Password Field */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <Label className="text-slate-300 text-sm font-semibold">كلمة المرور</Label>
+                <Link href="/forgot-password" size="sm" className="text-xs text-slate-500 hover:text-indigo-400 transition-colors">
+                  نسيت كلمة المرور؟
+                </Link>
+              </div>
+              <div className="relative">
+                <Input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  style={{ ...inputStyle, paddingLeft: 46 }}
+                  className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl pl-12 text-left"
+                  dir="ltr"
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: 0, display: 'flex' }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors p-1"
                 >
-                  {showPassword ? <EyeOff style={{ width: 18, height: 18 }} /> : <Eye style={{ width: 18, height: 18 }} />}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
-            {/* Forgot password */}
-            <div style={{ marginBottom: 24 }}>
-              <Link href="/forgot-password" style={{ fontSize: 13, color: '#64748b', textDecoration: 'none' }}>
-                نسيت كلمة المرور؟
-              </Link>
-            </div>
-
-            {/* Submit */}
-            <button
+            {/* Submit Button */}
+            <Button
               type="submit"
               disabled={loading}
-              style={{
-                width: '100%',
-                height: 52,
-                background: loading ? '#4f46e5' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                border: 'none',
-                borderRadius: 12,
-                color: '#fff',
-                fontSize: 16,
-                fontWeight: 700,
-                fontFamily: 'Cairo, sans-serif',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 10,
-                opacity: loading ? 0.85 : 1,
-                transition: 'opacity 0.15s',
-              }}
+              className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100"
             >
               {loading ? (
-                <>
-                  <span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite', display: 'inline-block' }} />
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
                   جاري الدخول...
-                </>
+                </div>
               ) : (
-                <>
-                  <LogIn style={{ width: 20, height: 20 }} />
+                <div className="flex items-center gap-2">
+                  <LogIn className="w-5 h-5" />
                   تسجيل الدخول
-                </>
+                </div>
               )}
-            </button>
+            </Button>
           </form>
 
-          {/* Footer */}
-          <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid #2d2d5e', textAlign: 'center' }}>
-            <p style={{ color: '#94a3b8', fontSize: 14 }}>
+          {/* Footer Link */}
+          <div className="mt-8 pt-8 border-t border-white/5 text-center">
+            <p className="text-slate-400 text-sm">
               ليس لديك حساب؟{' '}
-              <Link href="/register" style={{ color: '#818cf8', fontWeight: 600, textDecoration: 'none' }}>
-                طلب التسجيل
+              <Link href="/register" className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors underline-offset-4 hover:underline">
+                طلب تسجيل
               </Link>
             </p>
           </div>
         </div>
 
-        {/* Demo accounts hint */}
-        <div style={{
-          marginTop: 16,
-          padding: '14px 20px',
-          borderRadius: 14,
-          background: 'rgba(99,102,241,0.08)',
-          border: '1px solid rgba(99,102,241,0.2)',
-          textAlign: 'center',
-        }}>
-          <p style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', marginBottom: 6 }}>حسابات تجريبية:</p>
-          <p style={{ fontSize: 12, color: '#64748b', lineHeight: 2 }}>
-            مدير: admin@home.com / admin123<br />
-            مراتي: wife@home.com / wife123<br />
-            ابني: son@home.com / son123
-          </p>
+        {/* Demo Accounts Hint */}
+        <div className="mt-6 p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-center animate-fade-in [animation-delay:200ms]">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">حسابات تجريبية</p>
+          <div className="grid grid-cols-1 gap-1 text-[11px] sm:text-xs text-slate-500 leading-relaxed">
+            <p><span className="text-slate-400 font-semibold">مدير:</span> admin@home.com / admin123</p>
+            <p><span className="text-slate-400 font-semibold">مراتي:</span> wife@home.com / wife123</p>
+            <p><span className="text-slate-400 font-semibold">ابني:</span> son@home.com / son123</p>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
