@@ -6,8 +6,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ShieldCheck, Check, X, Users, Activity, Trash2, UserCog, Key } from 'lucide-react';
+import { ShieldCheck, Check, X, Users, Activity, Trash2, UserCog, Key, Loader2, ArrowUpRight, ArrowDownRight, ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 function AdminPage(): React.ReactNode {
   const { user, loading: authLoading } = useAuth();
@@ -135,15 +136,15 @@ function AdminPage(): React.ReactNode {
 
   if (authLoading || loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+      <div className="flex justify-center items-center h-[50vh]">
+        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
       </div>
     );
   }
 
   if (user?.role !== 'admin') {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
+      <div className="flex flex-col items-center justify-center h-64 text-center glass-card p-10">
         <ShieldCheck className="w-16 h-16 text-red-500 mb-4 opacity-50" />
         <h2 className="text-xl font-bold text-white mb-2">غير مصرح</h2>
         <p className="text-slate-400">هذه الصفحة مخصصة لمدير النظام فقط</p>
@@ -155,126 +156,154 @@ function AdminPage(): React.ReactNode {
   const pastRequests = requests.filter(r => r.status !== 'pending');
 
   return (
-    <div className="flex flex-col gap-[24px] pb-[80px] md:pb-0">
+    <div className="flex flex-col gap-8 pb-12 animate-fade-in">
       {/* Header */}
       <div>
-        <h2 className="text-[24px] font-bold text-white flex items-center gap-[8px] mb-[4px]">
-          <ShieldCheck className="w-[24px] h-[24px] text-indigo-400" />
+        <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3 mb-1">
+          <ShieldCheck className="w-8 h-8 text-indigo-400" />
           لوحة الإدارة
         </h2>
-        <p className="text-slate-400 text-[14px]">إدارة المستخدمين وطلبات التسجيل</p>
+        <p className="text-slate-400 text-sm sm:text-base font-medium">إدارة المستخدمين وطلبات التسجيل</p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-[20px]">
-        <div className="bg-[#1a1a35] border border-[#2d2d5e] rounded-[12px] p-[20px] text-center">
-          <Users className="w-[24px] h-[24px] mx-auto mb-[8px] text-indigo-400" />
-          <p className="text-[24px] font-bold text-white">{stats?.totalUsers}</p>
-          <p className="text-[12px] text-slate-400 mt-[4px]">إجمالي المستخدمين</p>
-        </div>
-        <div className="bg-[#1a1a35] border border-[#2d2d5e] rounded-[12px] p-[20px] text-center">
-          <Activity className="w-[24px] h-[24px] mx-auto mb-[8px] text-amber-400" />
-          <p className="text-[24px] font-bold text-white">{stats?.pendingRequests}</p>
-          <p className="text-[12px] text-slate-400 mt-[4px]">طلبات معلقة</p>
-        </div>
-        <div className="bg-[#1a1a35] border border-[#2d2d5e] rounded-[12px] p-[20px] text-center">
-          <div className="text-emerald-400 font-bold mb-[8px] text-[18px]">+</div>
-          <p className="text-[18px] font-bold text-emerald-400 truncate">{formatCurrency(stats?.totalIncome || 0)}</p>
-          <p className="text-[12px] text-slate-400 mt-[4px]">دخل العائلة</p>
-        </div>
-        <div className="bg-[#1a1a35] border border-[#2d2d5e] rounded-[12px] p-[20px] text-center">
-          <div className="text-red-400 font-bold mb-[8px] text-[18px]">-</div>
-          <p className="text-[18px] font-bold text-red-400 truncate">{formatCurrency(stats?.totalExpenses || 0)}</p>
-          <p className="text-[12px] text-slate-400 mt-[4px]">مصروفات العائلة</p>
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-[24px]">
-        {/* Users Management */}
-        <div className="bg-[#1a1a35] border border-[#2d2d5e] rounded-[12px] overflow-hidden">
-          <div className="p-[16px] border-b border-[#2d2d5e] bg-[#242444]/50 flex items-center gap-[8px]">
-            <UserCog className="w-[20px] h-[20px] text-indigo-400" />
-            <h3 className="font-bold text-white text-[18px]">المستخدمين الحاليين</h3>
+      {/* Stats - Responsive Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="glass-card p-6 flex flex-col items-center text-center group hover:border-indigo-500/30 transition-all">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-4 group-hover:scale-110 transition-transform">
+            <Users className="w-6 h-6" />
           </div>
-          <div className="p-[16px] flex flex-col gap-[12px]">
+          <p className="text-3xl font-black text-white leading-none">{stats?.totalUsers}</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">إجمالي المستخدمين</p>
+        </div>
+        
+        <div className="glass-card p-6 flex flex-col items-center text-center group hover:border-amber-500/30 transition-all">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition-transform">
+            <Activity className="w-6 h-6" />
+          </div>
+          <p className="text-3xl font-black text-white leading-none">{stats?.pendingRequests}</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">طلبات معلقة</p>
+        </div>
+
+        <div className="glass-card p-6 flex flex-col items-center text-center group hover:border-emerald-500/30 transition-all">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
+            <ArrowUpRight className="w-6 h-6" />
+          </div>
+          <p className="text-xl font-black text-emerald-500 truncate w-full">{formatCurrency(stats?.totalIncome || 0)}</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">دخل العائلة</p>
+        </div>
+
+        <div className="glass-card p-6 flex flex-col items-center text-center group hover:border-red-500/30 transition-all">
+          <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-400 mb-4 group-hover:scale-110 transition-transform">
+            <ArrowDownRight className="w-6 h-6" />
+          </div>
+          <p className="text-xl font-black text-red-500 truncate w-full">{formatCurrency(stats?.totalExpenses || 0)}</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">مصروفات العائلة</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Users Management */}
+        <div className="glass-card overflow-hidden flex flex-col">
+          <div className="px-6 py-5 border-b border-white/5 bg-white/5 flex items-center gap-3">
+            <UserCog className="w-5 h-5 text-indigo-400" />
+            <h3 className="font-bold text-white">المستخدمين الحاليين</h3>
+          </div>
+          <div className="p-6">
             {users.length === 0 ? (
-              <div className="text-center py-[24px] text-slate-500 text-[14px]">لا يوجد مستخدمين</div>
+              <div className="text-center py-12 text-slate-500 text-sm font-medium">لا يوجد مستخدمين</div>
             ) : (
-              users.map(u => (
-                <div key={u.id} className="flex justify-between items-center p-[12px] bg-[#242444] border border-[#2d2d5e] rounded-[8px]">
-                  <div>
-                    <h4 className="font-bold text-white text-[14px] flex items-center gap-[8px]">
-                      {u.name}
-                      {u.role === 'admin' && (
-                        <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-[8px] py-[2px] rounded-full">مدير</span>
-                      )}
-                    </h4>
-                    <p className="text-[12px] text-slate-400 mt-[2px]">{u.email}</p>
-                  </div>
-                  {u.id !== user?.id && (
-                    <div className="flex gap-[4px]">
-                      <button 
-                        onClick={() => handleToggleRole(u.id, u.name, u.role)}
-                        className={`px-[8px] py-[4px] rounded-[6px] text-[11px] font-semibold transition-colors ${
-                          u.role === 'admin' 
-                            ? 'bg-[#2d2d5e] text-slate-300 hover:bg-[#3d3d7e] hover:text-white' 
-                            : 'bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500 hover:text-white'
-                        }`}
-                      >
-                        {u.role === 'admin' ? 'عزله من الإدارة' : 'ترقية لمدير'}
-                      </button>
-                      {u.role !== 'admin' && (
-                        <button 
-                          onClick={() => handleDeleteUser(u.id, u.name)}
-                          className="p-[6px] text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-[6px] transition-colors"
-                          title="حذف المستخدم"
-                        >
-                          <Trash2 className="w-[14px] h-[14px]" />
-                        </button>
-                      )}
+              <div className="space-y-4">
+                {users.map(u => (
+                  <div key={u.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/10">
+                        {u.avatar && !u.avatar.startsWith('RESET:') ? (
+                          <img src={u.avatar} className="w-full h-full rounded-full object-cover" alt="" />
+                        ) : u.name.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-white text-sm">{u.name}</h4>
+                          {u.role === 'admin' && (
+                            <span className="text-[9px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20">مدير</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium">{u.email}</p>
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))
+                    {u.id !== user?.id && (
+                      <div className="flex items-center gap-2 pr-1 sm:pr-0">
+                        <Button 
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleToggleRole(u.id, u.name, u.role)}
+                          className={cn(
+                            "h-8 text-[11px] font-bold px-4 rounded-lg flex-1 sm:flex-none",
+                            u.role === 'admin' ? "bg-slate-800 text-slate-400 hover:bg-slate-700" : "bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white"
+                          )}
+                        >
+                          {u.role === 'admin' ? 'عزله' : 'ترقية'}
+                        </Button>
+                        {u.role !== 'admin' && (
+                          <Button 
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleDeleteUser(u.id, u.name)}
+                            className="h-8 w-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
 
         {/* Pending Requests */}
-        <div className="bg-[#1a1a35] border border-[#2d2d5e] rounded-[12px] overflow-hidden">
-          <div className="p-[16px] border-b border-[#2d2d5e] bg-[#242444]/50 flex items-center gap-[8px]">
-            <Users className="w-[20px] h-[20px] text-amber-400" />
-            <h3 className="font-bold text-white text-[18px]">طلبات التسجيل المعلقة</h3>
+        <div className="glass-card overflow-hidden flex flex-col">
+          <div className="px-6 py-5 border-b border-white/5 bg-white/5 flex items-center gap-3">
+            <Users className="w-5 h-5 text-amber-400" />
+            <h3 className="font-bold text-white">طلبات التسجيل المعلقة</h3>
           </div>
-          <div className="p-[16px] flex flex-col gap-[12px]">
+          <div className="p-6">
             {pendingRequests.length === 0 ? (
-              <div className="text-center py-[24px] text-slate-500 text-[14px]">لا توجد طلبات معلقة</div>
+              <div className="text-center py-12 text-slate-500 text-sm font-medium">لا توجد طلبات معلقة</div>
             ) : (
-              pendingRequests.map(req => (
-                <div key={req.id} className="p-[12px] bg-[#242444] border border-[#2d2d5e] rounded-[8px] flex flex-col gap-[12px]">
-                  <div>
-                    <h4 className="font-bold text-white text-[14px]">{req.name}</h4>
-                    <p className="text-[12px] text-slate-400">{req.email}</p>
-                    <p className="text-[11px] text-slate-500 mt-[4px]">{new Date(req.createdAt).toLocaleDateString('ar-EG')}</p>
+              <div className="space-y-4">
+                {pendingRequests.map(req => (
+                  <div key={req.id} className="p-5 rounded-2xl bg-white/5 border border-white/5 flex flex-col gap-4 animate-fade-in">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+                        {req.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">{req.name}</h4>
+                        <p className="text-xs text-slate-500 font-medium">{req.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button 
+                        onClick={() => handleApprove(req.id)}
+                        className="flex-1 h-10 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white font-bold text-xs rounded-xl transition-all border-0"
+                      >
+                        <Check className="w-4 h-4 ml-1.5" />
+                        قبول
+                      </Button>
+                      <Button 
+                        onClick={() => handleReject(req.id)}
+                        className="flex-1 h-10 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold text-xs rounded-xl transition-all border-0"
+                      >
+                        <X className="w-4 h-4 ml-1.5" />
+                        رفض
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-[8px]">
-                    <button 
-                      onClick={() => handleApprove(req.id)}
-                      className="flex-1 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white py-[6px] rounded-[6px] text-[12px] font-semibold flex items-center justify-center gap-[4px] transition-colors"
-                    >
-                      <Check className="w-[14px] h-[14px]" />
-                      قبول
-                    </button>
-                    <button 
-                      onClick={() => handleReject(req.id)}
-                      className="flex-1 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white py-[6px] rounded-[6px] text-[12px] font-semibold flex items-center justify-center gap-[4px] transition-colors"
-                    >
-                      <X className="w-[14px] h-[14px]" />
-                      رفض
-                    </button>
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </div>
@@ -282,24 +311,25 @@ function AdminPage(): React.ReactNode {
 
       {/* Active Reset Codes */}
       {resetCodes.length > 0 && (
-        <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-[12px] overflow-hidden mt-[24px]">
-          <div className="p-[16px] border-b border-indigo-500/30 bg-indigo-500/20 flex items-center gap-[8px]">
-            <Key className="w-[20px] h-[20px] text-indigo-400" />
-            <h3 className="font-bold text-white text-[18px]">أكواد استعادة كلمة المرور النشطة</h3>
+        <div className="glass-card overflow-hidden border-indigo-500/20">
+          <div className="px-6 py-5 border-b border-indigo-500/20 bg-indigo-500/5 flex items-center gap-3">
+            <Key className="w-5 h-5 text-indigo-400" />
+            <h3 className="font-bold text-white">أكواد استعادة كلمة المرور النشطة</h3>
           </div>
-          <div className="p-[16px] grid sm:grid-cols-2 md:grid-cols-3 gap-[16px]">
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {resetCodes.map(rc => (
-              <div key={rc.id} className="p-[16px] bg-[#1a1a35] border border-indigo-500/20 rounded-[8px] flex flex-col gap-[8px]">
+              <div key={rc.id} className="p-5 bg-white/5 border border-indigo-500/10 rounded-2xl flex flex-col gap-4">
                 <div>
-                  <h4 className="font-bold text-white text-[14px]">{rc.name}</h4>
-                  <p className="text-[12px] text-slate-400">{rc.email}</p>
+                  <h4 className="font-bold text-white text-sm">{rc.name}</h4>
+                  <p className="text-xs text-slate-500 font-medium">{rc.email}</p>
                 </div>
-                <div className="flex items-center justify-between mt-[4px]">
-                  <div className="text-[20px] font-mono font-bold text-indigo-400 tracking-wider bg-indigo-500/10 px-[12px] py-[4px] rounded-[6px]">
+                <div className="flex items-center justify-between mt-auto">
+                  <div className="text-2xl font-black text-indigo-400 tabular-nums tracking-[0.2em] bg-indigo-500/10 px-4 py-2 rounded-xl border border-indigo-500/10 shadow-inner">
                     {rc.code}
                   </div>
-                  <div className="text-[11px] text-slate-500 text-left">
-                    تنتهي {new Date(rc.expiresAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
+                  <div className="text-[10px] font-bold text-slate-500 text-left leading-tight">
+                    ينتهي <br />
+                    <span className="text-slate-400 font-black">{new Date(rc.expiresAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
               </div>
@@ -309,26 +339,31 @@ function AdminPage(): React.ReactNode {
       )}
 
       {/* Past Requests */}
-      <div className="bg-[#1a1a35] border border-[#2d2d5e] rounded-[12px] overflow-hidden mt-[24px]">
-        <div className="p-[16px] border-b border-[#2d2d5e] bg-[#242444]/50">
-          <h3 className="font-bold text-white text-[18px]">سجل الطلبات السابقة</h3>
+      <div className="glass-card overflow-hidden">
+        <div className="px-6 py-5 border-b border-white/5 bg-white/5">
+          <h3 className="font-bold text-white">سجل الطلبات السابقة</h3>
         </div>
-        <div className="p-[16px]">
+        <div className="p-6">
           {pastRequests.length === 0 ? (
-            <div className="text-center py-[24px] text-slate-500 text-[14px]">لا يوجد سجل</div>
+            <div className="text-center py-12 text-slate-500 text-sm font-medium">لا يوجد سجل</div>
           ) : (
-            <div className="flex flex-col gap-[8px]">
+            <div className="space-y-3">
               {pastRequests.slice(0, 5).map(req => (
-                <div key={req.id} className="flex justify-between items-center p-[12px] bg-[#242444] rounded-[8px]">
-                  <div>
-                    <span className="text-white text-[14px] font-medium">{req.name}</span>
-                    <span className="text-slate-400 text-[12px] mr-[8px]">({req.email})</span>
+                <div key={req.id} className="flex justify-between items-center p-4 rounded-xl bg-white/5 border border-white/5 group hover:border-white/10 transition-all">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
+                    <span className="text-white text-sm font-bold">{req.name}</span>
+                    <span className="text-slate-500 text-xs font-medium tracking-tight">({req.email})</span>
                   </div>
-                  <span className={`text-[11px] px-[10px] py-[4px] rounded-full font-semibold ${
-                    req.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
-                  }`}>
-                    {req.status === 'approved' ? 'مقبول' : 'مرفوض'}
-                  </span>
+                  <div className={cn(
+                    "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5",
+                    req.status === 'approved' ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
+                  )}>
+                    {req.status === 'approved' ? (
+                      <><Check className="w-3 h-3" /> مقبول</>
+                    ) : (
+                      <><X className="w-3 h-3" /> مرفوض</>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -338,21 +373,29 @@ function AdminPage(): React.ReactNode {
 
       {/* Professional Confirmation Modal */}
       <Dialog open={confirmDialog.isOpen} onOpenChange={(isOpen) => setConfirmDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-[#2d2d5e] text-white p-0 overflow-hidden sm:max-w-[400px]" showCloseButton={false}>
-          <div className="p-6">
-            <DialogHeader className="mb-4 text-right">
-              <DialogTitle className="text-[20px] font-bold text-white flex items-center gap-2">
-                {confirmDialog.actionColor.includes('red') ? <Trash2 className="w-5 h-5 text-red-500" /> : <ShieldCheck className="w-5 h-5 text-indigo-400" />}
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-0 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none" showCloseButton={false}>
+          <div className="p-8">
+            <DialogHeader className="text-right">
+              <div className={cn(
+                "w-14 h-14 rounded-2xl flex items-center justify-center mb-6",
+                confirmDialog.actionColor.includes('red') ? "bg-red-500/10 text-red-500" : "bg-indigo-500/10 text-indigo-400"
+              )}>
+                {confirmDialog.actionColor.includes('red') ? <Trash2 className="w-7 h-7" /> : <ShieldCheck className="w-7 h-7" />}
+              </div>
+              <DialogTitle className="text-2xl font-black text-white mb-2">
                 {confirmDialog.title}
               </DialogTitle>
-              <DialogDescription className="text-slate-400 text-[14px] mt-2 leading-relaxed">
+              <DialogDescription className="text-slate-400 text-base font-medium leading-relaxed">
                 {confirmDialog.description}
               </DialogDescription>
             </DialogHeader>
           </div>
-          <DialogFooter className="bg-[#242444]/50 border-t border-[#2d2d5e] p-4 flex gap-3 sm:justify-start flex-row-reverse">
+          <div className="bg-white/5 border-t border-white/5 p-6 flex flex-col sm:flex-row-reverse gap-3">
             <Button 
-              className={`flex-1 font-semibold ${confirmDialog.actionColor} text-white border-0`} 
+              className={cn(
+                "flex-1 h-14 font-black rounded-2xl text-white border-0 shadow-lg transition-all active:scale-[0.98]",
+                confirmDialog.actionColor
+              )} 
               onClick={() => {
                 confirmDialog.onConfirm();
                 setConfirmDialog(prev => ({ ...prev, isOpen: false }));
@@ -362,12 +405,12 @@ function AdminPage(): React.ReactNode {
             </Button>
             <Button 
               variant="outline" 
-              className="flex-1 border-[#2d2d5e] bg-transparent text-slate-300 hover:text-white hover:bg-[#2d2d5e]" 
+              className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all" 
               onClick={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
             >
               إلغاء
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

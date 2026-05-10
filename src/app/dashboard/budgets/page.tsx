@@ -1,132 +1,312 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { budgetsApi, Budget, formatCurrency, getCategoryInfo, EXPENSE_CATEGORIES } from '@/lib/api';
-import { Plus, Trash2 } from 'lucide-react';
+import { budgetsApi, adminApi, Budget, User, formatCurrency, getCategoryInfo, EXPENSE_CATEGORIES } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { Plus, Trash2, Users, Loader2, Target, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export default function BudgetsPage() {
+  const { user: currentUser } = useAuth();
+  const isAdmin = currentUser?.role === 'admin';
+
   const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>(currentUser?.id || '');
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  
+  // Form state
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
+  const [targetUserId, setTargetUserId] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
+  
   const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; budgetId: string; categoryName: string }>({
     isOpen: false,
     budgetId: '',
     categoryName: '',
   });
 
-  const fetchBudgets = async () => {
-    try { const data = await budgetsApi.getAll(); setBudgets(data); }
-    catch { toast.error('حدث خطأ في تحميل الميزانية'); }
-    finally { setLoading(false); }
+  const fetchUsers = async () => {
+    if (!isAdmin) return;
+    try {
+      const data = await adminApi.getUsers();
+      setUsers(data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
   };
 
-  useEffect(() => { fetchBudgets(); }, []);
+  const fetchBudgets = async () => {
+    try {
+      setLoading(true);
+      const data = await budgetsApi.getAll(undefined, undefined, selectedUserId || undefined);
+      setBudgets(data);
+    } catch {
+      toast.error('حدث خطأ في تحميل الميزانية');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser) {
+      if (isAdmin) fetchUsers();
+      setSelectedUserId(currentUser.id);
+    }
+  }, [currentUser, isAdmin]);
+
+  useEffect(() => {
+    if (selectedUserId || !isAdmin) {
+      fetchBudgets();
+    }
+  }, [selectedUserId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !category) { toast.error('جميع الحقول مطلوبة'); return; }
+    if (!amount || !category) {
+      toast.error('جميع الحقول مطلوبة');
+      return;
+    }
+    
+    // Admin must select a user if they are adding a budget
+    const finalTargetUserId = isAdmin ? (targetUserId || selectedUserId) : currentUser?.id;
+    
+    if (!finalTargetUserId) {
+      toast.error('يرجى اختيار المستخدم');
+      return;
+    }
+
     setSubmitting(true);
     try {
-      await budgetsApi.create({ category, amount: parseFloat(amount) });
-      toast.success('تم إضافة الميزانية بنجاح');
-      setOpen(false); setAmount(''); setCategory(''); fetchBudgets();
-    } catch { toast.error('حدث خطأ أثناء الإضافة'); }
-    finally { setSubmitting(false); }
+      await budgetsApi.create({ 
+        category, 
+        amount: parseFloat(amount),
+        targetUserId: finalTargetUserId
+      });
+      toast.success('تم حفظ الميزانية بنجاح');
+      setOpen(false);
+      setAmount('');
+      setCategory('');
+      fetchBudgets();
+    } catch {
+      toast.error('حدث خطأ أثناء الحفظ');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleDelete = async () => {
     if (!deleteDialog.budgetId) return;
-    try { 
-      await budgetsApi.delete(deleteDialog.budgetId); 
-      toast.success('تم حذف الميزانية بنجاح'); 
+    try {
+      await budgetsApi.delete(deleteDialog.budgetId);
+      toast.success('تم حذف الميزانية بنجاح');
       setDeleteDialog({ isOpen: false, budgetId: '', categoryName: '' });
-      fetchBudgets(); 
+      fetchBudgets();
+    } catch {
+      toast.error('حدث خطأ أثناء الحذف');
     }
-    catch { toast.error('حدث خطأ أثناء الحذف'); }
   };
 
+  if (!currentUser) return null;
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '5rem' }}>
+    <div className="flex flex-col gap-8 pb-12 animate-fade-in">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: 4 }}>الميزانية الشهرية</h2>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>حدد ميزانيتك لكل فئة وراقب إنفاقك</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-white mb-1 flex items-center gap-3">
+            <Target className="w-8 h-8 text-indigo-400" />
+            الميزانية الشهرية
+          </h2>
+          <p className="text-slate-400 text-sm sm:text-base font-medium">
+            {isAdmin ? 'إدارة الخطط المالية لأفراد العائلة' : 'راقب إنفاقك وحافظ على ميزانيتك'}
+          </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger render={
-            <Button style={{ background: '#6366f1', border: 'none', borderRadius: 10, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Cairo, sans-serif', cursor: 'pointer' }}>
-              <Plus style={{ width: 16, height: 16 }} /> إضافة ميزانية
-            </Button>
-          } />
-          <DialogContent className="sm:max-w-[425px] bg-[#1a1a35] border-slate-700 text-white">
-            <DialogHeader><DialogTitle className="text-right">إضافة ميزانية جديدة</DialogTitle></DialogHeader>
-            <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: '16px' }}>
-                <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 500 }}>الفئة</label>
-                <Select value={category} onValueChange={(val) => setCategory(val || '')}>
-                  <SelectTrigger className="bg-[#242444] border-slate-700 text-right" dir="rtl"><SelectValue placeholder="اختر الفئة" /></SelectTrigger>
-                  <SelectContent className="bg-[#242444] border-slate-700 text-white" dir="rtl">
-                    {EXPENSE_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.icon} {c.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: '24px' }}>
-                <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 500 }}>المبلغ الأقصى</label>
-                <input type="number" step="0.01" required value={amount} onChange={e => setAmount(e.target.value)} dir="ltr"
-                  style={{ background: '#242444', border: '1px solid #2d2d5e', borderRadius: 8, padding: '10px 12px', color: '#fff', fontSize: 14, fontFamily: 'Cairo, sans-serif', outline: 'none' }} />
-              </div>
-              <button type="submit" disabled={submitting || !amount || !category}
-                style={{ width: '100%', background: '#6366f1', border: 'none', borderRadius: 10, padding: '12px', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'Cairo, sans-serif', cursor: 'pointer', opacity: (submitting || !amount || !category) ? 0.6 : 1 }}>
-                {submitting ? 'جاري الحفظ...' : 'حفظ الميزانية'}
-              </button>
-            </form>
-          </DialogContent>
-        </Dialog>
+
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          {isAdmin && (
+            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+              <SelectTrigger className="w-full sm:w-[200px] bg-white/5 border-white/10 text-white rounded-xl h-11">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-indigo-400" />
+                  <SelectValue placeholder="اختر المستخدم" />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl">
+                {users.map(u => (
+                  <SelectItem key={u.id} value={u.id} className="focus:bg-indigo-500/20">
+                    {u.name} {u.id === currentUser.id ? '(أنت)' : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {isAdmin && (
+            <Dialog open={open} onOpenChange={(val) => { setOpen(val); if(val) setTargetUserId(selectedUserId); }}>
+              <DialogTrigger asChild>
+                <Button className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all">
+                  <Plus className="w-5 h-5 ml-2" />
+                  إضافة ميزانية
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none sm:max-w-[440px]">
+                <DialogHeader className="text-right">
+                  <DialogTitle className="text-2xl font-black mb-6">إضافة ميزانية جديدة</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {isAdmin && (
+                    <div className="space-y-2 text-right">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
+                      <Select value={targetUserId} onValueChange={setTargetUserId}>
+                        <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
+                          <SelectValue placeholder="اختر المستخدم" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                          {users.map(u => (
+                            <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  <div className="space-y-2 text-right">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
+                        <SelectValue placeholder="اختر الفئة" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl max-h-[300px]" dir="rtl">
+                        {EXPENSE_CATEGORIES.map(c => (
+                          <SelectItem key={c.value} value={c.value}>
+                            <span className="flex items-center gap-2">
+                              <span>{c.icon}</span>
+                              <span>{c.label}</span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2 text-right">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المبلغ الأقصى</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        required 
+                        value={amount} 
+                        onChange={e => setAmount(e.target.value)} 
+                        className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
+                        placeholder="0.00"
+                      />
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ج.م</span>
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    disabled={submitting || !amount || !category}
+                    className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
+                  >
+                    {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : 'حفظ الميزانية'}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
       </div>
 
-      {/* Grid */}
+      {/* Main Content */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>جاري التحميل...</div>
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+          <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">جاري تحميل البيانات</p>
+        </div>
       ) : budgets.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>لا توجد ميزانيات لهذا الشهر</div>
+        <div className="glass-card py-24 flex flex-col items-center justify-center text-center px-6">
+          <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-6">
+            <AlertCircle className="w-10 h-10 text-slate-600" />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">لا توجد ميزانيات محددة</h3>
+          <p className="text-slate-500 max-w-xs mx-auto">
+            {isAdmin ? 'ابدأ بإضافة ميزانية لهذا المستخدم لتتبع إنفاقه.' : 'لم يتم تحديد ميزانية لك لهذا الشهر بعد.'}
+          </p>
+        </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {budgets.map((budget) => {
             const cat = getCategoryInfo(budget.category, 'expense');
             const pct = Math.min(100, Math.round((budget.spent / budget.amount) * 100));
             const over = budget.spent > budget.amount;
-            const barColor = over ? '#ef4444' : pct > 85 ? '#f59e0b' : '#6366f1';
+            const barColor = over ? 'bg-red-500' : pct > 85 ? 'bg-amber-500' : 'bg-indigo-500';
+            
             return (
-              <div key={budget.id} className="glass-card" style={{ padding: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 42, height: 42, borderRadius: 10, background: '#242444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{cat.icon}</div>
+              <div key={budget.id} className="glass-card p-6 flex flex-col group hover:border-white/10 transition-all">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition-transform">
+                      {cat.icon}
+                    </div>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: 15, color: '#e2e8f0', marginBottom: 2 }}>{cat.label}</div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>الحد: {formatCurrency(budget.amount)}</div>
+                      <h4 className="font-bold text-white group-hover:text-indigo-400 transition-colors">{cat.label}</h4>
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-0.5">الحد: {formatCurrency(budget.amount)}</p>
                     </div>
                   </div>
-                  <button onClick={() => setDeleteDialog({ isOpen: true, budgetId: budget.id, categoryName: cat.label })} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#475569', padding: 0, flexShrink: 0 }}>
-                    <Trash2 style={{ width: 15, height: 15 }} />
-                  </button>
+                  
+                  {isAdmin && (
+                    <button 
+                      onClick={() => setDeleteDialog({ isOpen: true, budgetId: budget.id, categoryName: cat.label })}
+                      className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all active:scale-90"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
-                  <span style={{ color: '#94a3b8' }}>صُرف: <span style={{ color: over ? '#ef4444' : '#e2e8f0', fontWeight: 600 }}>{formatCurrency(budget.spent)}</span></span>
-                  <span style={{ color: '#94a3b8' }}>متبقي: <span style={{ color: over ? '#ef4444' : '#10b981', fontWeight: 600 }}>{formatCurrency(budget.remaining)}</span></span>
-                </div>
-                <div style={{ width: '100%', height: 10, background: '#1e1e3f', borderRadius: 99, overflow: 'hidden', border: '1px solid #2d2d5e' }}>
-                  <div style={{ height: '100%', width: `${pct}%`, background: barColor, borderRadius: 99, transition: 'width 0.5s ease' }} />
-                </div>
-                <div style={{ fontSize: 12, marginTop: 6, color: over ? '#ef4444' : '#64748b', textAlign: 'left' }}>
-                  {pct}%{over ? ' (تجاوز الميزانية!)' : ''}
+
+                <div className="space-y-3">
+                  <div className="flex justify-between text-xs font-bold">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-slate-500 uppercase tracking-widest text-[10px]">المصروف</span>
+                      <span className={cn("text-sm tabular-nums", over ? "text-red-500" : "text-white")}>
+                        {formatCurrency(budget.spent)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 text-left">
+                      <span className="text-slate-500 uppercase tracking-widest text-[10px]">المتبقي</span>
+                      <span className={cn("text-sm tabular-nums", over ? "text-red-500" : "text-emerald-500")}>
+                        {formatCurrency(budget.remaining)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="relative h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                    <div 
+                      className={cn("h-full rounded-full transition-all duration-1000 ease-out", barColor)}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <p className={cn("text-[10px] font-black uppercase tracking-[0.2em]", over ? "text-red-500" : "text-slate-500")}>
+                      {pct}% {over ? 'تجاوز!' : 'مستهلك'}
+                    </p>
+                    {over && (
+                      <div className="flex items-center gap-1 text-red-500 animate-pulse">
+                        <AlertCircle className="w-3 h-3" />
+                        <span className="text-[10px] font-bold">خارج الميزانية</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -136,28 +316,28 @@ export default function BudgetsPage() {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-slate-700 text-white p-0 overflow-hidden sm:max-w-[400px]">
-          <div className="p-6 text-right">
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-0 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none">
+          <div className="p-8 text-right">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
+              <Trash2 className="w-7 h-7" />
+            </div>
             <DialogHeader>
-              <DialogTitle className="text-[20px] font-bold text-white flex items-center justify-end gap-2">
-                <Trash2 className="w-5 h-5 text-red-500" />
-                حذف الميزانية
-              </DialogTitle>
+              <DialogTitle className="text-2xl font-black text-white">حذف الميزانية</DialogTitle>
             </DialogHeader>
-            <p className="text-slate-400 text-[14px] mt-4 leading-relaxed">
+            <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
               هل أنت متأكد من حذف ميزانية فئة <span className="text-white font-bold">"{deleteDialog.categoryName}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
             </p>
           </div>
-          <div className="bg-[#242444]/50 border-t border-slate-700 p-4 flex gap-3 flex-row-reverse">
+          <div className="bg-white/5 border-t border-white/5 p-6 flex flex-col sm:flex-row-reverse gap-3">
             <Button 
-              className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2" 
+              className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all" 
               onClick={handleDelete}
             >
               حذف نهائي
             </Button>
             <Button 
               variant="outline" 
-              className="flex-1 border-slate-700 bg-transparent text-slate-300 hover:text-white hover:bg-slate-700 py-2" 
+              className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all" 
               onClick={() => setDeleteDialog({ isOpen: false, budgetId: '', categoryName: '' })}
             >
               إلغاء

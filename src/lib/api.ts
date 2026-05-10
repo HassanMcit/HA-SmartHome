@@ -113,8 +113,13 @@ export const transactionsApi = {
 
 // Budgets APIs
 export const budgetsApi = {
-  getAll: (month?: number, year?: number) => {
-    const query = month && year ? `?month=${month}&year=${year}` : '';
+  getAll: (month?: number, year?: number, userId?: string) => {
+    const params = new URLSearchParams();
+    if (month) params.append('month', String(month));
+    if (year) params.append('year', String(year));
+    if (userId) params.append('userId', userId);
+    
+    const query = params.toString() ? `?${params.toString()}` : '';
     return request<Budget[]>(`/budgets${query}`);
   },
 
@@ -256,6 +261,7 @@ export interface TransactionStats {
 export interface Budget {
   id: string;
   userId: string;
+  userName?: string;
   category: string;
   amount: number;
   month: number;
@@ -269,6 +275,7 @@ export interface CreateBudgetData {
   amount: number;
   month?: number;
   year?: number;
+  targetUserId?: string;
 }
 
 export interface Saving {

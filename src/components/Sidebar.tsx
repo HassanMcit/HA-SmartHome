@@ -15,6 +15,8 @@ import {
   Home,
   ShieldCheck,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'الرئيسية' },
@@ -23,10 +25,6 @@ const navItems = [
   { href: '/dashboard/savings', icon: PiggyBank, label: 'الادخار' },
   { href: '/dashboard/bills', icon: FileText, label: 'الفواتير' },
   { href: '/dashboard/ai', icon: Sparkles, label: 'تحليل ذكي' },
-];
-
-const adminItems = [
-  { href: '/dashboard/admin', icon: ShieldCheck, label: 'لوحة المدير' },
 ];
 
 export default function Sidebar() {
@@ -39,161 +37,105 @@ export default function Sidebar() {
   };
 
   return (
-    <div style={{
-      width: 256,
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      background: '#1a1a35',
-      borderLeft: '1px solid #2d2d5e',
-      direction: 'rtl',
-      overflowY: 'auto',
-    }}>
-
+    <div className="w-64 h-full flex flex-col bg-[#1a1a35] border-l border-white/5 direction-rtl overflow-y-auto custom-scrollbar">
       {/* Logo */}
-      <div style={{ padding: '20px 24px', borderBottom: '1px solid #2d2d5e', flexShrink: 0 }}>
-        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Home style={{ width: 20, height: 20, color: '#fff' }} />
+      <div className="px-6 py-8 border-b border-white/5 flex-shrink-0">
+        <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+            <Home className="w-6 h-6 text-white" />
           </div>
-          <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>مدبّر</div>
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>إدارة المنزل</div>
+          <div className="flex flex-col">
+            <span className="text-xl font-black text-white leading-none tracking-tight">مدبّر</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">إدارة المنزل</span>
           </div>
         </Link>
       </div>
 
       {/* User info */}
-      <div style={{ padding: '16px 16px 8px' }}>
-        <div style={{ padding: '12px', borderRadius: 12, background: '#242444' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-              background: 'linear-gradient(135deg, #6366f1, #ec4899)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontWeight: 700, fontSize: 18, overflow: 'hidden'
-            }}>
-              {user?.avatar && !user.avatar.startsWith('RESET:') ? (
-                <img src={user.avatar} alt="User Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                user?.name?.charAt(0)
-              )}
+      <div className="px-4 pt-6 pb-2">
+        <div className="p-4 rounded-[20px] bg-white/5 border border-white/5 shadow-inner">
+          <div className="flex items-center gap-3">
+            <Avatar className="w-10 h-10 border border-white/10">
+              <AvatarImage src={user?.avatar && !user.avatar.startsWith('RESET:') ? user.avatar : undefined} />
+              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-pink-500 text-white font-black">
+                {user?.name?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white truncate">{user?.name}</p>
+              <p className="text-[10px] font-medium text-slate-500 truncate mt-0.5">{user?.email}</p>
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {user?.name}
-              </div>
-              <div style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 2 }}>
-                {user?.email}
-              </div>
-            </div>
-            {user?.role === 'admin' && (
-              <div style={{ fontSize: 11, padding: '2px 8px', borderRadius: 99, background: 'rgba(99,102,241,0.2)', color: '#818cf8', flexShrink: 0, fontWeight: 600 }}>
-                مدير
-              </div>
-            )}
           </div>
+          {user?.role === 'admin' && (
+            <div className="mt-3 py-1 px-3 bg-indigo-500/10 rounded-lg border border-indigo-500/20 text-center">
+              <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">مدير النظام</span>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Navigation */}
-      <nav style={{ flex: 1, padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, padding: '8px 12px 4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          القائمة
-        </div>
-
+      <nav className="flex-1 px-3 py-6 space-y-1">
+        <p className="px-4 mb-2 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">الرئيسية</p>
         {navItems.map((item) => {
           const active = isActive(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '11px 14px',
-                borderRadius: 10,
-                textDecoration: 'none',
-                fontSize: 14,
-                fontWeight: 500,
-                color: active ? '#818cf8' : '#94a3b8',
-                background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
-                borderRight: active ? '3px solid #6366f1' : '3px solid transparent',
-                transition: 'all 0.15s ease',
-                marginBottom: 2,
-              }}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group relative",
+                active 
+                  ? "bg-indigo-500/10 text-indigo-400" 
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+              )}
             >
-              <item.icon style={{ width: 18, height: 18, flexShrink: 0 }} />
+              {active && <div className="absolute right-0 top-2 bottom-2 w-1 bg-indigo-500 rounded-l-full shadow-[0_0_8px_rgba(99,102,241,0.5)]" />}
+              <item.icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", active && "text-indigo-400")} />
               <span>{item.label}</span>
             </Link>
           );
         })}
 
         {user?.role === 'admin' && (
-          <>
-            <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, padding: '16px 12px 4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-              الإدارة
-            </div>
-            {adminItems.map((item) => {
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '11px 14px',
-                    borderRadius: 10,
-                    textDecoration: 'none',
-                    fontSize: 14,
-                    fontWeight: 500,
-                    color: active ? '#fbbf24' : '#94a3b8',
-                    background: active ? 'rgba(245,158,11,0.12)' : 'transparent',
-                    borderRight: active ? '3px solid #f59e0b' : '3px solid transparent',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  <item.icon style={{ width: 18, height: 18, flexShrink: 0 }} />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </>
+          <div className="pt-6">
+            <p className="px-4 mb-2 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">الإدارة</p>
+            <Link
+              href="/dashboard/admin"
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group relative",
+                isActive('/dashboard/admin')
+                  ? "bg-amber-500/10 text-amber-500" 
+                  : "text-slate-400 hover:text-amber-500 hover:bg-amber-500/5"
+              )}
+            >
+              {isActive('/dashboard/admin') && <div className="absolute right-0 top-2 bottom-2 w-1 bg-amber-500 rounded-l-full shadow-[0_0_8px_rgba(245,158,11,0.5)]" />}
+              <ShieldCheck className="w-5 h-5 transition-transform group-hover:scale-110" />
+              <span>لوحة المدير</span>
+            </Link>
+          </div>
         )}
       </nav>
 
       {/* Bottom Actions */}
-      <div style={{ padding: '8px 12px 16px', borderTop: '1px solid #2d2d5e', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <div className="p-4 border-t border-white/5 bg-black/10">
         <Link
           href="/dashboard/settings"
-          style={{
-            display: 'flex', alignItems: 'center', gap: 12,
-            padding: '11px 14px', borderRadius: 10, textDecoration: 'none',
-            fontSize: 14, fontWeight: 500, color: '#94a3b8',
-            transition: 'all 0.15s ease',
-          }}
+          className={cn(
+            "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group mb-1",
+            isActive('/dashboard/settings') 
+              ? "bg-white/10 text-white" 
+              : "text-slate-400 hover:text-white hover:bg-white/5"
+          )}
         >
-          <Settings style={{ width: 18, height: 18 }} />
+          <Settings className="w-5 h-5 transition-transform group-hover:rotate-45" />
           <span>الإعدادات</span>
         </Link>
         <button
           onClick={logout}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-            padding: '11px 14px', borderRadius: 10, border: 'none', cursor: 'pointer',
-            fontSize: 14, fontWeight: 500, color: '#ef4444',
-            background: 'transparent', transition: 'all 0.15s ease',
-            fontFamily: 'Cairo, sans-serif',
-          }}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all group active:scale-95"
         >
-          <LogOut style={{ width: 18, height: 18 }} />
+          <LogOut className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
           <span>تسجيل الخروج</span>
         </button>
       </div>
