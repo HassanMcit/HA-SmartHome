@@ -45,7 +45,7 @@ export default function BudgetsPage() {
   const fetchBudgets = async () => {
     try {
       setLoading(true);
-      const data = await budgetsApi.getAll(undefined, undefined, selectedUserId || undefined);
+      const data = await budgetsApi.getAll(selectedUserId || undefined);
       setBudgets(data);
     } catch {
       toast.error('حدث خطأ في تحميل الميزانية');
@@ -74,7 +74,6 @@ export default function BudgetsPage() {
       return;
     }
     
-    // Admin must select a user if they are adding a budget
     const finalTargetUserId = isAdmin ? (targetUserId || selectedUserId) : currentUser?.id;
     
     if (!finalTargetUserId) {
@@ -118,21 +117,34 @@ export default function BudgetsPage() {
   return (
     <div className="flex flex-col gap-8 pb-12 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white mb-1 flex items-center gap-3">
-            <Target className="w-8 h-8 text-indigo-400" />
-            الميزانية الشهرية
-          </h2>
-          <p className="text-slate-400 text-sm sm:text-base font-medium">
-            {isAdmin ? 'إدارة الخطط المالية لأفراد العائلة' : 'راقب إنفاقك وحافظ على ميزانيتك'}
-          </p>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-black text-white mb-1 flex items-center gap-3">
+              <Target className="w-8 h-8 text-indigo-400" />
+              الميزانية الشهرية
+            </h2>
+            <p className="text-slate-400 text-sm sm:text-base font-medium">
+              {isAdmin ? 'إدارة الخطط المالية لأفراد العائلة' : 'راقب إنفاقك وحافظ على ميزانيتك'}
+            </p>
+          </div>
+
+          {isAdmin && (
+            <Button 
+              onClick={() => { setOpen(true); setTargetUserId(selectedUserId); }}
+              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+            >
+              <Plus className="w-5 h-5 ml-2" />
+              إضافة ميزانية
+            </Button>
+          )}
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-4 sm:mt-0">
-          {isAdmin && (
+        {isAdmin && (
+          <div className="w-full sm:w-[300px]">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 block mr-1">عرض ميزانية مستخدم معين</label>
             <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-              <SelectTrigger className="w-full sm:w-[200px] bg-white/5 border-white/10 text-white rounded-xl h-12 sm:h-11 shadow-inner">
+              <SelectTrigger className="w-full bg-white/5 border-white/10 text-white rounded-xl h-12 shadow-inner">
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-indigo-400" />
                   <SelectValue placeholder="اختر المستخدم" />
@@ -146,85 +158,77 @@ export default function BudgetsPage() {
                 ))}
               </SelectContent>
             </Select>
-          )}
-
-          {isAdmin && (
-            <Dialog open={open} onOpenChange={(val) => { setOpen(val); if(val) setTargetUserId(selectedUserId); }}>
-              <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all">
-                  <Plus className="w-5 h-5 ml-2" />
-                  إضافة ميزانية
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none sm:max-w-[440px]">
-                <DialogHeader className="text-right">
-                  <DialogTitle className="text-2xl font-black mb-6">إضافة ميزانية جديدة</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {isAdmin && (
-                    <div className="space-y-2 text-right">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
-                      <Select value={targetUserId} onValueChange={setTargetUserId}>
-                        <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
-                          <SelectValue placeholder="اختر المستخدم" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
-                          {users.map(u => (
-                            <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  <div className="space-y-2 text-right">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
-                    <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
-                        <SelectValue placeholder="اختر الفئة" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl max-h-[300px]" dir="rtl">
-                        {EXPENSE_CATEGORIES.map(c => (
-                          <SelectItem key={c.value} value={c.value}>
-                            <span className="flex items-center gap-2">
-                              <span>{c.icon}</span>
-                              <span>{c.label}</span>
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2 text-right">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المبلغ الأقصى</label>
-                    <div className="relative">
-                      <input 
-                        type="number" 
-                        step="0.01" 
-                        required 
-                        value={amount} 
-                        onChange={e => setAmount(e.target.value)} 
-                        className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
-                        placeholder="0.00"
-                      />
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ج.م</span>
-                    </div>
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    disabled={submitting || !amount || !category}
-                    className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
-                  >
-                    {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : 'حفظ الميزانية'}
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-          )}
-        </div>
+          </div>
+        )}
       </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none sm:max-w-[440px]">
+          <DialogHeader className="text-right">
+            <DialogTitle className="text-2xl font-black mb-6">إضافة ميزانية جديدة</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {isAdmin && (
+              <div className="space-y-2 text-right">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
+                <Select value={targetUserId} onValueChange={setTargetUserId}>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
+                    <SelectValue placeholder="اختر المستخدم" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                    {users.map(u => (
+                      <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
+                  <SelectValue placeholder="اختر الفئة" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl max-h-[300px]" dir="rtl">
+                  {EXPENSE_CATEGORIES.map(c => (
+                    <SelectItem key={c.value} value={c.value}>
+                      <span className="flex items-center gap-2">
+                        <span>{c.icon}</span>
+                        <span>{c.label}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المبلغ الأقصى</label>
+              <div className="relative">
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  required 
+                  value={amount} 
+                  onChange={e => setAmount(e.target.value)} 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
+                  placeholder="0.00"
+                />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ج.م</span>
+              </div>
+            </div>
+
+            <Button 
+              type="submit" 
+              disabled={submitting || !amount || !category}
+              className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
+            >
+              {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : 'حفظ الميزانية'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Main Content */}
       {loading ? (
