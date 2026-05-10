@@ -71,7 +71,7 @@ export default function BudgetsPage() {
             <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: '16px' }}>
                 <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 500 }}>الفئة</label>
-                <Select value={category} onValueChange={setCategory}>
+                <Select value={category} onValueChange={(val) => setCategory(val || '')}>
                   <SelectTrigger className="bg-[#242444] border-slate-700 text-right" dir="rtl"><SelectValue placeholder="اختر الفئة" /></SelectTrigger>
                   <SelectContent className="bg-[#242444] border-slate-700 text-white" dir="rtl">
                     {EXPENSE_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.icon} {c.label}</SelectItem>)}

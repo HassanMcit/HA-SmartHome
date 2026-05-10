@@ -93,7 +93,7 @@ export default function TransactionsPage() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-[13px] text-slate-300 font-medium">الفئة</label>
-                <Select value={category} onValueChange={setCategory}>
+                <Select value={category} onValueChange={(val) => setCategory(val || '')}>
                   <SelectTrigger className="bg-[#242444] border-slate-700 text-right" dir="rtl"><SelectValue placeholder="اختر الفئة" /></SelectTrigger>
                   <SelectContent className="bg-[#242444] border-slate-700 text-white" dir="rtl">
                     {cats.map(c => <SelectItem key={c.value} value={c.value}>{c.icon} {c.label}</SelectItem>)}
