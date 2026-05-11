@@ -62,16 +62,19 @@ function AdminPage(): React.ReactNode {
   }, [user, authLoading]);
 
   const handleApprove = async (id: string) => {
+    // Optimistic Update: Remove from UI immediately
+    setRequests(prev => prev.filter(r => r.id !== id));
+    
     try {
       await adminApi.approveRequest(id);
       toast.success('تمت الموافقة على الطلب بنجاح');
       
-      // Optimistically update UI or refresh data after a tiny delay
-      setTimeout(() => {
-        fetchData();
-      }, 500);
+      // Refresh all data in background to ensure sync
+      fetchData();
     } catch {
       toast.error('حدث خطأ');
+      // If error, refresh to restore state
+      fetchData();
     }
   };
 
@@ -83,12 +86,16 @@ function AdminPage(): React.ReactNode {
       actionText: 'رفض',
       actionColor: 'bg-red-500 hover:bg-red-600',
       onConfirm: async () => {
+        // Optimistic Update
+        setRequests(prev => prev.filter(r => r.id !== id));
+        
         try {
           await adminApi.rejectRequest(id);
           toast.success('تم رفض الطلب');
           fetchData();
         } catch {
           toast.error('حدث خطأ');
+          fetchData();
         }
       }
     });
