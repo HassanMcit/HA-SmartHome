@@ -203,12 +203,14 @@ input[type=number] {
 
 /* Custom Scrollbar for Dropdowns */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  margin: 8px 0; /* Keeps scrollbar away from top/bottom rounded corners */
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.3);
+  background: rgba(99, 102, 241, 0.4);
   border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.6);
+  border: 1px solid transparent;
+  background-clip: content-box;
 }
