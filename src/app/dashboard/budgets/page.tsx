@@ -49,9 +49,9 @@ export default function BudgetsPage() {
       const apiUserId = (selectedUserId === 'all' || !selectedUserId) ? undefined : selectedUserId;
       const data = await budgetsApi.getAll(apiUserId);
       setBudgets(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Fetch error:', error);
-      toast.error('حدث خطأ أثناء تحميل الميزانية');
+      toast.error(error.message || 'حدث خطأ أثناء تحميل الميزانية');
     } finally {
       setLoading(false);
     }
