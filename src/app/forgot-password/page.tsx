@@ -23,15 +23,24 @@ export default function ForgotPasswordPage() {
     if (!email) { toast.error('يرجى إدخال البريد الإلكتروني'); return; }
     setLoading(true);
     try {
-      await fetch('http://localhost:5000/api/auth/forgot-password', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${apiUrl}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      toast.success('تم الإرسال! تواصل مع المدير لمعرفة الرمز.');
+      
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.message || 'حدث خطأ في الإرسال');
+        return;
+      }
+
+      toast.success('تم الإرسال! تفقد بريدك الإلكتروني للحصول على الرمز.');
       setStep('code');
-    } catch {
-      toast.error('حدث خطأ، حاول مرة أخرى');
+    } catch (error) {
+      console.error('Request code error:', error);
+      toast.error('حدث خطأ في الاتصال بالخادم');
     } finally {
       setLoading(false);
     }
@@ -44,7 +53,8 @@ export default function ForgotPasswordPage() {
 
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/auth/reset-password', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${apiUrl}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code, newPassword }),
@@ -132,7 +142,7 @@ export default function ForgotPasswordPage() {
                 </div>
                 <h2 className="text-xl font-bold text-white">أدخل رمز التأكيد</h2>
                 <p className="text-slate-400 text-sm mt-2 leading-relaxed">
-                  تواصل مع المدير للحصول على الرمز المرسل في Terminal الخادم
+                  تفقد بريدك الإلكتروني للحصول على رمز التأكيد المكون من 6 أرقام
                 </p>
               </div>
 
