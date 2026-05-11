@@ -53,8 +53,8 @@ export default function DashboardLayout({
         
         {/* Mobile Header */}
         <header className="md:hidden sticky top-0 z-40 bg-[#1a1a35]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
               <Home className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-black gradient-text tracking-tight">مدبّر</span>

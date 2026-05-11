@@ -78,10 +78,8 @@ export default function BudgetsPage() {
       return;
     }
     
-    if (targetUserId === 'all') {
-      toast.error('يرجى اختيار مستخدم محدد');
-      return;
-    }
+    const selectedUser = users.find(u => u.id === targetUserId);
+    console.log(`[Budget Form] Attempting to save for: ${selectedUser?.name} (ID: ${targetUserId})`);
 
     setSubmitting(true);
     try {
@@ -89,8 +87,9 @@ export default function BudgetsPage() {
         category, 
         amount: parseFloat(amount),
         targetUserId: targetUserId
-      });
-      toast.success('تم حفظ الميزانية بنجاح');
+      } as any); // Casting as any to allow sending extra fields if needed
+      
+      toast.success(`تم حفظ ميزانية ${selectedUser?.name || ''} بنجاح`);
       setOpen(false);
       setAmount('');
       setCategory('');

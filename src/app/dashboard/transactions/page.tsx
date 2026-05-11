@@ -79,10 +79,8 @@ export default function TransactionsPage() {
       return;
     }
     
-    if (targetUserId === 'all') {
-      toast.error('يرجى اختيار مستخدم محدد');
-      return;
-    }
+    const selectedUser = users.find(u => u.id === targetUserId);
+    console.log(`[Transaction Form] Attempting to save for: ${selectedUser?.name} (ID: ${targetUserId})`);
 
     setSubmitting(true);
     try {
@@ -93,8 +91,9 @@ export default function TransactionsPage() {
         description, 
         date,
         targetUserId: targetUserId
-      });
-      toast.success('تم إضافة المعاملة بنجاح');
+      } as any);
+      
+      toast.success(`تم إضافة معاملة ${selectedUser?.name || ''} بنجاح`);
       setOpen(false);
       setAmount('');
       setDescription('');
