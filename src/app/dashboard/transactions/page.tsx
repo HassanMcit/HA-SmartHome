@@ -196,10 +196,10 @@ export default function TransactionsPage() {
                       </SelectTrigger>
                       <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] p-2" dir="rtl">
                         {cats.map(c => (
-                          <SelectItem key={c.value} value={c.value} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-10 pl-4">
-                            <div className="flex items-center justify-between w-full gap-4">
-                              <span className="font-bold text-sm">{c.label}</span>
-                              <span className="text-xl">{c.icon}</span>
+                          <SelectItem key={c.value} value={c.value} className="focus:bg-white/10 rounded-xl cursor-pointer py-2.5 pr-9 pl-3">
+                            <div className="flex items-center gap-3">
+                              <span className="text-lg">{c.icon}</span>
+                              <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
                             </div>
                           </SelectItem>
                         ))}
