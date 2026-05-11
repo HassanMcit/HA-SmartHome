@@ -57,7 +57,7 @@ export default function BudgetsPage() {
       setBudgets(data || []);
     } catch (error: any) {
       console.error('Fetch error:', error);
-      const msg = error.response?.data?.message || 'حدث خطأ في تحميل الميزانية';
+      const msg = error.message || 'حدث خطأ في تحميل الميزانية';
       toast.error(msg);
     } finally {
       setLoading(false);
