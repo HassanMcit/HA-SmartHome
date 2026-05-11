@@ -229,10 +229,11 @@ export default function TransactionsPage() {
                       type="date" 
                       value={date} 
                       onChange={e => setDate(e.target.value)} 
-                      className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all"
+                      onClick={(e) => e.currentTarget.showPicker?.()}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all cursor-pointer"
                       dir="ltr"
                     />
-                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                   </div>
                 </div>
 
