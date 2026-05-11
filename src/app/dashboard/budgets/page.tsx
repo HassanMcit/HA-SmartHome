@@ -33,13 +33,10 @@ export default function BudgetsPage() {
   });
 
   const fetchUsers = async () => {
+    if (!isAdmin) return;
     try {
-      if (isAdmin) {
-        const data = await adminApi.getUsers();
-        setUsers(data || []);
-      } else if (currentUser) {
-        setUsers([currentUser]);
-      }
+      const data = await adminApi.getUsers();
+      setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
@@ -66,7 +63,7 @@ export default function BudgetsPage() {
 
   useEffect(() => {
     if (currentUser) {
-      fetchUsers();
+      if (isAdmin) fetchUsers();
       setSelectedUserId(currentUser.id);
     }
   }, [currentUser, isAdmin]);
@@ -180,19 +177,7 @@ export default function BudgetsPage() {
             <DialogTitle className="text-2xl font-black mb-6">إضافة ميزانية جديدة</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2 text-right">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
-              <Select value={targetUserId} onValueChange={setTargetUserId} disabled={!isAdmin}>
-                <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
-                  <SelectValue placeholder="اختر المستخدم" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
-                  {users.map(u => (
-                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
 
             <div className="space-y-2 text-right">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
@@ -271,11 +256,6 @@ export default function BudgetsPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-bold text-white truncate max-w-[120px]">{EXPENSE_CATEGORIES.find(c => c.value === budget.category)?.label || budget.category}</h4>
-                        {isAdmin && (
-                          <span className="text-[10px] px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full font-bold">
-                            {budget.userName}
-                          </span>
-                        )}
                       </div>
                       <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">ميزانية شهرية</p>
                     </div>

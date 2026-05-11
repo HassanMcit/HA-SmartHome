@@ -36,13 +36,10 @@ export default function TransactionsPage() {
   });
 
   const fetchUsers = async () => {
+    if (!isAdmin) return;
     try {
-      if (isAdmin) {
-        const data = await adminApi.getUsers();
-        setUsers(data || []);
-      } else if (currentUser) {
-        setUsers([currentUser]);
-      }
+      const data = await adminApi.getUsers();
+      setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
@@ -141,7 +138,7 @@ export default function TransactionsPage() {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button 
-                onClick={() => setTargetUserId(selectedUserId === 'all' ? '' : selectedUserId)}
+                onClick={() => setOpen(true)}
                 className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
               >
                 <Plus className="w-5 h-5 ml-2" />
@@ -171,19 +168,7 @@ export default function TransactionsPage() {
                   ))}
                 </div>
 
-                <div className="space-y-2 text-right">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
-                  <Select value={targetUserId} onValueChange={setTargetUserId} disabled={!isAdmin}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
-                      <SelectValue placeholder="اختر المستخدم" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
-                      {users.map(u => (
-                        <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2 text-right">
@@ -316,16 +301,11 @@ export default function TransactionsPage() {
                     {cat.icon}
                   </div>
                   <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-bold text-white truncate text-sm sm:text-base">{tx.description || cat.label}</h4>
-                      {isAdmin && tx.user?.name && (
+                      {isAdmin && (
                         <span className="text-[9px] px-2 py-0.5 bg-white/5 text-slate-400 rounded-full font-bold whitespace-nowrap">
-                          {tx.user.name}
-                        </span>
-                      )}
-                      {tx.creator?.name && tx.creator.name !== tx.user?.name && (
-                        <span className="text-[9px] px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full font-bold whitespace-nowrap">
-                          بواسطة: {tx.creator.name}
+                          {users.find(u => u.id === tx.userId)?.name || 'مستخدم'}
                         </span>
                       )}
                     </div>
