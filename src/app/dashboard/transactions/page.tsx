@@ -190,17 +190,17 @@ export default function TransactionsPage() {
 
                   <div className="space-y-2 text-right">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
-                    <Select value={category} onValueChange={setCategory}>
+                    <Select value={category} onValueChange={(val) => setCategory(val || '')}>
                       <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
                         <SelectValue placeholder="اختر الفئة" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl max-h-[250px]" dir="rtl">
+                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] p-2" dir="rtl">
                         {cats.map(c => (
-                          <SelectItem key={c.value} value={c.value}>
-                            <span className="flex items-center gap-2">
-                              <span>{c.icon}</span>
-                              <span>{c.label}</span>
-                            </span>
+                          <SelectItem key={c.value} value={c.value} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 px-4">
+                            <div className="flex items-center justify-between w-full gap-4">
+                              <span className="font-bold text-sm">{c.label}</span>
+                              <span className="text-xl">{c.icon}</span>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -251,7 +251,7 @@ export default function TransactionsPage() {
         {isAdmin && (
           <div className="w-full sm:w-[300px]">
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 block mr-1">تصفية حسب المستخدم</label>
-            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+            <Select value={selectedUserId} onValueChange={(val) => setSelectedUserId(val || '')}>
               <SelectTrigger className="w-full bg-white/5 border-white/10 text-white rounded-xl h-12 shadow-inner">
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-indigo-400" />
