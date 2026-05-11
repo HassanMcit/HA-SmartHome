@@ -224,16 +224,18 @@ export default function TransactionsPage() {
 
                 <div className="space-y-2 text-right">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">التاريخ</label>
-                  <div className="relative">
+                  <div className="relative group cursor-pointer" onClick={(e) => {
+                    const input = e.currentTarget.querySelector('input');
+                    if (input) input.showPicker?.();
+                  }}>
                     <input 
                       type="date" 
                       value={date} 
                       onChange={e => setDate(e.target.value)} 
-                      onClick={(e) => e.currentTarget.showPicker?.()}
                       className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all cursor-pointer"
                       dir="ltr"
                     />
-                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-indigo-400 transition-colors pointer-events-none" />
                   </div>
                 </div>
 

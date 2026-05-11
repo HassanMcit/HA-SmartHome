@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { transactionsApi, TransactionStats, Transaction, formatCurrency } from '@/lib/api';
-import { ArrowDownRight, ArrowUpRight, Wallet, Activity, CreditCard, Loader2 } from 'lucide-react';
+import { transactionsApi, billsApi, TransactionStats, Transaction, Bill, formatCurrency } from '@/lib/api';
+import { ArrowDownRight, ArrowUpRight, Wallet, Activity, CreditCard, Loader2, AlertCircle, ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<TransactionStats | null>(null);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+  const [unpaidBills, setUnpaidBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,12 +19,14 @@ export default function DashboardPage() {
         const now = new Date();
         const m = now.getMonth() + 1;
         const y = now.getFullYear();
-        const [statsData, txData] = await Promise.all([
+        const [statsData, txData, billsData] = await Promise.all([
           transactionsApi.getStats({ month: m, year: y }),
           transactionsApi.getAll({ limit: 5 }),
+          billsApi.getAll(false), // Fetch ONLY unpaid bills
         ]);
         setStats(statsData);
         setRecentTransactions(txData);
+        setUnpaidBills(billsData);
       } catch {
         toast.error('حدث خطأ في تحميل البيانات');
       } finally {
@@ -42,6 +46,32 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8 pb-8 animate-fade-in">
+      {/* Professional Bills Alert */}
+      {unpaidBills.length > 0 && (
+        <div className="relative group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-600 opacity-90 group-hover:opacity-100 transition-opacity rounded-3xl" />
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+          <div className="relative p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4 text-white">
+              <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center animate-pulse">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <div className="text-right sm:text-left rtl:text-right">
+                <h4 className="text-lg font-black">تنبيه فواتير مستحقة!</h4>
+                <p className="text-sm font-medium opacity-90">لديك <span className="underline decoration-2 underline-offset-4">{unpaidBills.length}</span> فواتير تنتظر الدفع، بإجمالي {formatCurrency(unpaidBills.reduce((acc, b) => acc + b.amount, 0))}</p>
+              </div>
+            </div>
+            <Link 
+              href="/dashboard/bills"
+              className="px-6 py-3 bg-white text-orange-600 font-bold rounded-2xl shadow-xl hover:bg-orange-50 transition-all flex items-center gap-2 group/btn"
+            >
+              <span>سدد الآن</span>
+              <ChevronLeft className="w-4 h-4 group-hover/btn:-translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <h2 className="text-2xl sm:text-3xl font-black text-white mb-1">الرئيسية</h2>
