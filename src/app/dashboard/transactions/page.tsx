@@ -196,9 +196,10 @@ export default function TransactionsPage() {
                       </SelectTrigger>
                       <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] p-2" dir="rtl">
                         {cats.map(c => (
-                          <SelectItem key={c.value} value={c.value} className="focus:bg-white/10 rounded-xl cursor-pointer py-2.5 pr-9 pl-3">
-                            <div className="flex items-center gap-3">
-                              <span className="text-lg">{c.icon}</span>
+                          /* @ts-ignore */
+                          <SelectItem key={c.value} value={c.value} textValue={c.label} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-10 pl-3">
+                            <div className="flex items-center gap-3 w-full">
+                              <span className="text-xl shrink-0">{c.icon}</span>
                               <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
                             </div>
                           </SelectItem>
@@ -258,14 +259,14 @@ export default function TransactionsPage() {
                   <SelectValue placeholder="الكل" />
                 </div>
               </SelectTrigger>
-              <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl">
-                <SelectItem value="all">كل العائلة</SelectItem>
-                {users.map(u => (
-                  <SelectItem key={u.id} value={u.id}>
-                    {u.name} {u.id === currentUser.id ? '(أنت)' : ''}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl">
+                  <SelectItem value="all" className="font-bold text-indigo-400 focus:bg-white/10 rounded-lg">كل العائلة</SelectItem>
+                  {users.map(u => (
+                    <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
+                      {u.name} {u.id === currentUser?.id ? '(أنت)' : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
             </Select>
           </div>
         )}
