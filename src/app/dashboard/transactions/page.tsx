@@ -194,7 +194,7 @@ export default function TransactionsPage() {
                       <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
                         <SelectValue placeholder="اختر الفئة" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] p-2" dir="rtl">
+                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] py-2 pr-2 pl-3 custom-scrollbar" dir="rtl">
                         {cats.map(c => {
                           const Item = SelectItem as any;
                           return (

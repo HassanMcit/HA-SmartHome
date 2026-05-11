@@ -133,19 +133,13 @@ export default function BudgetsPage() {
             </p>
           </div>
 
-          {isAdmin && (
-            <Button 
-              onClick={() => { 
-                setOpen(true); 
-                // Default target to selected user unless it's 'all'
-                setTargetUserId(selectedUserId === 'all' ? '' : selectedUserId);
-              }}
-              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
-            >
-              <Plus className="w-5 h-5 ml-2" />
-              إضافة ميزانية
-            </Button>
-          )}
+          <Button 
+            onClick={() => setOpen(true)}
+            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+          >
+            <Plus className="w-5 h-5 ml-2" />
+            إضافة ميزانية
+          </Button>
         </div>
 
         {isAdmin && (
@@ -185,7 +179,7 @@ export default function BudgetsPage() {
                 <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
                   <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] p-2" dir="rtl">
+                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] py-2 pr-2 pl-3 custom-scrollbar" dir="rtl">
                   {EXPENSE_CATEGORIES.map(c => {
                     const Item = SelectItem as any;
                     return (
@@ -263,14 +257,12 @@ export default function BudgetsPage() {
                       <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">ميزانية شهرية</p>
                     </div>
                   </div>
-                  {isAdmin && (
-                    <button 
-                      onClick={() => setDeleteDialog({ isOpen: true, budgetId: budget.id, categoryName: budget.category })}
-                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
+                  <button 
+                    onClick={() => setDeleteDialog({ isOpen: true, budgetId: budget.id, categoryName: budget.category })}
+                    className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
 
                 <div className="space-y-3">
