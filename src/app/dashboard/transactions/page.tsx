@@ -74,8 +74,8 @@ export default function TransactionsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!amount || !category || !targetUserId) {
-      toast.error('المبلغ والفئة والمستخدم مطلوبون');
+    if (!amount || !category) {
+      toast.error('المبلغ والفئة مطلوبان');
       return;
     }
     
@@ -196,7 +196,7 @@ export default function TransactionsPage() {
                       </SelectTrigger>
                       <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] p-2" dir="rtl">
                         {cats.map(c => (
-                          <SelectItem key={c.value} value={c.value} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 px-4">
+                          <SelectItem key={c.value} value={c.value} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-10 pl-4">
                             <div className="flex items-center justify-between w-full gap-4">
                               <span className="font-bold text-sm">{c.label}</span>
                               <span className="text-xl">{c.icon}</span>
@@ -235,7 +235,7 @@ export default function TransactionsPage() {
 
                 <Button 
                   type="submit" 
-                  disabled={submitting || !amount || !category || !targetUserId}
+                  disabled={submitting || !amount || !category}
                   className={cn(
                     "w-full h-14 text-white rounded-2xl font-black text-lg shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 mt-4",
                     type === 'expense' ? "bg-red-500 hover:bg-red-600 shadow-red-500/20" : "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20"

@@ -77,8 +77,8 @@ export default function BudgetsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!amount || !category || !targetUserId) {
-      toast.error('يرجى اختيار المستخدم والفئة والمبلغ');
+    if (!amount || !category) {
+      toast.error('يرجى اختيار الفئة والمبلغ');
       return;
     }
     
@@ -187,7 +187,7 @@ export default function BudgetsPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] p-2" dir="rtl">
                   {EXPENSE_CATEGORIES.map(c => (
-                    <SelectItem key={c.value} value={c.value} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 px-4">
+                    <SelectItem key={c.value} value={c.value} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-10 pl-4">
                       <div className="flex items-center justify-between w-full gap-4">
                         <span className="font-bold text-sm">{c.label}</span>
                         <span className="text-xl">{c.icon}</span>
@@ -216,7 +216,7 @@ export default function BudgetsPage() {
 
             <Button 
               type="submit" 
-              disabled={submitting || !amount || !category || !targetUserId}
+              disabled={submitting || !amount || !category}
               className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
             >
               {submitting ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 'حفظ الميزانية'}
