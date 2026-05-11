@@ -14,8 +14,11 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const now = new Date();
+        const m = now.getMonth() + 1;
+        const y = now.getFullYear();
         const [statsData, txData] = await Promise.all([
-          transactionsApi.getStats(),
+          transactionsApi.getStats({ month: m, year: y }),
           transactionsApi.getAll({ limit: 5 }),
         ]);
         setStats(statsData);

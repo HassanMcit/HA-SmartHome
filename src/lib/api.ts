@@ -90,8 +90,12 @@ export const transactionsApi = {
     return request<Transaction[]>(`/transactions${query}`);
   },
 
-  getStats: (month?: number, year?: number) => {
-    const query = month && year ? `?month=${month}&year=${year}` : '';
+  getStats: (params?: { userId?: string; month?: number; year?: number }) => {
+    const query = params ? '?' + new URLSearchParams(
+      Object.entries(params)
+        .filter(([, v]) => v !== undefined)
+        .map(([k, v]) => [k, String(v)])
+    ).toString() : '';
     return request<TransactionStats>(`/transactions/stats${query}`);
   },
 
