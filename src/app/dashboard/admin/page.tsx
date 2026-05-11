@@ -65,7 +65,11 @@ function AdminPage(): React.ReactNode {
     try {
       await adminApi.approveRequest(id);
       toast.success('تمت الموافقة على الطلب بنجاح');
-      fetchData();
+      
+      // Optimistically update UI or refresh data after a tiny delay
+      setTimeout(() => {
+        fetchData();
+      }, 500);
     } catch {
       toast.error('حدث خطأ');
     }

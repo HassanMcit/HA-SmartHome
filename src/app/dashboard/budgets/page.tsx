@@ -134,7 +134,10 @@ export default function BudgetsPage() {
           </div>
 
           <Button 
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setTargetUserId(currentUser?.id || '');
+              setOpen(true);
+            }}
             className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
           >
             <Plus className="w-5 h-5 ml-2" />
@@ -171,6 +174,23 @@ export default function BudgetsPage() {
             <DialogTitle className="text-2xl font-black mb-6">إضافة ميزانية جديدة</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
+            {isAdmin && (
+              <div className="space-y-2 text-right">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
+                <Select value={targetUserId} onValueChange={setTargetUserId}>
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                    <SelectValue placeholder="اختر المستخدم" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                    {users.map(u => (
+                      <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
+                        {u.name} {u.id === currentUser?.id ? '(أنت)' : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
 
             <div className="space-y-2 text-right">
