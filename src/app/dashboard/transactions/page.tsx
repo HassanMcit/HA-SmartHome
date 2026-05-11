@@ -80,8 +80,19 @@ export default function TransactionsPage() {
       return;
     }
     
-    const finalTargetUserId = isAdmin ? (targetUserId || selectedUserId) : currentUser?.id;
-    console.log('[Transaction Form] Target User ID:', finalTargetUserId);
+    let finalTargetUserId = targetUserId;
+    if (!finalTargetUserId || finalTargetUserId === 'all') {
+      if (selectedUserId && selectedUserId !== 'all') {
+        finalTargetUserId = selectedUserId;
+      }
+    }
+    
+    if (!finalTargetUserId || finalTargetUserId === 'all') {
+      toast.error('يرجى اختيار المستخدم من القائمة');
+      return;
+    }
+
+    console.log('[Transaction Form] Sending for User:', finalTargetUserId);
 
     setSubmitting(true);
     try {
@@ -139,7 +150,7 @@ export default function TransactionsPage() {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button 
-                onClick={() => setTargetUserId(selectedUserId)}
+                onClick={() => setTargetUserId(selectedUserId === 'all' ? '' : selectedUserId)}
                 className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
               >
                 <Plus className="w-5 h-5 ml-2" />

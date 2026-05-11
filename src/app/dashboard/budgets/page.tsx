@@ -71,14 +71,21 @@ export default function BudgetsPage() {
       return;
     }
     
-    const finalTargetUserId = isAdmin ? (targetUserId || selectedUserId) : currentUser?.id;
-    console.log('[Budget Form] Target User ID:', finalTargetUserId);
-    console.log('Sending budget for user:', finalTargetUserId);
+    // If targetUserId is set in dialog, use it. Otherwise use selectedUserId IF it's not 'all'.
+    // If both are missing or 'all', we must ask the user to pick someone.
+    let finalTargetUserId = targetUserId;
+    if (!finalTargetUserId || finalTargetUserId === 'all') {
+      if (selectedUserId && selectedUserId !== 'all') {
+        finalTargetUserId = selectedUserId;
+      }
+    }
     
     if (!finalTargetUserId || finalTargetUserId === 'all') {
-      toast.error('يرجى اختيار المستخدم');
+      toast.error('يرجى اختيار المستخدم من القائمة');
       return;
     }
+
+    console.log('[Budget Form] Sending for User:', finalTargetUserId);
 
     setSubmitting(true);
     try {
@@ -130,7 +137,7 @@ export default function BudgetsPage() {
 
           {isAdmin && (
             <Button 
-              onClick={() => { setOpen(true); setTargetUserId(selectedUserId === 'all' ? currentUser.id : selectedUserId); }}
+              onClick={() => { setOpen(true); setTargetUserId(selectedUserId === 'all' ? '' : selectedUserId); }}
               className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
             >
               <Plus className="w-5 h-5 ml-2" />
