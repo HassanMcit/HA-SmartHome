@@ -182,19 +182,21 @@ export default function BudgetsPage() {
             <div className="space-y-2 text-right">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
               <Select value={category} onValueChange={(val) => setCategory(val || '')}>
-                <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
+                <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
                   <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] p-2" dir="rtl">
-                  {EXPENSE_CATEGORIES.map(c => (
-                    {/* @ts-ignore */}
-                    <SelectItem key={c.value} value={c.value} textValue={c.label} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-10 pl-3">
-                      <div className="flex items-center gap-3 w-full">
-                        <span className="text-xl shrink-0">{c.icon}</span>
-                        <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {EXPENSE_CATEGORIES.map(c => {
+                    const Item = SelectItem as any;
+                    return (
+                      <Item key={c.value} value={c.value} textValue={c.label} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
+                        <div className="flex items-center gap-3 w-full">
+                          <span className="text-xl shrink-0">{c.icon}</span>
+                          <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
+                        </div>
+                      </Item>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
