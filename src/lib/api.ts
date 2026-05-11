@@ -113,8 +113,13 @@ export const transactionsApi = {
 
 // Budgets APIs
 export const budgetsApi = {
-  getAll: (userId?: string) => {
-    const query = userId ? `?userId=${userId}` : '';
+  getAll: (userId?: string, month?: number, year?: number) => {
+    const params = new URLSearchParams();
+    if (userId && userId !== 'all') params.append('userId', userId);
+    if (month) params.append('month', month.toString());
+    if (year) params.append('year', year.toString());
+    
+    const query = params.toString() ? '?' + params.toString() : '';
     return request<Budget[]>(`/budgets${query}`);
   },
 

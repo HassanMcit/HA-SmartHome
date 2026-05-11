@@ -49,8 +49,10 @@ export default function BudgetsPage() {
     try {
       setLoading(true);
       // If selectedUserId is 'all', we pass undefined to get all family budgets
-      const apiUserId = (selectedUserId === 'all' || !selectedUserId) ? undefined : selectedUserId;
-      const data = await budgetsApi.getAll(apiUserId);
+      const now = new Date();
+      const m = now.getMonth() + 1;
+      const y = now.getFullYear();
+      const data = await budgetsApi.getAll(apiUserId, m, y);
       setBudgets(data || []);
     } catch (error: any) {
       console.error('Fetch error:', error);
