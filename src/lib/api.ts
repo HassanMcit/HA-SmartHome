@@ -41,10 +41,15 @@ async function request<T>(
     headers,
   });
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    throw new Error(`خطأ في قراءة بيانات الخادم (${response.status})`);
+  }
 
   if (!response.ok) {
-    throw new Error(data.message || 'حدث خطأ في الطلب');
+    throw new Error(data.message || data.error || 'حدث خطأ في الطلب');
   }
 
   return data;
