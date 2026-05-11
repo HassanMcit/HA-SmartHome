@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { budgetsApi, adminApi, Budget, User, formatCurrency, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { Plus, Target, Trash2, Users, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, Target, Trash2, Users, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -19,10 +19,13 @@ export default function BudgetsPage() {
   const [selectedUserId, setSelectedUserId] = useState<string>(currentUser?.id || '');
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  
+  // Form state
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [targetUserId, setTargetUserId] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
+
   const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; budgetId: string; categoryName: string }>({
     isOpen: false,
     budgetId: '',
@@ -33,7 +36,7 @@ export default function BudgetsPage() {
     if (!isAdmin) return;
     try {
       const data = await adminApi.getUsers();
-      setUsers(data);
+      setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
@@ -42,10 +45,13 @@ export default function BudgetsPage() {
   const fetchBudgets = async () => {
     try {
       setLoading(true);
-      const data = await budgetsApi.getAll(selectedUserId === 'all' ? undefined : (selectedUserId || undefined));
-      setBudgets(data);
-    } catch {
-      toast.error('حدث خطأ في تحميل الميزانية');
+      // If selectedUserId is 'all', we pass undefined to get all family budgets
+      const apiUserId = (selectedUserId === 'all' || !selectedUserId) ? undefined : selectedUserId;
+      const data = await budgetsApi.getAll(apiUserId);
+      setBudgets(data || []);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      toast.error('حدث خطأ أثناء تحميل الميزانية');
     } finally {
       setLoading(false);
     }
@@ -59,48 +65,38 @@ export default function BudgetsPage() {
   }, [currentUser, isAdmin]);
 
   useEffect(() => {
-    if (selectedUserId || !isAdmin) {
+    if (selectedUserId) {
       fetchBudgets();
     }
   }, [selectedUserId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !category) {
-      toast.error('جميع الحقول مطلوبة');
+    
+    if (!amount || !category || !targetUserId) {
+      toast.error('يرجى اختيار المستخدم والفئة والمبلغ');
       return;
     }
     
-    // If targetUserId is set in dialog, use it. Otherwise use selectedUserId IF it's not 'all'.
-    // If both are missing or 'all', we must ask the user to pick someone.
-    let finalTargetUserId = targetUserId;
-    if (!finalTargetUserId || finalTargetUserId === 'all') {
-      if (selectedUserId && selectedUserId !== 'all') {
-        finalTargetUserId = selectedUserId;
-      }
-    }
-    
-    if (!finalTargetUserId || finalTargetUserId === 'all') {
-      toast.error('يرجى اختيار المستخدم من القائمة');
+    if (targetUserId === 'all') {
+      toast.error('يرجى اختيار مستخدم محدد');
       return;
     }
-
-    console.log('[Budget Form] Sending for User:', finalTargetUserId);
 
     setSubmitting(true);
     try {
       await budgetsApi.create({ 
         category, 
         amount: parseFloat(amount),
-        targetUserId: finalTargetUserId
+        targetUserId: targetUserId
       });
       toast.success('تم حفظ الميزانية بنجاح');
       setOpen(false);
       setAmount('');
       setCategory('');
       fetchBudgets();
-    } catch {
-      toast.error('حدث خطأ أثناء الحفظ');
+    } catch (error: any) {
+      toast.error(error.message || 'حدث خطأ أثناء حفظ الميزانية');
     } finally {
       setSubmitting(false);
     }
@@ -122,7 +118,6 @@ export default function BudgetsPage() {
 
   return (
     <div className="flex flex-col gap-8 pb-12 animate-fade-in">
-      {/* Header */}
       <div className="flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
           <div>
@@ -137,7 +132,11 @@ export default function BudgetsPage() {
 
           {isAdmin && (
             <Button 
-              onClick={() => { setOpen(true); setTargetUserId(selectedUserId === 'all' ? '' : selectedUserId); }}
+              onClick={() => { 
+                setOpen(true); 
+                // Default target to selected user unless it's 'all'
+                setTargetUserId(selectedUserId === 'all' ? '' : selectedUserId);
+              }}
               className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
             >
               <Plus className="w-5 h-5 ml-2" />
@@ -148,7 +147,7 @@ export default function BudgetsPage() {
 
         {isAdmin && (
           <div className="w-full sm:w-[300px]">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 block mr-1">عرض ميزانية مستخدم معين</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 block mr-1">تصفية حسب المستخدم</label>
             <Select value={selectedUserId} onValueChange={setSelectedUserId}>
               <SelectTrigger className="w-full bg-white/5 border-white/10 text-white rounded-xl h-12 shadow-inner">
                 <div className="flex items-center gap-2">
@@ -157,9 +156,9 @@ export default function BudgetsPage() {
                 </div>
               </SelectTrigger>
               <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl">
-                <SelectItem value="all" className="focus:bg-indigo-500/20 font-bold text-indigo-400">كل العائلة</SelectItem>
+                <SelectItem value="all" className="font-bold text-indigo-400">كل العائلة</SelectItem>
                 {users.map(u => (
-                  <SelectItem key={u.id} value={u.id} className="focus:bg-indigo-500/20">
+                  <SelectItem key={u.id} value={u.id}>
                     {u.name} {u.id === currentUser.id ? '(أنت)' : ''}
                   </SelectItem>
                 ))}
@@ -175,21 +174,19 @@ export default function BudgetsPage() {
             <DialogTitle className="text-2xl font-black mb-6">إضافة ميزانية جديدة</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {isAdmin && (
-              <div className="space-y-2 text-right">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
-                <Select value={targetUserId} onValueChange={setTargetUserId}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
-                    <SelectValue placeholder="اختر المستخدم" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
-                    {users.map(u => (
-                      <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
+              <Select value={targetUserId} onValueChange={setTargetUserId}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
+                  <SelectValue placeholder="اختر المستخدم" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                  {users.map(u => (
+                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             <div className="space-y-2 text-right">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
@@ -228,10 +225,10 @@ export default function BudgetsPage() {
 
             <Button 
               type="submit" 
-              disabled={submitting || !amount || !category}
+              disabled={submitting || !amount || !category || !targetUserId}
               className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
             >
-              {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : 'حفظ الميزانية'}
+              {submitting ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 'حفظ الميزانية'}
             </Button>
           </form>
         </DialogContent>
@@ -267,10 +264,10 @@ export default function BudgetsPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-bold text-white">{EXPENSE_CATEGORIES.find(c => c.value === budget.category)?.label || budget.category}</h4>
+                        <h4 className="font-bold text-white truncate max-w-[120px]">{EXPENSE_CATEGORIES.find(c => c.value === budget.category)?.label || budget.category}</h4>
                         {isAdmin && (
                           <span className="text-[10px] px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full font-bold">
-                            {budget.userName || 'مستخدم'}
+                            {budget.userName}
                           </span>
                         )}
                       </div>
@@ -330,10 +327,10 @@ export default function BudgetsPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation */}
       <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-0 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none">
-          <div className="p-8 text-right">
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-8 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none">
+          <div className="text-right">
             <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
               <Trash2 className="w-7 h-7" />
             </div>
@@ -343,21 +340,21 @@ export default function BudgetsPage() {
             <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
               هل أنت متأكد من حذف ميزانية <span className="text-white font-bold">"{EXPENSE_CATEGORIES.find(c => c.value === deleteDialog.categoryName)?.label || deleteDialog.categoryName}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
             </p>
-          </div>
-          <div className="bg-white/5 border-t border-white/5 p-6 flex flex-col sm:flex-row-reverse gap-3">
-            <Button 
-              className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all" 
-              onClick={handleDelete}
-            >
-              حذف نهائي
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all" 
-              onClick={() => setDeleteDialog({ isOpen: false, budgetId: '', categoryName: '' })}
-            >
-              إلغاء
-            </Button>
+            <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
+              <Button 
+                className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all" 
+                onClick={handleDelete}
+              >
+                حذف نهائي
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all" 
+                onClick={() => setDeleteDialog({ isOpen: false, budgetId: '', categoryName: '' })}
+              >
+                إلغاء
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

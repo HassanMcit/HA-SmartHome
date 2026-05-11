@@ -39,7 +39,7 @@ export default function TransactionsPage() {
     if (!isAdmin) return;
     try {
       const data = await adminApi.getUsers();
-      setUsers(data);
+      setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
@@ -48,13 +48,9 @@ export default function TransactionsPage() {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const data = await transactionsApi.getAll();
-      
-      const filtered = (isAdmin && selectedUserId && selectedUserId !== 'all') 
-        ? data.filter(t => t.userId === selectedUserId)
-        : data;
-
-      setTransactions(filtered);
+      const apiUserId = (selectedUserId === 'all' || !selectedUserId) ? undefined : selectedUserId;
+      const data = await transactionsApi.getAll(apiUserId);
+      setTransactions(data || []);
     } catch {
       toast.error('حدث خطأ في تحميل المعاملات');
     } finally {
@@ -70,29 +66,23 @@ export default function TransactionsPage() {
   }, [currentUser, isAdmin]);
 
   useEffect(() => {
-    fetchTransactions();
+    if (selectedUserId) {
+      fetchTransactions();
+    }
   }, [selectedUserId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !category) {
-      toast.error('المبلغ والفئة مطلوبان');
+    
+    if (!amount || !category || !targetUserId) {
+      toast.error('المبلغ والفئة والمستخدم مطلوبون');
       return;
     }
     
-    let finalTargetUserId = targetUserId;
-    if (!finalTargetUserId || finalTargetUserId === 'all') {
-      if (selectedUserId && selectedUserId !== 'all') {
-        finalTargetUserId = selectedUserId;
-      }
-    }
-    
-    if (!finalTargetUserId || finalTargetUserId === 'all') {
-      toast.error('يرجى اختيار المستخدم من القائمة');
+    if (targetUserId === 'all') {
+      toast.error('يرجى اختيار مستخدم محدد');
       return;
     }
-
-    console.log('[Transaction Form] Sending for User:', finalTargetUserId);
 
     setSubmitting(true);
     try {
@@ -102,7 +92,7 @@ export default function TransactionsPage() {
         category, 
         description, 
         date,
-        targetUserId: finalTargetUserId
+        targetUserId: targetUserId
       });
       toast.success('تم إضافة المعاملة بنجاح');
       setOpen(false);
@@ -111,8 +101,8 @@ export default function TransactionsPage() {
       setCategory('');
       setDate(new Date().toISOString().split('T')[0]);
       fetchTransactions();
-    } catch {
-      toast.error('حدث خطأ أثناء الإضافة');
+    } catch (error: any) {
+      toast.error(error.message || 'حدث خطأ أثناء الإضافة');
     } finally {
       setSubmitting(false);
     }
@@ -136,7 +126,6 @@ export default function TransactionsPage() {
 
   return (
     <div className="flex flex-col gap-8 pb-12 animate-fade-in">
-      {/* Header */}
       <div className="flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
           <div>
@@ -180,25 +169,23 @@ export default function TransactionsPage() {
                   ))}
                 </div>
 
-                {isAdmin && (
-                  <div className="space-y-2 text-right">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
-                    <Select value={targetUserId} onValueChange={setTargetUserId}>
-                      <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
-                        <SelectValue placeholder="اختر المستخدم" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
-                        {users.map(u => (
-                          <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
+                  <Select value={targetUserId} onValueChange={setTargetUserId}>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
+                      <SelectValue placeholder="اختر المستخدم" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                      {users.map(u => (
+                        <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2 text-right">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">المبلغ</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المبلغ</label>
                     <div className="relative">
                       <input 
                         type="number" 
@@ -215,7 +202,7 @@ export default function TransactionsPage() {
                   </div>
 
                   <div className="space-y-2 text-right">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
                     <Select value={category} onValueChange={setCategory}>
                       <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
                         <SelectValue placeholder="اختر الفئة" />
@@ -235,7 +222,7 @@ export default function TransactionsPage() {
                 </div>
 
                 <div className="space-y-2 text-right">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">الوصف</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الوصف</label>
                   <input 
                     type="text" 
                     value={description} 
@@ -246,7 +233,7 @@ export default function TransactionsPage() {
                 </div>
 
                 <div className="space-y-2 text-right">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">التاريخ</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">التاريخ</label>
                   <div className="relative">
                     <input 
                       type="date" 
@@ -261,7 +248,7 @@ export default function TransactionsPage() {
 
                 <Button 
                   type="submit" 
-                  disabled={submitting || !amount || !category}
+                  disabled={submitting || !amount || !category || !targetUserId}
                   className={cn(
                     "w-full h-14 text-white rounded-2xl font-black text-lg shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 mt-4",
                     type === 'expense' ? "bg-red-500 hover:bg-red-600 shadow-red-500/20" : "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20"
@@ -370,10 +357,10 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation */}
       <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-0 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none">
-          <div className="p-8 text-right">
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-8 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none">
+          <div className="text-right">
             <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
               <Trash2 className="w-7 h-7" />
             </div>
@@ -383,21 +370,21 @@ export default function TransactionsPage() {
             <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
               هل أنت متأكد من حذف معاملة <span className="text-white font-bold">"{deleteDialog.description}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
             </p>
-          </div>
-          <div className="bg-white/5 border-t border-white/5 p-6 flex flex-col sm:flex-row-reverse gap-3">
-            <Button 
-              className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all" 
-              onClick={handleDelete}
-            >
-              حذف نهائي
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all" 
-              onClick={() => setDeleteDialog({ isOpen: false, transactionId: '', description: '' })}
-            >
-              إلغاء
-            </Button>
+            <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
+              <Button 
+                className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all" 
+                onClick={handleDelete}
+              >
+                حذف نهائي
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all" 
+                onClick={() => setDeleteDialog({ isOpen: false, transactionId: '', description: '' })}
+              >
+                إلغاء
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
