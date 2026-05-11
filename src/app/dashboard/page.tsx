@@ -111,7 +111,14 @@ export default function DashboardPage() {
                         {tx.type === 'income' ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                       </div>
                       <div>
-                        <p className="text-sm sm:text-base font-bold text-slate-100 mb-0.5 line-clamp-1">{tx.description || tx.category}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm sm:text-base font-bold text-slate-100 mb-0.5 line-clamp-1">{tx.description || tx.category}</p>
+                          {tx.creator?.name && (
+                            <span className="text-[8px] px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-md font-bold whitespace-nowrap">
+                              بواسطة: {tx.creator.name}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-slate-500 font-medium">{new Date(tx.date).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })}</p>
                       </div>
                     </div>

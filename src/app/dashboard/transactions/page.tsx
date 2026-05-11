@@ -36,10 +36,13 @@ export default function TransactionsPage() {
   });
 
   const fetchUsers = async () => {
-    if (!isAdmin) return;
     try {
-      const data = await adminApi.getUsers();
-      setUsers(data || []);
+      if (isAdmin) {
+        const data = await adminApi.getUsers();
+        setUsers(data || []);
+      } else if (currentUser) {
+        setUsers([currentUser]);
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
     }
@@ -49,7 +52,7 @@ export default function TransactionsPage() {
     try {
       setLoading(true);
       const apiUserId = (selectedUserId === 'all' || !selectedUserId) ? undefined : selectedUserId;
-      const data = await transactionsApi.getAll(apiUserId);
+      const data = await transactionsApi.getAll({ userId: apiUserId });
       setTransactions(data || []);
     } catch {
       toast.error('حدث خطأ في تحميل المعاملات');
@@ -60,7 +63,7 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     if (currentUser) {
-      if (isAdmin) fetchUsers();
+      fetchUsers();
       setSelectedUserId(currentUser.id);
     }
   }, [currentUser, isAdmin]);
@@ -170,7 +173,7 @@ export default function TransactionsPage() {
 
                 <div className="space-y-2 text-right">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
-                  <Select value={targetUserId} onValueChange={setTargetUserId}>
+                  <Select value={targetUserId} onValueChange={setTargetUserId} disabled={!isAdmin}>
                     <SelectTrigger className="bg-white/5 border-white/10 text-right h-12 rounded-xl" dir="rtl">
                       <SelectValue placeholder="اختر المستخدم" />
                     </SelectTrigger>
@@ -313,11 +316,16 @@ export default function TransactionsPage() {
                     {cat.icon}
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
                       <h4 className="font-bold text-white truncate text-sm sm:text-base">{tx.description || cat.label}</h4>
-                      {isAdmin && (
+                      {isAdmin && tx.user?.name && (
                         <span className="text-[9px] px-2 py-0.5 bg-white/5 text-slate-400 rounded-full font-bold whitespace-nowrap">
-                          {users.find(u => u.id === tx.userId)?.name || 'مستخدم'}
+                          {tx.user.name}
+                        </span>
+                      )}
+                      {tx.creator?.name && tx.creator.name !== tx.user?.name && (
+                        <span className="text-[9px] px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full font-bold whitespace-nowrap">
+                          بواسطة: {tx.creator.name}
                         </span>
                       )}
                     </div>

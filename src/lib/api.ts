@@ -81,7 +81,7 @@ export const authApi = {
 
 // Transactions APIs
 export const transactionsApi = {
-  getAll: (params?: { type?: string; category?: string; month?: number; year?: number; limit?: number }) => {
+  getAll: (params?: { userId?: string; type?: string; category?: string; month?: number; year?: number; limit?: number }) => {
     const query = params ? '?' + new URLSearchParams(
       Object.entries(params)
         .filter(([, v]) => v !== undefined)
@@ -234,6 +234,8 @@ export interface Transaction {
   description?: string;
   date: string;
   createdAt: string;
+  creator?: { name: string };
+  user?: { name: string };
 }
 
 export interface CreateTransactionData {
