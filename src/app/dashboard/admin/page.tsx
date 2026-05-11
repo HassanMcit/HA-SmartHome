@@ -62,8 +62,8 @@ function AdminPage(): React.ReactNode {
   }, [user, authLoading]);
 
   const handleApprove = async (id: string) => {
-    // Optimistic Update: Remove from UI immediately
-    setRequests(prev => prev.filter(r => r.id !== id));
+    // Optimistic Update: Move to history immediately
+    setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' } : r));
     
     try {
       await adminApi.approveRequest(id);
@@ -73,7 +73,6 @@ function AdminPage(): React.ReactNode {
       fetchData();
     } catch {
       toast.error('حدث خطأ');
-      // If error, refresh to restore state
       fetchData();
     }
   };
@@ -87,7 +86,7 @@ function AdminPage(): React.ReactNode {
       actionColor: 'bg-red-500 hover:bg-red-600',
       onConfirm: async () => {
         // Optimistic Update
-        setRequests(prev => prev.filter(r => r.id !== id));
+        setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' } : r));
         
         try {
           await adminApi.rejectRequest(id);
