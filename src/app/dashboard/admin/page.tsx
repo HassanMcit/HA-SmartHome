@@ -17,6 +17,7 @@ function AdminPage(): React.ReactNode {
   const [resetCodes, setResetCodes] = useState<any[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
   
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -62,39 +63,39 @@ function AdminPage(): React.ReactNode {
   }, [user, authLoading]);
 
   const handleApprove = async (id: string) => {
-    // Optimistic Update: Move to history immediately
-    setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' } : r));
+    if (processingId) return;
+    setProcessingId(id);
     
     try {
       await adminApi.approveRequest(id);
-      toast.success('تمت الموافقة على الطلب بنجاح');
+      toast.success('تمت الموافقة على الطلب بنجاح وإرسال بريد ترحيبي');
       
-      // Refresh all data in background to ensure sync
-      fetchData();
-    } catch {
-      toast.error('حدث خطأ');
-      fetchData();
+      // Refresh all data to update users list and requests
+      await fetchData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'حدث خطأ أثناء قبول الطلب');
+    } finally {
+      setProcessingId(null);
     }
   };
 
-  const handleReject = (id: string) => {
+  const handleReject = async (id: string) => {
     setConfirmDialog({
       isOpen: true,
       title: 'رفض الطلب',
-      description: 'هل أنت متأكد من رفض هذا الطلب؟',
-      actionText: 'رفض',
+      description: 'هل أنت متأكد من رفض هذا الطلب؟ سيتم حذف بيانات الطلب ولن يتمكن المستخدم من الدخول.',
+      actionText: 'تأكيد الرفض',
       actionColor: 'bg-red-500 hover:bg-red-600',
       onConfirm: async () => {
-        // Optimistic Update
-        setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' } : r));
-        
+        setProcessingId(id);
         try {
           await adminApi.rejectRequest(id);
-          toast.success('تم رفض الطلب');
-          fetchData();
-        } catch {
-          toast.error('حدث خطأ');
-          fetchData();
+          toast.success('تم رفض الطلب بنجاح');
+          await fetchData();
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || 'حدث خطأ أثناء رفض الطلب');
+        } finally {
+          setProcessingId(null);
         }
       }
     });
@@ -298,13 +299,21 @@ function AdminPage(): React.ReactNode {
                     <div className="flex gap-3">
                       <Button 
                         onClick={() => handleApprove(req.id)}
+                        disabled={processingId !== null}
                         className="flex-1 h-10 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white font-bold text-xs rounded-xl transition-all border-0"
                       >
-                        <Check className="w-4 h-4 ml-1.5" />
-                        قبول
+                        {processingId === req.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4 ml-1.5" />
+                            قبول
+                          </>
+                        )}
                       </Button>
                       <Button 
                         onClick={() => handleReject(req.id)}
+                        disabled={processingId !== null}
                         className="flex-1 h-10 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold text-xs rounded-xl transition-all border-0"
                       >
                         <X className="w-4 h-4 ml-1.5" />
