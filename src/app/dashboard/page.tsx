@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { transactionsApi, billsApi, TransactionStats, Transaction, Bill, formatCurrency } from '@/lib/api';
 import { ArrowDownRight, ArrowUpRight, Wallet, Activity, CreditCard, Loader2, AlertCircle, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -8,6 +9,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<TransactionStats | null>(null);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [unpaidBills, setUnpaidBills] = useState<Bill[]>([]);
@@ -27,7 +29,8 @@ export default function DashboardPage() {
         
         setStats(statsData);
         setRecentTransactions(txData);
-        setUnpaidBills(billsData);
+        // Only show unpaid bills that belong to the current user
+        setUnpaidBills(billsData.filter(b => b.userId === user?.id));
       } catch {
         toast.error('حدث خطأ في تحميل البيانات');
       } finally {

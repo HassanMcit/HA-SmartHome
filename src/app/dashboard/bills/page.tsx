@@ -160,8 +160,9 @@ export default function BillsPage() {
                   {isToggling ? <div className="w-5 h-5 border-2 border-t-transparent border-current rounded-full animate-spin" /> : (bill.isPaid ? <CheckCircle2 style={{ width: 20, height: 20 }} /> : <Circle style={{ width: 20, height: 20 }} />)}
                 </button>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4, color: bill.isPaid ? '#10b981' : '#e2e8f0', textDecoration: bill.isPaid ? 'line-through' : 'none' }}>
+                  <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4, color: bill.isPaid ? '#10b981' : '#e2e8f0', textDecoration: bill.isPaid ? 'line-through' : 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     {bill.name}
+                    {bill.user && <span style={{ fontSize: 11, background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', padding: '2px 8px', borderRadius: '10px', textDecoration: 'none' }}>{bill.user.name}</span>}
                   </div>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12 }}>
                     <span style={{ color: late ? '#ef4444' : '#64748b', display: 'flex', alignItems: 'center', gap: 4, fontWeight: late ? 600 : 400 }}>
