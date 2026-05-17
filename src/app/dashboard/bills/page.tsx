@@ -1,13 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { billsApi, Bill, formatCurrency } from '@/lib/api';
-import { Plus, Trash2, CheckCircle2, Circle, AlertCircle, Pencil } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, Circle, AlertCircle, Pencil, Users, User } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 export default function BillsPage() {
+  const { user } = useAuth();
+  const [viewMode, setViewMode] = useState<'my_bills' | 'all_users'>('my_bills');
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -97,6 +100,10 @@ export default function BillsPage() {
 
   const inputStyle = { background: '#242444', border: '1px solid #2d2d5e', borderRadius: 8, padding: '10px 12px', color: '#fff', fontSize: 14, fontFamily: 'Cairo, sans-serif', outline: 'none', width: '100%', boxSizing: 'border-box' as const };
 
+  const displayedBills = viewMode === 'my_bills' 
+    ? bills.filter(b => b.userId === user?.id)
+    : bills;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '5rem' }}>
       {/* Header */}
@@ -105,49 +112,67 @@ export default function BillsPage() {
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: 4 }}>الفواتير والالتزامات</h2>
           <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>تتبع فواتيرك ولا تفوت أي موعد استحقاق</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger render={
-            <Button style={{ background: '#f59e0b', border: 'none', borderRadius: 10, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Cairo, sans-serif', cursor: 'pointer' }}>
-              <Plus style={{ width: 16, height: 16 }} /> إضافة فاتورة
-            </Button>
-          } />
-          <DialogContent className="sm:max-w-[425px] bg-[#1a1a35] border-slate-700 text-white">
-            <DialogHeader><DialogTitle className="text-right">إضافة فاتورة جديدة</DialogTitle></DialogHeader>
-            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 500 }}>اسم الفاتورة</label>
-                <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="مثال: كهرباء، إنترنت"
-                  style={{ ...inputStyle, textAlign: 'right' }} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 500 }}>المبلغ</label>
-                <input type="number" step="0.01" required value={amount} onChange={e => setAmount(e.target.value)} dir="ltr" style={inputStyle} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 500 }}>تاريخ الاستحقاق</label>
-                <input type="date" required value={dueDate} onChange={e => setDueDate(e.target.value)} dir="ltr" style={inputStyle} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#242444', borderRadius: 10, border: '1px solid #2d2d5e' }}>
-                <label style={{ fontSize: 14, color: '#cbd5e1', fontWeight: 500, cursor: 'pointer' }}>فاتورة متكررة شهرياً؟</label>
-                <input type="checkbox" checked={isRecurring} onChange={e => setIsRecurring(e.target.checked)}
-                  style={{ width: 18, height: 18, cursor: 'pointer', accentColor: '#f59e0b' }} />
-              </div>
-              <button type="submit" disabled={submitting || !name || !amount || !dueDate}
-                style={{ background: '#f59e0b', border: 'none', borderRadius: 10, padding: '12px', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'Cairo, sans-serif', cursor: 'pointer', marginTop: 4, opacity: (submitting || !name || !amount || !dueDate) ? 0.6 : 1 }}>
-                {submitting ? 'جاري الحفظ...' : 'حفظ الفاتورة'}
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          {user?.role === 'admin' && (
+            <div style={{ display: 'flex', background: '#242444', borderRadius: '10px', padding: '4px' }}>
+              <button
+                onClick={() => setViewMode('my_bills')}
+                style={{ background: viewMode === 'my_bills' ? '#4f46e5' : 'transparent', color: viewMode === 'my_bills' ? 'white' : '#94a3b8', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s' }}
+              >
+                <User size={16} /> فواتيري
               </button>
-            </form>
-          </DialogContent>
-        </Dialog>
+              <button
+                onClick={() => setViewMode('all_users')}
+                style={{ background: viewMode === 'all_users' ? '#4f46e5' : 'transparent', color: viewMode === 'all_users' ? 'white' : '#94a3b8', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s' }}
+              >
+                <Users size={16} /> فواتير الأعضاء
+              </button>
+            </div>
+          )}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger render={
+              <Button style={{ background: '#f59e0b', border: 'none', borderRadius: 10, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Cairo, sans-serif', cursor: 'pointer' }}>
+                <Plus style={{ width: 16, height: 16 }} /> إضافة فاتورة
+              </Button>
+            } />
+            <DialogContent className="sm:max-w-[425px] bg-[#1a1a35] border-slate-700 text-white">
+              <DialogHeader><DialogTitle className="text-right">إضافة فاتورة جديدة</DialogTitle></DialogHeader>
+              <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 500 }}>اسم الفاتورة</label>
+                  <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="مثال: كهرباء، إنترنت"
+                    style={{ ...inputStyle, textAlign: 'right' }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 500 }}>المبلغ</label>
+                  <input type="number" step="0.01" required value={amount} onChange={e => setAmount(e.target.value)} dir="ltr" style={inputStyle} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 500 }}>تاريخ الاستحقاق</label>
+                  <input type="date" required value={dueDate} onChange={e => setDueDate(e.target.value)} dir="ltr" style={inputStyle} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#242444', borderRadius: 10, border: '1px solid #2d2d5e' }}>
+                  <label style={{ fontSize: 14, color: '#cbd5e1', fontWeight: 500, cursor: 'pointer' }}>فاتورة متكررة شهرياً؟</label>
+                  <input type="checkbox" checked={isRecurring} onChange={e => setIsRecurring(e.target.checked)}
+                    style={{ width: 18, height: 18, cursor: 'pointer', accentColor: '#f59e0b' }} />
+                </div>
+                <button type="submit" disabled={submitting || !name || !amount || !dueDate}
+                  style={{ background: '#f59e0b', border: 'none', borderRadius: 10, padding: '12px', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'Cairo, sans-serif', cursor: 'pointer', marginTop: 4, opacity: (submitting || !name || !amount || !dueDate) ? 0.6 : 1 }}>
+                  {submitting ? 'جاري الحفظ...' : 'حفظ الفاتورة'}
+                </button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* List */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>جاري التحميل...</div>
-        ) : bills.length === 0 ? (
+        ) : displayedBills.length === 0 ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>لا توجد فواتير حالياً</div>
-        ) : bills.map((bill) => {
+        ) : displayedBills.map((bill) => {
           const late = !bill.isPaid && new Date(bill.dueDate) < new Date();
           const isToggling = togglingId === bill.id;
           return (
