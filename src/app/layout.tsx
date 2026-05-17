@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 export const metadata: Metadata = {
   title: "مدبّر | إدارة المنزل الذكية",
   description: "تطبيق عائلي لإدارة الميزانية والمصاريف والادخار بذكاء",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
