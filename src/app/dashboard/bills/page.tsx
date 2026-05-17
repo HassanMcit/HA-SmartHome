@@ -29,6 +29,8 @@ export default function BillsPage() {
   const [editName, setEditName] = useState('');
   const [editAmount, setEditAmount] = useState('');
 
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
   const fetchBills = async () => {
     try { const data = await billsApi.getAll(); setBills(data); }
     catch { toast.error('حدث خطأ في تحميل الفواتير'); }
@@ -80,8 +82,11 @@ export default function BillsPage() {
   };
 
   const handleToggle = async (id: string) => {
+    if (togglingId) return; // Prevent double click
+    setTogglingId(id);
     try { await billsApi.toggle(id); fetchBills(); }
     catch { toast.error('حدث خطأ'); }
+    finally { setTogglingId(null); }
   };
 
   const openEdit = (bill: Bill) => {
@@ -144,17 +149,18 @@ export default function BillsPage() {
           <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>لا توجد فواتير حالياً</div>
         ) : bills.map((bill) => {
           const late = !bill.isPaid && new Date(bill.dueDate) < new Date();
+          const isToggling = togglingId === bill.id;
           return (
-            <div key={bill.id} className="glass-card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', opacity: bill.isPaid ? 0.65 : 1 }}>
+            <div key={bill.id} className="glass-card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', opacity: bill.isPaid ? 0.8 : 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <button onClick={() => handleToggle(bill.id)}
-                  style={{ width: 36, height: 36, borderRadius: '50%', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s',
+                <button onClick={() => handleToggle(bill.id)} disabled={isToggling}
+                  style={{ width: 36, height: 36, borderRadius: '50%', border: 'none', cursor: isToggling ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s',
                     background: bill.isPaid ? 'rgba(16,185,129,0.15)' : '#242444',
-                    color: bill.isPaid ? '#10b981' : '#64748b' }}>
-                  {bill.isPaid ? <CheckCircle2 style={{ width: 20, height: 20 }} /> : <Circle style={{ width: 20, height: 20 }} />}
+                    color: bill.isPaid ? '#10b981' : '#64748b', opacity: isToggling ? 0.5 : 1 }}>
+                  {isToggling ? <div className="w-5 h-5 border-2 border-t-transparent border-current rounded-full animate-spin" /> : (bill.isPaid ? <CheckCircle2 style={{ width: 20, height: 20 }} /> : <Circle style={{ width: 20, height: 20 }} />)}
                 </button>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4, color: bill.isPaid ? '#64748b' : '#e2e8f0', textDecoration: bill.isPaid ? 'line-through' : 'none' }}>
+                  <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4, color: bill.isPaid ? '#10b981' : '#e2e8f0', textDecoration: bill.isPaid ? 'line-through' : 'none' }}>
                     {bill.name}
                   </div>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12 }}>

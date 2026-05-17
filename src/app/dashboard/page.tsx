@@ -25,13 +25,9 @@ export default function DashboardPage() {
           billsApi.getAll(false), // Fetch ONLY unpaid bills
         ]);
         
-        // Only show alert for bills due this month or earlier
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-        const dueBills = billsData.filter(bill => new Date(bill.dueDate) <= endOfMonth);
-        
         setStats(statsData);
         setRecentTransactions(txData);
-        setUnpaidBills(dueBills);
+        setUnpaidBills(billsData);
       } catch {
         toast.error('حدث خطأ في تحميل البيانات');
       } finally {
