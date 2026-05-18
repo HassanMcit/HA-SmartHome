@@ -310,8 +310,11 @@ export const savingsApi = {
 
 // ─── Bills API ───────────────────────────────────────────────────────────────
 export const billsApi = {
-  getAll: (isPaid?: boolean) => {
-    const q = isPaid !== undefined ? `?isPaid=${isPaid}` : '';
+  getAll: (isPaid?: boolean, userId?: string) => {
+    const params: Record<string, string> = {};
+    if (isPaid !== undefined) params.isPaid = String(isPaid);
+    if (userId) params.userId = userId;
+    const q = Object.keys(params).length ? '?' + new URLSearchParams(params) : '';
     return request<Bill[]>(`/bills${q}`);
   },
 
