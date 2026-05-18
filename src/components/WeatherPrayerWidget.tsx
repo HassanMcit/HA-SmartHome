@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sun, Sunset, Moon, Droplets, Wind, MapPin } from 'lucide-react';
+import { Sun, Moon, Droplets, Wind, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface WeatherData {
   morningTemp: number;
   eveningTemp: number;
@@ -23,295 +22,218 @@ interface PrayerTimes {
   Isha: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-const PRAYER_NAMES: Record<string, string> = {
-  Fajr: 'الفجر',
-  Sunrise: 'الشروق',
-  Dhuhr: 'الظهر',
-  Asr: 'العصر',
-  Maghrib: 'المغرب',
-  Isha: 'العشاء',
+const PRAYERS = [
+  { key: 'Fajr',    label: 'الفجر',   icon: '🌙' },
+  { key: 'Sunrise', label: 'الشروق',  icon: '🌅' },
+  { key: 'Dhuhr',   label: 'الظهر',   icon: '☀️'  },
+  { key: 'Asr',     label: 'العصر',   icon: '🌤️' },
+  { key: 'Maghrib', label: 'المغرب',  icon: '🌆' },
+  { key: 'Isha',    label: 'العشاء',  icon: '🌃' },
+];
+
+const WMO: Record<number, { label: string; icon: string }> = {
+  0:  { label: 'صافٍ',          icon: '☀️'  },
+  1:  { label: 'صافٍ غالباً',   icon: '🌤️' },
+  2:  { label: 'غائم جزئياً',   icon: '⛅'  },
+  3:  { label: 'غائم',          icon: '☁️'  },
+  45: { label: 'ضباب',          icon: '🌫️' },
+  61: { label: 'مطر',           icon: '🌧️' },
+  80: { label: 'زخات مطر',      icon: '🌦️' },
+  95: { label: 'عاصفة رعدية',  icon: '⛈️'  },
 };
 
-const PRAYER_ICONS: Record<string, string> = {
-  Fajr: '🌙',
-  Sunrise: '🌅',
-  Dhuhr: '☀️',
-  Asr: '🌤️',
-  Maghrib: '🌆',
-  Isha: '🌃',
-};
-
-const WMO_CODES: Record<number, { label: string; icon: string }> = {
-  0: { label: 'صافٍ', icon: '☀️' },
-  1: { label: 'صافٍ غالباً', icon: '🌤️' },
-  2: { label: 'غائم جزئياً', icon: '⛅' },
-  3: { label: 'غائم', icon: '☁️' },
-  45: { label: 'ضباب', icon: '🌫️' },
-  51: { label: 'رذاذ', icon: '🌦️' },
-  61: { label: 'مطر', icon: '🌧️' },
-  71: { label: 'ثلج', icon: '❄️' },
-  80: { label: 'زخات مطر', icon: '🌦️' },
-  95: { label: 'عاصفة رعدية', icon: '⛈️' },
-};
-
-function getWeatherInfo(code?: number) {
-  if (!code && code !== 0) return { label: '—', icon: '🌡️' };
-  return WMO_CODES[code] || { label: 'متغير', icon: '🌥️' };
+function weatherInfo(code?: number) {
+  if (code === undefined) return { label: '—', icon: '🌡️' };
+  return WMO[code] ?? { label: 'متغير', icon: '🌥️' };
 }
 
-function to12hr(time24: string): string {
-  const [hStr, mStr] = time24.split(':');
-  const h = parseInt(hStr);
-  const suffix = h >= 12 ? 'م' : 'ص';
-  const h12 = h % 12 || 12;
-  return `${h12}:${mStr} ${suffix}`;
+function to12hr(t: string) {
+  const [h, m] = t.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'م' : 'ص'}`;
 }
 
-function getNextPrayer(times: PrayerTimes): string | null {
-  const order = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-  const now = new Date();
-  const nowMins = now.getHours() * 60 + now.getMinutes();
-
-  for (const key of order) {
-    const [h, m] = (times[key as keyof PrayerTimes] || '').split(':').map(Number);
-    const pMins = h * 60 + m;
-    if (pMins > nowMins) return key;
+function getNextPrayer(times: PrayerTimes) {
+  const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
+  for (const { key } of PRAYERS) {
+    const [h, m] = (times[key as keyof PrayerTimes] ?? '').split(':').map(Number);
+    if (h * 60 + m > nowMins) return key;
   }
-  return 'Fajr'; // Next day
+  return 'Fajr';
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
 export default function WeatherPrayerWidget() {
-  const [now, setNow] = useState(new Date());
+  const [now, setNow]       = useState(new Date());
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [prayers, setPrayers] = useState<PrayerTimes | null>(null);
-  const [city, setCity] = useState<string>('القاهرة');
-  const [loadingW, setLoadingW] = useState(true);
-  const [loadingP, setLoadingP] = useState(true);
+  const [city, setCity]     = useState('القاهرة');
+  const [loadingW, setLW]   = useState(true);
+  const [loadingP, setLP]   = useState(true);
 
-  // Live clock
+  // Clock — update every minute (no seconds)
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
+    const tick = () => setNow(new Date());
+    tick();
+    const ms = (60 - new Date().getSeconds()) * 1000;
+    const first = setTimeout(() => { tick(); setInterval(tick, 60_000); }, ms);
+    return () => clearTimeout(first);
   }, []);
 
-  // Fetch weather + prayer by geolocation (fallback → Cairo)
   useEffect(() => {
     const fetchAll = async (lat: number, lon: number) => {
-      // ── Weather (Open-Meteo, no key needed) ───────────────────────
+      // Weather
       try {
-        const wUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,windspeed_10m,weathercode&timezone=auto&forecast_days=1`;
-        const wRes = await fetch(wUrl);
-        const wData = await wRes.json();
-
-        const temps: number[] = wData.hourly.temperature_2m;
-        const humid: number[] = wData.hourly.relative_humidity_2m;
-        const wind: number[] = wData.hourly.windspeed_10m;
-        const codes: number[] = wData.hourly.weathercode;
-        const currentHour = new Date().getHours();
-
-        setWeather({
-          morningTemp: Math.round(temps[6] ?? temps[0]),   // 6 AM
-          eveningTemp: Math.round(temps[18] ?? temps[12]),  // 6 PM
-          currentTemp: Math.round(temps[currentHour] ?? temps[0]),
-          humidity: Math.round(humid[currentHour] ?? humid[0]),
-          windspeed: Math.round(wind[currentHour] ?? wind[0]),
-          weatherCode: codes[currentHour] ?? codes[0],
-        });
-      } catch {
-        console.error('Weather fetch failed');
-      } finally {
-        setLoadingW(false);
-      }
-
-      // ── Prayer times (Aladhan, no key needed) ─────────────────────
-      try {
-        const pRes = await fetch(
-          `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=5`
+        const r = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,windspeed_10m,weathercode&timezone=auto&forecast_days=1`
         );
-        const pData = await pRes.json();
-        if (pData.data?.timings) {
-          const t = pData.data.timings;
-          setPrayers({
-            Fajr: t.Fajr,
-            Sunrise: t.Sunrise,
-            Dhuhr: t.Dhuhr,
-            Asr: t.Asr,
-            Maghrib: t.Maghrib,
-            Isha: t.Isha,
-          });
+        const d = await r.json();
+        const hr = new Date().getHours();
+        setWeather({
+          morningTemp: Math.round(d.hourly.temperature_2m[6]  ?? d.hourly.temperature_2m[0]),
+          eveningTemp: Math.round(d.hourly.temperature_2m[18] ?? d.hourly.temperature_2m[12]),
+          currentTemp: Math.round(d.hourly.temperature_2m[hr] ?? d.hourly.temperature_2m[0]),
+          humidity:    Math.round(d.hourly.relative_humidity_2m[hr]  ?? 0),
+          windspeed:   Math.round(d.hourly.windspeed_10m[hr]         ?? 0),
+          weatherCode: d.hourly.weathercode[hr] ?? d.hourly.weathercode[0],
+        });
+      } catch { /* silent */ } finally { setLW(false); }
+
+      // Prayer
+      try {
+        const r = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=5`);
+        const d = await r.json();
+        if (d.data?.timings) {
+          const t = d.data.timings;
+          setPrayers({ Fajr: t.Fajr, Sunrise: t.Sunrise, Dhuhr: t.Dhuhr, Asr: t.Asr, Maghrib: t.Maghrib, Isha: t.Isha });
         }
-      } catch {
-        console.error('Prayer fetch failed');
-      } finally {
-        setLoadingP(false);
-      }
+      } catch { /* silent */ } finally { setLP(false); }
     };
 
-    // Try geolocation first, fallback to Cairo
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const { latitude, longitude } = pos.coords;
-          // Reverse geocode for city name
-          try {
-            const geoRes = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-            );
-            const geoData = await geoRes.json();
-            const c = geoData.address?.city || geoData.address?.town || geoData.address?.county || 'موقعك';
-            setCity(c);
-          } catch { /* keep default */ }
-          fetchAll(latitude, longitude);
-        },
-        () => fetchAll(30.0626, 31.2497) // Cairo fallback
-      );
-    } else {
-      fetchAll(30.0626, 31.2497);
-    }
+    const Cairo = [30.0626, 31.2497] as const;
+    if (!navigator.geolocation) { fetchAll(...Cairo); return; }
+
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords: { latitude, longitude } }) => {
+        try {
+          const g = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+          const gd = await g.json();
+          setCity(gd.address?.city || gd.address?.town || gd.address?.county || 'موقعك');
+        } catch { /* keep default */ }
+        fetchAll(latitude, longitude);
+      },
+      () => fetchAll(...Cairo)
+    );
   }, []);
 
   const nextPrayer = prayers ? getNextPrayer(prayers) : null;
-  const weatherInfo = getWeatherInfo(weather?.weatherCode);
-  const prayerOrder = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  const wInfo      = weatherInfo(weather?.weatherCode);
 
-  const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-  const dateStr = now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const clockStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const dateStr  = now.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="glass-card p-5 sm:p-6 flex flex-col gap-6">
 
-      {/* ── Clock + Weather ─────────────────────────────────────── */}
-      <div className="glass-card p-5 sm:p-6 flex flex-col gap-5 relative overflow-hidden">
-        {/* Glow */}
-        <div className="absolute -top-8 -left-8 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* ── Row 1: Clock + Weather ───────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
 
         {/* Clock */}
-        <div className="text-center">
-          <div
-            className="text-4xl sm:text-5xl font-black text-white tracking-tight tabular-nums"
-            style={{ fontVariantNumeric: 'tabular-nums', direction: 'ltr' }}
-          >
-            {timeStr}
+        <div className="text-center sm:text-right flex-1">
+          <div className="text-5xl sm:text-6xl font-black text-white tabular-nums tracking-tight leading-none" dir="ltr">
+            {clockStr}
           </div>
-          <p className="text-slate-400 text-sm font-medium mt-1">{dateStr}</p>
-          <div className="flex items-center justify-center gap-1 mt-1 text-slate-500 text-xs">
+          <p className="text-slate-400 text-sm font-medium mt-1.5">{dateStr}</p>
+          <div className="flex items-center justify-center sm:justify-start gap-1 mt-1 text-slate-500 text-xs">
             <MapPin className="w-3 h-3" />
             <span>{city}</span>
           </div>
         </div>
 
-        <div className="h-px bg-white/5" />
+        {/* Divider */}
+        <div className="hidden sm:block w-px h-20 bg-white/5" />
+        <div className="block sm:hidden w-full h-px bg-white/5" />
 
         {/* Weather */}
         {loadingW ? (
-          <div className="flex justify-center py-4">
-            <div className="w-6 h-6 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
-          </div>
+          <div className="flex-1 flex justify-center"><div className="w-6 h-6 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" /></div>
         ) : weather ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex-1 flex flex-col sm:flex-row items-center gap-4">
             {/* Current */}
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black text-white">{weather.currentTemp}°</span>
-                  <span className="text-slate-400 text-sm font-bold">الآن</span>
-                </div>
-                <p className="text-slate-400 text-sm font-medium mt-0.5">
-                  {weatherInfo.icon} {weatherInfo.label}
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 text-xs text-slate-500 font-medium items-end">
+            <div className="flex flex-col items-center gap-1 min-w-[90px]">
+              <span className="text-4xl font-black text-white">{weather.currentTemp}°C</span>
+              <span className="text-slate-400 text-sm">{wInfo.icon} {wInfo.label}</span>
+              <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
                 {weather.humidity !== undefined && (
-                  <span className="flex items-center gap-1">
-                    <Droplets className="w-3.5 h-3.5 text-blue-400" />
-                    رطوبة {weather.humidity}%
-                  </span>
+                  <span className="flex items-center gap-0.5"><Droplets className="w-3 h-3 text-blue-400" />{weather.humidity}%</span>
                 )}
                 {weather.windspeed !== undefined && (
-                  <span className="flex items-center gap-1">
-                    <Wind className="w-3.5 h-3.5 text-slate-400" />
-                    رياح {weather.windspeed} km/h
-                  </span>
+                  <span className="flex items-center gap-0.5"><Wind className="w-3 h-3" />{weather.windspeed}km/h</span>
                 )}
               </div>
             </div>
 
             {/* Morning / Evening */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-amber-500/8 border border-amber-500/15 rounded-2xl p-4 flex flex-col items-center gap-1">
-                <Sun className="w-5 h-5 text-amber-400" />
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">الصباح</span>
-                <span className="text-2xl font-black text-amber-400">{weather.morningTemp}°</span>
+            <div className="flex gap-3">
+              <div className="bg-amber-500/8 border border-amber-500/15 rounded-2xl px-4 py-3 flex flex-col items-center gap-0.5 min-w-[72px]">
+                <Sun className="w-4 h-4 text-amber-400 mb-0.5" />
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">صباحاً</span>
+                <span className="text-xl font-black text-amber-400">{weather.morningTemp}°</span>
               </div>
-              <div className="bg-indigo-500/8 border border-indigo-500/15 rounded-2xl p-4 flex flex-col items-center gap-1">
-                <Moon className="w-5 h-5 text-indigo-400" />
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">المساء</span>
-                <span className="text-2xl font-black text-indigo-400">{weather.eveningTemp}°</span>
+              <div className="bg-indigo-500/8 border border-indigo-500/15 rounded-2xl px-4 py-3 flex flex-col items-center gap-0.5 min-w-[72px]">
+                <Moon className="w-4 h-4 text-indigo-400 mb-0.5" />
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">مساءً</span>
+                <span className="text-xl font-black text-indigo-400">{weather.eveningTemp}°</span>
               </div>
             </div>
           </div>
         ) : (
-          <p className="text-center text-slate-500 text-sm">تعذّر تحميل بيانات الطقس</p>
+          <div className="flex-1 text-center text-slate-500 text-sm">تعذّر تحميل الطقس</div>
         )}
       </div>
 
-      {/* ── Prayer Times ────────────────────────────────────────── */}
-      <div className="glass-card p-5 sm:p-6 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-black text-white text-lg">مواقيت الصلاة</h3>
+      {/* Divider */}
+      <div className="h-px bg-white/5" />
+
+      {/* ── Row 2: Prayer Times (grid 3×2) ──────────────────────── */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">مواقيت الصلاة</h3>
           {nextPrayer && (
-            <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 px-2.5 py-1 rounded-xl border border-emerald-500/20 animate-pulse">
-              القادم: {PRAYER_NAMES[nextPrayer]}
+            <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 px-2.5 py-1 rounded-xl border border-emerald-500/20">
+              القادمة: {PRAYERS.find(p => p.key === nextPrayer)?.label}
             </span>
           )}
         </div>
 
         {loadingP ? (
-          <div className="flex justify-center py-8">
+          <div className="flex justify-center py-4">
             <div className="w-6 h-6 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
           </div>
         ) : prayers ? (
-          <div className="flex flex-col gap-2">
-            {prayerOrder.map((key) => {
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
+            {PRAYERS.map(({ key, label, icon }) => {
               const isNext = key === nextPrayer;
               return (
                 <div
                   key={key}
                   className={cn(
-                    'flex items-center justify-between px-4 py-3 rounded-2xl transition-all',
+                    'flex flex-col items-center gap-1.5 rounded-2xl py-3 px-2 transition-all',
                     isNext
-                      ? 'bg-emerald-500/15 border border-emerald-500/25 shadow-lg shadow-emerald-500/5'
+                      ? 'bg-emerald-500/15 border border-emerald-500/30 shadow-lg shadow-emerald-500/10 scale-105'
                       : 'bg-white/3 border border-white/5 hover:bg-white/5'
                   )}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl w-8 text-center">{PRAYER_ICONS[key]}</span>
-                    <span className={cn(
-                      'font-bold text-sm',
-                      isNext ? 'text-emerald-400' : 'text-slate-300'
-                    )}>
-                      {PRAYER_NAMES[key]}
-                    </span>
-                    {isNext && (
-                      <span className="text-[9px] font-black bg-emerald-500 text-white px-1.5 py-0.5 rounded-md">
-                        التالية
-                      </span>
-                    )}
-                  </div>
-                  <span className={cn(
-                    'font-black text-sm tabular-nums',
-                    isNext ? 'text-white' : 'text-slate-400'
-                  )} dir="ltr">
+                  <span className="text-xl leading-none">{icon}</span>
+                  <span className={cn('text-[11px] font-bold', isNext ? 'text-emerald-400' : 'text-slate-400')}>{label}</span>
+                  <span className={cn('text-xs font-black tabular-nums', isNext ? 'text-white' : 'text-slate-300')} dir="ltr">
                     {to12hr(prayers[key as keyof PrayerTimes])}
                   </span>
+                  {isNext && <span className="text-[8px] font-black bg-emerald-500 text-white px-1.5 py-0.5 rounded-md leading-none">التالية</span>}
                 </div>
               );
             })}
           </div>
         ) : (
-          <p className="text-center text-slate-500 text-sm py-8">تعذّر تحميل مواقيت الصلاة</p>
+          <p className="text-center text-slate-500 text-sm py-4">تعذّر تحميل مواقيت الصلاة</p>
         )}
       </div>
     </div>
