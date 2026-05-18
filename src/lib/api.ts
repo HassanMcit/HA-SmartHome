@@ -1,6 +1,5 @@
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 // ─── Token / User helpers ────────────────────────────────────────────────────
 export const getToken = (): string | null => {
@@ -27,25 +26,33 @@ export const setUser = (user: User): void => {
   localStorage.setItem('user', JSON.stringify(user));
 };
 
-// ─── Axios instance ──────────────────────────────────────────────────────────
-const api = axios.create({ baseURL: API_URL });
-
-api.interceptors.request.use((config) => {
+// ─── Core fetch wrapper ──────────────────────────────────────────────────────
+async function request<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
   const token = getToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string>),
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
 
-api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    const message =
-      err.response?.data?.message ||
-      err.message ||
-      'حدث خطأ في الاتصال بالخادم';
-    return Promise.reject(new Error(message));
+  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+
+  let data: any;
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
   }
-);
+
+  if (!res.ok) {
+    throw new Error(data?.message || `HTTP ${res.status}`);
+  }
+
+  return data as T;
+}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 export interface User {
@@ -180,170 +187,195 @@ export const getCategoryInfo = (
 
 // ─── Auth API ────────────────────────────────────────────────────────────────
 export const authApi = {
-  login: async (email: string, password: string) => {
-    const { data } = await api.post('/auth/login', { email, password });
-    return data as { token: string; user: User };
-  },
-  me: async () => {
-    const { data } = await api.get('/auth/me');
-    return data as User;
-  },
-  registerRequest: async (name: string, email: string, password: string) => {
-    const { data } = await api.post('/auth/register-request', { name, email, password });
-    return data;
-  },
-  updateProfile: async (payload: { name?: string; avatar?: string }) => {
-    const { data } = await api.put('/auth/profile', payload);
-    return data as User;
-  },
-  changePassword: async (currentPassword: string, newPassword: string) => {
-    const { data } = await api.put('/auth/change-password', { currentPassword, newPassword });
-    return data;
-  },
-  forgotPassword: async (email: string) => {
-    const { data } = await api.post('/auth/forgot-password', { email });
-    return data;
-  },
-  resetPassword: async (email: string, code: string, newPassword: string) => {
-    const { data } = await api.post('/auth/reset-password', { email, code, newPassword });
-    return data;
-  },
+  login: (email: string, password: string) =>
+    request<{ token: string; user: User }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }),
+
+  me: () => request<User>('/auth/me'),
+
+  registerRequest: (name: string, email: string, password: string) =>
+    request('/auth/register-request', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password }),
+    }),
+
+  updateProfile: (payload: { name?: string; avatar?: string }) =>
+    request<User>('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request('/auth/change-password', {
+      method: 'PUT',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }),
+
+  forgotPassword: (email: string) =>
+    request('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (email: string, code: string, newPassword: string) =>
+    request('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, code, newPassword }),
+    }),
 };
 
 // ─── Transactions API ────────────────────────────────────────────────────────
 export const transactionsApi = {
-  getAll: async (params?: { limit?: number; userId?: string; month?: number; year?: number }) => {
-    const { data } = await api.get('/transactions', { params });
-    return data as Transaction[];
+  getAll: (params?: { limit?: number; userId?: string; month?: number; year?: number }) => {
+    const q = params ? '?' + new URLSearchParams(
+      Object.fromEntries(
+        Object.entries(params)
+          .filter(([, v]) => v !== undefined)
+          .map(([k, v]) => [k, String(v)])
+      )
+    ) : '';
+    return request<Transaction[]>(`/transactions${q}`);
   },
-  getStats: async (params?: { month?: number; year?: number; userId?: string }) => {
-    const { data } = await api.get('/transactions/stats', { params });
-    return data as TransactionStats;
+
+  getStats: (params?: { month?: number; year?: number; userId?: string }) => {
+    const q = params ? '?' + new URLSearchParams(
+      Object.fromEntries(
+        Object.entries(params)
+          .filter(([, v]) => v !== undefined)
+          .map(([k, v]) => [k, String(v)])
+      )
+    ) : '';
+    return request<TransactionStats>(`/transactions/stats${q}`);
   },
-  create: async (payload: {
+
+  create: (payload: {
     type: 'income' | 'expense';
     amount: number;
     category: string;
     description?: string;
     date: string;
     targetUserId?: string;
-  }) => {
-    const { data } = await api.post('/transactions', payload);
-    return data as Transaction;
-  },
-  delete: async (id: string) => {
-    const { data } = await api.delete(`/transactions/${id}`);
-    return data;
-  },
+  }) =>
+    request<Transaction>('/transactions', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  delete: (id: string) =>
+    request(`/transactions/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Budgets API ─────────────────────────────────────────────────────────────
 export const budgetsApi = {
-  getAll: async (userId?: string, month?: number, year?: number) => {
-    const { data } = await api.get('/budgets', { params: { userId, month, year } });
-    return data as Budget[];
+  getAll: (userId?: string, month?: number, year?: number) => {
+    const params: Record<string, string> = {};
+    if (userId) params.userId = userId;
+    if (month !== undefined) params.month = String(month);
+    if (year !== undefined) params.year = String(year);
+    const q = Object.keys(params).length ? '?' + new URLSearchParams(params) : '';
+    return request<Budget[]>(`/budgets${q}`);
   },
-  create: async (payload: { category: string; amount: number; targetUserId?: string }) => {
-    const { data } = await api.post('/budgets', payload);
-    return data as Budget;
-  },
-  delete: async (id: string) => {
-    const { data } = await api.delete(`/budgets/${id}`);
-    return data;
-  },
+
+  create: (payload: { category: string; amount: number; targetUserId?: string }) =>
+    request<Budget>('/budgets', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  delete: (id: string) =>
+    request(`/budgets/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Savings API ─────────────────────────────────────────────────────────────
 export const savingsApi = {
-  getAll: async () => {
-    const { data } = await api.get('/savings');
-    return data as Saving[];
-  },
-  create: async (payload: { name: string; targetAmount: number; color?: string }) => {
-    const { data } = await api.post('/savings', payload);
-    return data as Saving;
-  },
-  deposit: async (id: string, amount: number) => {
-    const { data } = await api.post(`/savings/${id}/deposit`, { amount });
-    return data;
-  },
-  delete: async (id: string) => {
-    const { data } = await api.delete(`/savings/${id}`);
-    return data;
-  },
+  getAll: () => request<Saving[]>('/savings'),
+
+  create: (payload: { name: string; targetAmount: number; color?: string }) =>
+    request<Saving>('/savings', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  deposit: (id: string, amount: number) =>
+    request(`/savings/${id}/deposit`, {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    }),
+
+  delete: (id: string) =>
+    request(`/savings/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Bills API ───────────────────────────────────────────────────────────────
 export const billsApi = {
-  getAll: async (isPaid?: boolean) => {
-    const params = isPaid !== undefined ? { isPaid: String(isPaid) } : {};
-    const { data } = await api.get('/bills', { params });
-    return data as Bill[];
+  getAll: (isPaid?: boolean) => {
+    const q = isPaid !== undefined ? `?isPaid=${isPaid}` : '';
+    return request<Bill[]>(`/bills${q}`);
   },
-  create: async (payload: {
+
+  create: (payload: {
     name: string;
     amount: number;
     dueDate: string;
     isRecurring?: boolean;
     category?: string;
-  }) => {
-    const { data } = await api.post('/bills', payload);
-    return data as Bill;
-  },
-  toggle: async (id: string) => {
-    const { data } = await api.put(`/bills/${id}/toggle`);
-    return data as Bill;
-  },
-  update: async (id: string, payload: Partial<{ name: string; amount: number; dueDate: string; isRecurring: boolean; category: string }>) => {
-    const { data } = await api.put(`/bills/${id}`, payload);
-    return data as Bill;
-  },
-  delete: async (id: string) => {
-    const { data } = await api.delete(`/bills/${id}`);
-    return data;
-  },
+  }) =>
+    request<Bill>('/bills', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  toggle: (id: string) =>
+    request<Bill>(`/bills/${id}/toggle`, { method: 'PUT' }),
+
+  update: (
+    id: string,
+    payload: Partial<{
+      name: string;
+      amount: number;
+      dueDate: string;
+      isRecurring: boolean;
+      category: string;
+    }>
+  ) =>
+    request<Bill>(`/bills/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+
+  delete: (id: string) =>
+    request(`/bills/${id}`, { method: 'DELETE' }),
 };
 
 // ─── AI API ──────────────────────────────────────────────────────────────────
 export const aiApi = {
-  getAnalysis: async () => {
-    const { data } = await api.get('/ai/analysis');
-    return data as AIAnalysis;
-  },
+  getAnalysis: () => request<AIAnalysis>('/ai/analysis'),
 };
 
 // ─── Admin API ───────────────────────────────────────────────────────────────
 export const adminApi = {
-  getRequests: async () => {
-    const { data } = await api.get('/admin/requests');
-    return data as RegistrationRequest[];
-  },
-  getStats: async () => {
-    const { data } = await api.get('/admin/stats');
-    return data as AdminStats;
-  },
-  getUsers: async () => {
-    const { data } = await api.get('/admin/users');
-    return data as User[];
-  },
-  getResetCodes: async () => {
-    const { data } = await api.get('/admin/reset-codes');
-    return data as any[];
-  },
-  approveRequest: async (id: string) => {
-    const { data } = await api.post(`/admin/requests/${id}/approve`);
-    return data;
-  },
-  rejectRequest: async (id: string) => {
-    const { data } = await api.post(`/admin/requests/${id}/reject`);
-    return data;
-  },
-  updateUser: async (id: string, payload: { role?: string }) => {
-    const { data } = await api.put(`/admin/users/${id}`, payload);
-    return data;
-  },
-  deleteUser: async (id: string) => {
-    const { data } = await api.delete(`/admin/users/${id}`);
-    return data;
-  },
+  getRequests: () => request<RegistrationRequest[]>('/admin/requests'),
+
+  getStats: () => request<AdminStats>('/admin/stats'),
+
+  getUsers: () => request<User[]>('/admin/users'),
+
+  getResetCodes: () => request<any[]>('/admin/reset-codes'),
+
+  approveRequest: (id: string) =>
+    request(`/admin/requests/${id}/approve`, { method: 'POST' }),
+
+  rejectRequest: (id: string) =>
+    request(`/admin/requests/${id}/reject`, { method: 'POST' }),
+
+  updateUser: (id: string, payload: { role?: string }) =>
+    request(`/admin/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+
+  deleteUser: (id: string) =>
+    request(`/admin/users/${id}`, { method: 'DELETE' }),
 };
