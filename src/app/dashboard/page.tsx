@@ -2,18 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { transactionsApi, billsApi, TransactionStats, Transaction, Bill, formatCurrency } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { ArrowDownRight, ArrowUpRight, Wallet, Activity, CreditCard, Loader2, AlertCircle, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<TransactionStats | null>(null);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [unpaidBills, setUnpaidBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) return;
     const fetchData = async () => {
       try {
         const now = new Date();
@@ -22,7 +25,7 @@ export default function DashboardPage() {
         const [statsData, txData, billsData] = await Promise.all([
           transactionsApi.getStats({ month: m, year: y }),
           transactionsApi.getAll({ limit: 5 }),
-          billsApi.getAll(false), // Fetch ONLY unpaid bills
+          billsApi.getAll(false, user.id), // Only current user's unpaid bills
         ]);
 
         setStats(statsData);
@@ -35,7 +38,7 @@ export default function DashboardPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [user]);
 
   if (loading) {
     return (
