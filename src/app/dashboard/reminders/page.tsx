@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { remindersApi, Reminder } from '@/lib/api';
-import { Bell, Plus, CheckCircle, Circle, Trash2, Clock, Edit2, Loader2, CalendarHeart, AlertCircle, X } from 'lucide-react';
+import { Bell, Plus, CheckCircle, Circle, Trash2, Clock, Edit2, Loader2, CalendarHeart, AlertCircle, X, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
