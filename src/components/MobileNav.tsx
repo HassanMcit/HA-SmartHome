@@ -15,6 +15,7 @@ import {
   Menu,
   LogOut,
   ChevronLeft,
+  Settings as SettingsIcon,
 } from 'lucide-react';
 import {
   Sheet,
@@ -46,10 +47,11 @@ export default function MobileNav() {
   const moreItems = [
     { href: '/dashboard/savings', icon: PiggyBank, label: 'الادخار والتوفير' },
     { href: '/dashboard/bills', icon: FileText, label: 'الفواتير والالتزامات' },
+    { href: '/dashboard/settings', icon: SettingsIcon, label: 'الإعدادات' },
   ];
 
   if (user?.role === 'admin') {
-    moreItems.push({ href: '/dashboard/admin', icon: ShieldCheck, label: 'لوحة التحكم للمدير' });
+    moreItems.push({ href: '/dashboard/admin', icon: ShieldCheck, label: 'لوحة التحكم' });
   }
 
   return (

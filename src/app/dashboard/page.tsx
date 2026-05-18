@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { transactionsApi, billsApi, TransactionStats, Transaction, Bill, formatCurrency } from '@/lib/api';
 import { ArrowDownRight, ArrowUpRight, Wallet, Activity, CreditCard, Loader2, AlertCircle, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -9,7 +8,6 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
   const [stats, setStats] = useState<TransactionStats | null>(null);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [unpaidBills, setUnpaidBills] = useState<Bill[]>([]);
@@ -26,11 +24,10 @@ export default function DashboardPage() {
           transactionsApi.getAll({ limit: 5 }),
           billsApi.getAll(false), // Fetch ONLY unpaid bills
         ]);
-        
+
         setStats(statsData);
         setRecentTransactions(txData);
-        // Only show unpaid bills that belong to the current user
-        setUnpaidBills(billsData.filter(b => b.userId === user?.id));
+        setUnpaidBills(billsData);
       } catch {
         toast.error('حدث خطأ في تحميل البيانات');
       } finally {
@@ -65,7 +62,7 @@ export default function DashboardPage() {
                 <p className="text-sm font-medium opacity-90">لديك <span className="underline decoration-2 underline-offset-4">{unpaidBills.length}</span> فواتير تنتظر الدفع، بإجمالي {formatCurrency(unpaidBills.reduce((acc, b) => acc + b.amount, 0))}</p>
               </div>
             </div>
-            <Link 
+            <Link
               href="/dashboard/bills"
               className="px-6 py-3 bg-white text-orange-600 font-bold rounded-2xl shadow-xl hover:bg-orange-50 transition-all flex items-center gap-2 group/btn"
             >
@@ -195,8 +192,8 @@ export default function DashboardPage() {
                           <span className="text-sm font-black text-white tabular-nums">{formatCurrency(amount)}</span>
                         </div>
                         <div className="w-full h-2.5 bg-white/5 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full transition-all duration-1000 ease-out" 
+                          <div
+                            className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full transition-all duration-1000 ease-out"
                             style={{ width: `${pct}%` }}
                           />
                         </div>

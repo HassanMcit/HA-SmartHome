@@ -111,7 +111,7 @@ export default function Sidebar() {
             >
               {isActive('/dashboard/admin') && <div className="absolute right-0 top-2 bottom-2 w-1 bg-amber-500 rounded-l-full shadow-[0_0_8px_rgba(245,158,11,0.5)]" />}
               <ShieldCheck className="w-5 h-5 transition-transform group-hover:scale-110" />
-              <span>لوحة المدير</span>
+              <span>لوحة التحكم</span>
             </Link>
           </div>
         )}
