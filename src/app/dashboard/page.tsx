@@ -7,6 +7,7 @@ import { ArrowDownRight, ArrowUpRight, Wallet, Activity, CreditCard, Loader2, Al
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import WeatherPrayerWidget from '@/components/WeatherPrayerWidget';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -50,6 +51,9 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8 pb-8 animate-fade-in">
+      {/* Weather, Clock & Prayer Times */}
+      <WeatherPrayerWidget />
+
       {/* Professional Bills Alert */}
       {unpaidBills.length > 0 && (
         <div className="relative group overflow-hidden">
