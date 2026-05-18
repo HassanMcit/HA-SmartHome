@@ -113,6 +113,18 @@ export interface Bill {
   category: string;
 }
 
+export interface Reminder {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  isCompleted: boolean;
+  reminderAt?: string;
+  emailSent: boolean;
+  priority: 'low' | 'medium' | 'high';
+  createdAt: string;
+}
+
 export interface AIAnalysis {
   totalIncome: number;
   totalExpenses: number;
@@ -350,6 +362,32 @@ export const billsApi = {
 
   delete: (id: string) =>
     request(`/bills/${id}`, { method: 'DELETE' }),
+};
+
+// ─── Reminders API ───────────────────────────────────────────────────────────
+export const remindersApi = {
+  getAll: (isCompleted?: boolean) => {
+    const q = isCompleted !== undefined ? `?isCompleted=${isCompleted}` : '';
+    return request<Reminder[]>(`/reminders${q}`);
+  },
+
+  create: (payload: { title: string; description?: string; reminderAt?: string; priority?: string }) =>
+    request<Reminder>('/reminders', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  toggle: (id: string) =>
+    request<Reminder>(`/reminders/${id}/toggle`, { method: 'PUT' }),
+
+  update: (id: string, payload: Partial<{ title: string; description: string | null; reminderAt: string | null; priority: string; isCompleted: boolean }>) =>
+    request<Reminder>(`/reminders/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+
+  delete: (id: string) =>
+    request(`/reminders/${id}`, { method: 'DELETE' }),
 };
 
 // ─── AI API ──────────────────────────────────────────────────────────────────

@@ -14,6 +14,7 @@ import {
   LogOut,
   Home,
   ShieldCheck,
+  Bell,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,6 +25,7 @@ const navItems = [
   { href: '/dashboard/budgets', icon: Target, label: 'الميزانية' },
   { href: '/dashboard/savings', icon: PiggyBank, label: 'الادخار' },
   { href: '/dashboard/bills', icon: FileText, label: 'الفواتير' },
+  { href: '/dashboard/reminders', icon: Bell, label: 'ذكّرني' },
   { href: '/dashboard/ai', icon: Sparkles, label: 'تحليل ذكي' },
 ];
 

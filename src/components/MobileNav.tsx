@@ -16,6 +16,7 @@ import {
   LogOut,
   ChevronLeft,
   Settings as SettingsIcon,
+  Bell,
 } from 'lucide-react';
 import {
   Sheet,
@@ -47,6 +48,7 @@ export default function MobileNav() {
   const moreItems = [
     { href: '/dashboard/savings', icon: PiggyBank, label: 'الادخار والتوفير' },
     { href: '/dashboard/bills', icon: FileText, label: 'الفواتير والالتزامات' },
+    { href: '/dashboard/reminders', icon: Bell, label: 'ذكّرني (المهام)' },
     { href: '/dashboard/settings', icon: SettingsIcon, label: 'الإعدادات' },
   ];
 
