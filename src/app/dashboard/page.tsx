@@ -155,7 +155,7 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-2">
                           <p className="text-sm sm:text-base font-bold text-slate-100 mb-0.5 line-clamp-1">{tx.description || tx.category}</p>
                         </div>
-                        <p className="text-xs text-slate-500 font-medium">{new Date(tx.date).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })}</p>
+                        <p className="text-xs text-slate-500 font-medium">{new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}</p>
                       </div>
                     </div>
                     <p className={cn(

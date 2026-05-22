@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { transactionsApi, adminApi, Transaction, User, formatCurrency, getCategoryInfo, INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowDownRight, ArrowUpRight, Plus, Trash2, Users, Loader2, Activity, Calendar, Tag, AlertCircle } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Plus, Trash2, Users, Loader2, Activity, Calendar, Tag, AlertCircle, Pencil } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,54 @@ export default function TransactionsPage() {
     transactionId: '',
     description: '',
   });
+
+  // Edit states
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingTxId, setEditingTxId] = useState<string | null>(null);
+  const [editType, setEditType] = useState<'income' | 'expense'>('expense');
+  const [editAmount, setEditAmount] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editTargetUserId, setEditTargetUserId] = useState<string>('');
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
+  const handleOpenEdit = (tx: Transaction) => {
+    setEditingTxId(tx.id);
+    setEditType(tx.type);
+    setEditAmount(String(tx.amount));
+    setEditCategory(tx.category);
+    setEditDescription(tx.description || '');
+    setEditDate(new Date(tx.date).toISOString().split('T')[0]);
+    setEditTargetUserId(tx.userId);
+    setEditOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTxId || !editAmount || !editCategory) {
+      toast.error('المبلغ والفئة مطلوبان');
+      return;
+    }
+    setEditSubmitting(true);
+    try {
+      await transactionsApi.update(editingTxId, {
+        type: editType,
+        amount: parseFloat(editAmount),
+        category: editCategory,
+        description: editDescription,
+        date: editDate,
+        targetUserId: editTargetUserId,
+      });
+      toast.success('تم تحديث المعاملة بنجاح');
+      setEditOpen(false);
+      fetchTransactions();
+    } catch (error: any) {
+      toast.error(error.message || 'حدث خطأ أثناء التعديل');
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
 
   const fetchUsers = async () => {
     if (!isAdmin) return;
@@ -343,7 +391,7 @@ export default function TransactionsPage() {
                       <span>•</span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {new Date(tx.date).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })}
+                        {new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}
                       </span>
                     </div>
                   </div>
@@ -357,12 +405,22 @@ export default function TransactionsPage() {
                     {isIncome ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                     {formatCurrency(tx.amount)}
                   </div>
-                  <button 
-                    onClick={() => setDeleteDialog({ isOpen: true, transactionId: tx.id, description: tx.description || cat.label })}
-                    className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleOpenEdit(tx)}
+                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all active:scale-90"
+                      title="تعديل"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => setDeleteDialog({ isOpen: true, transactionId: tx.id, description: tx.description || cat.label })}
+                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
+                      title="حذف"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -399,6 +457,131 @@ export default function TransactionsPage() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Transaction Dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none sm:max-w-[480px]">
+          <DialogHeader className="text-right">
+            <DialogTitle className="text-2xl font-black mb-6">تعديل المعاملة</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-6">
+            {isAdmin && (
+              <div className="space-y-2 text-right">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
+                <Select value={editTargetUserId} onValueChange={setEditTargetUserId}>
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                    <SelectValue placeholder="اختر المستخدم" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                    {users.map(u => (
+                      <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
+                        {u.name} {u.id === currentUser?.id ? '(أنت)' : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="flex gap-2 p-1.5 bg-black/20 rounded-2xl border border-white/5">
+              {(['expense', 'income'] as const).map(t => (
+                <button 
+                  key={t} 
+                  type="button" 
+                  onClick={() => { setEditType(t); setEditCategory(''); }}
+                  className={cn(
+                    "flex-1 py-3 rounded-xl font-black text-sm transition-all",
+                    editType === t 
+                      ? (t === 'expense' ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20") 
+                      : "text-slate-400 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  {t === 'expense' ? 'مصروف' : 'إيراد'}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2 text-right">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المبلغ</label>
+                <div className="relative">
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    required 
+                    value={editAmount} 
+                    onChange={e => setEditAmount(e.target.value)} 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
+                    placeholder="0.00"
+                    dir="ltr"
+                  />
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ج.م</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 text-right">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
+                <Select value={editCategory} onValueChange={(val) => setEditCategory(val || '')}>
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                    <SelectValue placeholder="اختر الفئة" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[300px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
+                    {(editType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map(c => {
+                      const Item = SelectItem as any;
+                      return (
+                        <Item key={c.value} value={c.value} textValue={c.label} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
+                          <div className="flex items-center gap-3 w-full">
+                            <span className="text-xl shrink-0">{c.icon}</span>
+                            <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
+                          </div>
+                        </Item>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الوصف</label>
+              <input 
+                type="text" 
+                value={editDescription} 
+                onChange={e => setEditDescription(e.target.value)} 
+                className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all text-right"
+                placeholder="مثال: شراء بقالة، راتب شهري..."
+              />
+            </div>
+
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">التاريخ</label>
+              <div className="relative group cursor-pointer" onClick={(e) => {
+                const input = e.currentTarget.querySelector('input');
+                if (input) input.showPicker?.();
+              }}>
+                <input 
+                  type="date" 
+                  value={editDate} 
+                  onChange={e => setEditDate(e.target.value)} 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all cursor-pointer"
+                  dir="ltr"
+                />
+                <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-indigo-400 transition-colors pointer-events-none" />
+              </div>
+            </div>
+
+            <Button 
+              type="submit" 
+              disabled={editSubmitting || !editAmount || !editCategory}
+              className={cn(
+                "w-full h-14 text-white rounded-2xl font-black text-lg shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 mt-4",
+                editType === 'expense' ? "bg-red-500 hover:bg-red-600 shadow-red-500/20" : "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20"
+              )}
+            >
+              {editSubmitting ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 'حفظ التعديلات'}
+            </Button>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

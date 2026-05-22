@@ -220,13 +220,13 @@ export default function RemindersPage() {
                       {reminder.reminderAt && (
                         <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300 bg-indigo-500/10 w-fit px-3 py-1.5 rounded-lg">
                           <Clock className="w-3.5 h-3.5" />
-                          <span>{new Date(reminder.reminderAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                          <span>{new Date(reminder.reminderAt).toLocaleString('ar-EG-u-nu-latn', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                           {reminder.emailSent && <CheckCircle className="w-3 h-3 text-emerald-400 ml-1" title="تم إرسال الإيميل" />}
                         </div>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0">
                       <button 
                         onClick={() => openEditModal(reminder)}
                         className="w-8 h-8 rounded-lg bg-white/5 hover:bg-indigo-500/20 text-slate-400 hover:text-indigo-400 flex items-center justify-center transition-colors"
@@ -274,7 +274,7 @@ export default function RemindersPage() {
                   </div>
                   <button 
                     onClick={() => handleDelete(reminder.id)}
-                    className="opacity-0 group-hover:opacity-100 p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"
+                    className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all shrink-0"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

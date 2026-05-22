@@ -348,7 +348,7 @@ function AdminPage(): React.ReactNode {
                   </div>
                   <div className="text-[10px] font-bold text-slate-500 text-left leading-tight">
                     ينتهي <br />
-                    <span className="text-slate-400 font-black">{new Date(rc.expiresAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-slate-400 font-black">{new Date(rc.expiresAt).toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
               </div>

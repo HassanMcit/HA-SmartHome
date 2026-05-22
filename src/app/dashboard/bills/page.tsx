@@ -23,7 +23,7 @@ export default function BillsPage() {
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
-  const [category, setCategory] = useState('utilities');
+  const [category, setCategory] = useState('general_bills');
   const [submitting, setSubmitting] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; billId: string; billName: string }>({
     isOpen: false,
@@ -36,7 +36,7 @@ export default function BillsPage() {
   });
   const [editName, setEditName] = useState('');
   const [editAmount, setEditAmount] = useState('');
-  const [editCategory, setEditCategory] = useState('utilities');
+  const [editCategory, setEditCategory] = useState('general_bills');
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const fetchUsers = async () => {
@@ -88,7 +88,7 @@ export default function BillsPage() {
     try {
       await billsApi.create({ name, amount: parseFloat(amount), dueDate, isRecurring, category });
       toast.success('تم إضافة الفاتورة بنجاح');
-      setOpen(false); setName(''); setAmount(''); setDueDate(''); setIsRecurring(false); setCategory('utilities');
+      setOpen(false); setName(''); setAmount(''); setDueDate(''); setIsRecurring(false); setCategory('general_bills');
       fetchBills();
     } catch { toast.error('حدث خطأ'); }
     finally { setSubmitting(false); }
@@ -129,7 +129,7 @@ export default function BillsPage() {
     setEditDialog({ isOpen: true, bill });
     setEditName(bill.name);
     setEditAmount(bill.amount.toString());
-    setEditCategory(bill.category || 'utilities');
+    setEditCategory(bill.category || 'general_bills');
   };
 
   const inputStyle = {
@@ -179,7 +179,7 @@ export default function BillsPage() {
               </div>
               <div className="flex flex-col gap-1.5 text-right">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">الفئة</label>
-                <Select value={category} onValueChange={(val) => setCategory(val || 'utilities')}>
+                <Select value={category} onValueChange={(val) => setCategory(val || 'general_bills')}>
                   <SelectTrigger className="w-full bg-[#242444] border border-[#2d2d5e] text-right h-12 rounded-[8px] px-4 text-white" dir="rtl">
                     <SelectValue placeholder="اختر الفئة" />
                   </SelectTrigger>
@@ -318,7 +318,7 @@ export default function BillsPage() {
                       {ownerName && <span className="text-purple-400 font-bold">👤 {ownerName}</span>}
                       <span className={cn("flex items-center gap-1", late && "text-red-400 font-bold")}>
                         {late && <AlertCircle className="w-3 h-3" />}
-                        {new Date(bill.dueDate).toLocaleDateString('ar-EG')}
+                        {new Date(bill.dueDate).toLocaleDateString('ar-EG-u-nu-latn')}
                         {late && ' (متأخرة)'}
                       </span>
                       <span className="flex items-center gap-1 text-slate-400 bg-white/5 px-2 py-0.5 rounded-md text-[10px]">
@@ -361,7 +361,7 @@ export default function BillsPage() {
             </div>
             <div className="flex flex-col gap-1.5 text-right">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">الفئة</label>
-              <Select value={editCategory} onValueChange={(val) => setEditCategory(val || 'utilities')}>
+              <Select value={editCategory} onValueChange={(val) => setEditCategory(val || 'general_bills')}>
                 <SelectTrigger className="w-full bg-[#242444] border border-[#2d2d5e] text-right h-12 rounded-[8px] px-4 text-white" dir="rtl">
                   <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>

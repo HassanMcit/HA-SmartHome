@@ -127,8 +127,8 @@ export default function WeatherPrayerWidget() {
   const nextPrayer = prayers ? getNextPrayer(prayers) : null;
   const wInfo      = weatherInfo(weather?.weatherCode);
 
-  const clockStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: true });
-  const dateStr  = now.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
+  const clockStr = now.toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const dateStr  = now.toLocaleDateString('ar-EG-u-nu-latn', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
     <div className="glass-card p-5 sm:p-6 flex flex-col gap-6">

@@ -152,7 +152,7 @@ export interface AdminStats {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('ar-EG', {
+  return new Intl.NumberFormat('ar-EG-u-nu-latn', {
     style: 'currency',
     currency: 'EGP',
     minimumFractionDigits: 0,
@@ -281,6 +281,22 @@ export const transactionsApi = {
   }) =>
     request<Transaction>('/transactions', {
       method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  update: (
+    id: string,
+    payload: {
+      type?: 'income' | 'expense';
+      amount?: number;
+      category?: string;
+      description?: string;
+      date?: string;
+      targetUserId?: string;
+    }
+  ) =>
+    request<Transaction>(`/transactions/${id}`, {
+      method: 'PUT',
       body: JSON.stringify(payload),
     }),
 
