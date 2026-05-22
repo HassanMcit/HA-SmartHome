@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { billsApi, adminApi, Bill, User, formatCurrency } from '@/lib/api';
+import { billsApi, adminApi, Bill, User, formatCurrency, EXPENSE_CATEGORIES, getCategoryInfo } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { Plus, Trash2, CheckCircle2, Circle, AlertCircle, Pencil, Users, FileText, Loader2 } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, Circle, AlertCircle, Pencil, Users, FileText, Loader2, Tag } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,6 +23,7 @@ export default function BillsPage() {
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
+  const [category, setCategory] = useState('utilities');
   const [submitting, setSubmitting] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; billId: string; billName: string }>({
     isOpen: false,
@@ -35,6 +36,7 @@ export default function BillsPage() {
   });
   const [editName, setEditName] = useState('');
   const [editAmount, setEditAmount] = useState('');
+  const [editCategory, setEditCategory] = useState('utilities');
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const fetchUsers = async () => {
@@ -84,9 +86,9 @@ export default function BillsPage() {
     if (!name || !amount || !dueDate) { toast.error('جميع الحقول مطلوبة'); return; }
     setSubmitting(true);
     try {
-      await billsApi.create({ name, amount: parseFloat(amount), dueDate, isRecurring });
+      await billsApi.create({ name, amount: parseFloat(amount), dueDate, isRecurring, category });
       toast.success('تم إضافة الفاتورة بنجاح');
-      setOpen(false); setName(''); setAmount(''); setDueDate(''); setIsRecurring(false);
+      setOpen(false); setName(''); setAmount(''); setDueDate(''); setIsRecurring(false); setCategory('utilities');
       fetchBills();
     } catch { toast.error('حدث خطأ'); }
     finally { setSubmitting(false); }
@@ -107,7 +109,7 @@ export default function BillsPage() {
     if (!editDialog.bill || !editName || !editAmount) return;
     setSubmitting(true);
     try {
-      await billsApi.update(editDialog.bill.id, { name: editName, amount: parseFloat(editAmount) });
+      await billsApi.update(editDialog.bill.id, { name: editName, amount: parseFloat(editAmount), category: editCategory });
       toast.success('تم تحديث الفاتورة بنجاح');
       setEditDialog({ isOpen: false, bill: null });
       fetchBills();
@@ -127,6 +129,7 @@ export default function BillsPage() {
     setEditDialog({ isOpen: true, bill });
     setEditName(bill.name);
     setEditAmount(bill.amount.toString());
+    setEditCategory(bill.category || 'utilities');
   };
 
   const inputStyle = {
@@ -173,6 +176,27 @@ export default function BillsPage() {
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">تاريخ الاستحقاق</label>
                 <input type="date" required value={dueDate} onChange={e => setDueDate(e.target.value)} dir="ltr" style={inputStyle} />
+              </div>
+              <div className="flex flex-col gap-1.5 text-right">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">الفئة</label>
+                <Select value={category} onValueChange={(val) => setCategory(val || 'utilities')}>
+                  <SelectTrigger className="w-full bg-[#242444] border border-[#2d2d5e] text-right h-12 rounded-[8px] px-4 text-white" dir="rtl">
+                    <SelectValue placeholder="اختر الفئة" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a35] border-slate-700 text-white rounded-[20px] max-h-[250px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
+                    {EXPENSE_CATEGORIES.map(c => {
+                      const Item = SelectItem as any;
+                      return (
+                        <Item key={c.value} value={c.value} textValue={c.label} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
+                          <div className="flex items-center gap-3 w-full">
+                            <span className="text-xl shrink-0">{c.icon}</span>
+                            <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
+                          </div>
+                        </Item>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/5">
                 <label className="text-sm font-bold text-slate-300 cursor-pointer">فاتورة متكررة شهرياً؟</label>
@@ -297,6 +321,10 @@ export default function BillsPage() {
                         {new Date(bill.dueDate).toLocaleDateString('ar-EG')}
                         {late && ' (متأخرة)'}
                       </span>
+                      <span className="flex items-center gap-1 text-slate-400 bg-white/5 px-2 py-0.5 rounded-md text-[10px]">
+                        <span>{getCategoryInfo(bill.category, 'expense').icon}</span>
+                        <span>{getCategoryInfo(bill.category, 'expense').label}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -330,6 +358,27 @@ export default function BillsPage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">المبلغ (ج.م)</label>
               <input type="number" step="0.01" required value={editAmount} onChange={e => setEditAmount(e.target.value)} dir="ltr" style={inputStyle} />
+            </div>
+            <div className="flex flex-col gap-1.5 text-right">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">الفئة</label>
+              <Select value={editCategory} onValueChange={(val) => setEditCategory(val || 'utilities')}>
+                <SelectTrigger className="w-full bg-[#242444] border border-[#2d2d5e] text-right h-12 rounded-[8px] px-4 text-white" dir="rtl">
+                  <SelectValue placeholder="اختر الفئة" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a35] border-slate-700 text-white rounded-[20px] max-h-[250px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
+                  {EXPENSE_CATEGORIES.map(c => {
+                    const Item = SelectItem as any;
+                    return (
+                      <Item key={c.value} value={c.value} textValue={c.label} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
+                        <div className="flex items-center gap-3 w-full">
+                          <span className="text-xl shrink-0">{c.icon}</span>
+                          <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
+                        </div>
+                      </Item>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
             </div>
             <button type="submit" disabled={submitting || !editName || !editAmount}
               className={cn("w-full py-3 rounded-xl font-black text-black transition-all", submitting || !editName || !editAmount ? "bg-amber-500/40 cursor-not-allowed" : "bg-amber-500 hover:bg-amber-400 active:scale-95")}>
