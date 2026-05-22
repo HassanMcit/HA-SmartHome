@@ -48,7 +48,9 @@ async function request<T>(
   }
 
   if (!res.ok) {
-    throw new Error(data?.message || `HTTP ${res.status}`);
+    const error = new Error(data?.message || `HTTP ${res.status}`) as any;
+    error.status = res.status;
+    throw error;
   }
 
   return data as T;

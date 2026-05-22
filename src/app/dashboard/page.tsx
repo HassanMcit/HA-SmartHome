@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { transactionsApi, billsApi, TransactionStats, Transaction, Bill, formatCurrency } from '@/lib/api';
+import { transactionsApi, billsApi, TransactionStats, Transaction, Bill, formatCurrency, getCategoryInfo } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowDownRight, ArrowUpRight, Wallet, Activity, CreditCard, Loader2, AlertCircle, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -142,30 +142,33 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {recentTransactions.map((tx) => (
-                  <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all group">
-                    <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110",
-                        tx.type === 'income' ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
-                      )}>
-                        {tx.type === 'income' ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm sm:text-base font-bold text-slate-100 mb-0.5 line-clamp-1">{tx.description || tx.category}</p>
-                        </div>
-                        <p className="text-xs text-slate-500 font-medium">{new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}</p>
-                      </div>
-                    </div>
-                    <p className={cn(
-                      "font-black text-sm sm:text-base tabular-nums",
-                      tx.type === 'income' ? "text-emerald-500" : "text-red-500"
-                    )}>
-                      {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
-                    </p>
-                  </div>
-                ))}
+                 {recentTransactions.map((tx) => {
+                   const cat = getCategoryInfo(tx.category, tx.type);
+                   return (
+                     <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all group">
+                       <div className="flex items-center gap-4">
+                         <div className={cn(
+                           "w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110",
+                           tx.type === 'income' ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
+                         )}>
+                           {tx.type === 'income' ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
+                         </div>
+                         <div>
+                           <div className="flex items-center gap-2">
+                             <p className="text-sm sm:text-base font-bold text-slate-100 mb-0.5 break-words whitespace-normal">{tx.description || cat.label}</p>
+                           </div>
+                           <p className="text-xs text-slate-500 font-medium">{new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}</p>
+                         </div>
+                       </div>
+                       <p className={cn(
+                         "font-black text-sm sm:text-base tabular-nums shrink-0",
+                         tx.type === 'income' ? "text-emerald-500" : "text-red-500"
+                       )}>
+                         {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                       </p>
+                     </div>
+                   );
+                 })}
               </div>
             )}
           </div>

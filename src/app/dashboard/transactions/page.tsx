@@ -376,7 +376,7 @@ export default function TransactionsPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-bold text-white truncate text-sm sm:text-base">{tx.description || cat.label}</h4>
+                      <h4 className="font-bold text-white text-sm sm:text-base break-words whitespace-normal">{tx.description || cat.label}</h4>
                       {isAdmin && (
                         <span className="text-[9px] px-2 py-0.5 bg-white/5 text-slate-400 rounded-full font-bold whitespace-nowrap">
                           {users.find(u => u.id === tx.userId)?.name || 'مستخدم'}

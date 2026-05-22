@@ -272,7 +272,7 @@ export default function BudgetsPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-bold text-white truncate max-w-[120px]">{EXPENSE_CATEGORIES.find(c => c.value === budget.category)?.label || budget.category}</h4>
+                        <h4 className="font-bold text-white break-words whitespace-normal">{EXPENSE_CATEGORIES.find(c => c.value === budget.category)?.label || budget.category}</h4>
                       </div>
                       <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">ميزانية شهرية</p>
                     </div>

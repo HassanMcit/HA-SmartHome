@@ -29,9 +29,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const freshUser = await authApi.me();
           setUserState(freshUser);
           setUser(freshUser);
-        } catch {
-          removeToken();
-          setUserState(null);
+        } catch (error: any) {
+          // Only clear the session if the error is explicitly a 401 Unauthorized
+          if (error?.status === 401) {
+            removeToken();
+            setUserState(null);
+          } else {
+            console.warn('Transient network/server error during auth validation. Keeping cached session.', error);
+          }
         }
       }
       setLoading(false);

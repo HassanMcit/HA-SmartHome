@@ -205,7 +205,7 @@ export default function RemindersPage() {
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-4 mb-1">
-                        <h3 className="text-lg font-bold text-white truncate">{reminder.title}</h3>
+                        <h3 className="text-lg font-bold text-white break-words whitespace-normal">{reminder.title}</h3>
                         <div className="flex items-center gap-2">
                           <span className={cn("px-2.5 py-1 rounded-lg text-xs font-bold border", priorityColors[reminder.priority])}>
                             {priorityLabels[reminder.priority]}

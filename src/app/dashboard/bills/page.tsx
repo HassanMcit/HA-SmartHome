@@ -308,7 +308,7 @@ export default function BillsPage() {
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className={cn("font-bold text-sm sm:text-base truncate", bill.isPaid ? "text-emerald-400 line-through" : "text-white")}>
+                      <span className={cn("font-bold text-sm sm:text-base break-words whitespace-normal", bill.isPaid ? "text-emerald-400 line-through" : "text-white")}>
                         {bill.name}
                       </span>
                       {bill.isRecurring && <span className="text-[9px] font-black uppercase tracking-wider bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20 shrink-0">متكررة</span>}
