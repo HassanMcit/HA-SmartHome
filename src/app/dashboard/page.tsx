@@ -154,7 +154,7 @@ export default function DashboardPage() {
                            {tx.type === 'income' ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                          </div>
                          <div>
-                           <div className="flex items-center gap-2">
+                           <div className="flex flex-wrap items-center gap-2">
                              <p className="text-sm sm:text-base font-bold text-slate-100 mb-0.5 break-words whitespace-normal">{tx.description || cat.label}</p>
                            </div>
                            <p className="text-xs text-slate-500 font-medium">{new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}</p>
