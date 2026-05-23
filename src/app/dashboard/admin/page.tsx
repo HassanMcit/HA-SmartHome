@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ShieldCheck, Check, X, Users, Activity, Trash2, UserCog, Key, Loader2, ArrowUpRight, ArrowDownRight, ChevronLeft } from 'lucide-react';
+import { ShieldCheck, Check, X, Users, Activity, Trash2, UserCog, Key, Loader2, ArrowUpRight, ArrowDownRight, ChevronLeft, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -18,6 +18,7 @@ function AdminPage(): React.ReactNode {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
   
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -118,6 +119,19 @@ function AdminPage(): React.ReactNode {
         }
       }
     });
+  };
+
+  const handleResendWelcome = async (id: string, name: string) => {
+    if (resendingId) return;
+    setResendingId(id);
+    try {
+      await adminApi.resendWelcomeEmail(id);
+      toast.success(`تم إعادة إرسال بريد التفعيل والدليل إلى ${name} بنجاح`);
+    } catch (error: any) {
+      toast.error(error.message || 'فشل إعادة إرسال البريد');
+    } finally {
+      setResendingId(null);
+    }
   };
 
   const handleToggleRole = (id: string, name: string, currentRole: string) => {
@@ -242,31 +256,48 @@ function AdminPage(): React.ReactNode {
                         <p className="text-xs text-slate-500 font-medium">{u.email}</p>
                       </div>
                     </div>
-                    {u.id !== user?.id && (
-                      <div className="flex items-center gap-2 pr-1 sm:pr-0">
-                        <Button 
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => handleToggleRole(u.id, u.name, u.role)}
-                          className={cn(
-                            "h-8 text-[11px] font-bold px-4 rounded-lg flex-1 sm:flex-none",
-                            u.role === 'admin' ? "bg-slate-800 text-slate-400 hover:bg-slate-700" : "bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white"
-                          )}
-                        >
-                          {u.role === 'admin' ? 'عزله' : 'ترقية'}
-                        </Button>
-                        {u.role !== 'admin' && (
-                          <Button 
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => handleDeleteUser(u.id, u.name)}
-                            className="h-8 w-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border-0"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                    <div className="flex items-center gap-2 pr-1 sm:pr-0">
+                      <Button 
+                        variant="secondary"
+                        size="icon"
+                        onClick={() => handleResendWelcome(u.id, u.name)}
+                        disabled={resendingId !== null}
+                        className="h-8 w-8 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white border-0"
+                        title="إعادة إرسال دليل الترحيب"
+                      >
+                        {resendingId === u.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Mail className="w-4 h-4" />
                         )}
-                      </div>
-                    )}
+                      </Button>
+
+                      {u.id !== user?.id && (
+                        <>
+                          <Button 
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleToggleRole(u.id, u.name, u.role)}
+                            className={cn(
+                              "h-8 text-[11px] font-bold px-4 rounded-lg flex-1 sm:flex-none",
+                              u.role === 'admin' ? "bg-slate-800 text-slate-400 hover:bg-slate-700" : "bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white"
+                            )}
+                          >
+                            {u.role === 'admin' ? 'عزله' : 'ترقية'}
+                          </Button>
+                          {u.role !== 'admin' && (
+                            <Button 
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => handleDeleteUser(u.id, u.name)}
+                              className="h-8 w-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

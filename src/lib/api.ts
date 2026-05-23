@@ -458,4 +458,7 @@ export const adminApi = {
 
   deleteUser: (id: string) =>
     request(`/admin/users/${id}`, { method: 'DELETE' }),
+
+  resendWelcomeEmail: (id: string) =>
+    request(`/admin/users/${id}/resend-welcome`, { method: 'POST' }),
 };

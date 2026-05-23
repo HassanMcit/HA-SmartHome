@@ -26,7 +26,7 @@ export default function SavingsPage() {
 
   const fetchSavings = async () => {
     try { const data = await savingsApi.getAll(); setSavings(data); }
-    catch { toast.error('حدث خطأ في تحميل الأهداف'); }
+    catch (err: any) { toast.error(err?.message || 'حدث خطأ في تحميل الأهداف'); }
     finally { setLoading(false); }
   };
 
@@ -40,7 +40,7 @@ export default function SavingsPage() {
       await savingsApi.create({ name, targetAmount: parseFloat(targetAmount), color });
       toast.success('تم إضافة الهدف بنجاح');
       setOpen(false); setName(''); setTargetAmount(''); setColor('#10b981'); fetchSavings();
-    } catch { toast.error('حدث خطأ'); }
+    } catch (err: any) { toast.error(err?.message || 'حدث خطأ'); }
     finally { setSubmitting(false); }
   };
 
@@ -52,7 +52,7 @@ export default function SavingsPage() {
       await savingsApi.deposit(selectedId, parseFloat(depositAmount));
       toast.success('تم إضافة المبلغ بنجاح');
       setDepositOpen(false); setDepositAmount(''); setSelectedId(null); fetchSavings();
-    } catch { toast.error('حدث خطأ'); }
+    } catch (err: any) { toast.error(err?.message || 'حدث خطأ'); }
     finally { setSubmitting(false); }
   };
 
@@ -64,7 +64,7 @@ export default function SavingsPage() {
       setDeleteDialog({ isOpen: false, savingId: '', savingName: '' });
       fetchSavings(); 
     }
-    catch { toast.error('حدث خطأ أثناء الحذف'); }
+    catch (err: any) { toast.error(err?.message || 'حدث خطأ أثناء الحذف'); }
   };
 
   const inputStyle = { background: '#242444', border: '1px solid #2d2d5e', borderRadius: 8, padding: '10px 12px', color: '#fff', fontSize: 14, fontFamily: 'Cairo, sans-serif', outline: 'none', width: '100%', boxSizing: 'border-box' as const };
