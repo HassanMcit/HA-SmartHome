@@ -183,7 +183,7 @@ export default function BillsPage() {
                   <SelectTrigger className="w-full bg-[#242444] border border-[#2d2d5e] text-right h-12 rounded-[8px] px-4 text-white" dir="rtl">
                     <SelectValue placeholder="اختر الفئة" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a35] border-slate-700 text-white rounded-[20px] max-h-[250px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
+                  <SelectContent className="bg-[#1a1a35] border-slate-700 text-white rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
                     {EXPENSE_CATEGORIES.map(c => {
                       const Item = SelectItem as any;
                       return (
@@ -365,7 +365,7 @@ export default function BillsPage() {
                 <SelectTrigger className="w-full bg-[#242444] border border-[#2d2d5e] text-right h-12 rounded-[8px] px-4 text-white" dir="rtl">
                   <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a35] border-slate-700 text-white rounded-[20px] max-h-[250px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
+                <SelectContent className="bg-[#1a1a35] border-slate-700 text-white rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
                   {EXPENSE_CATEGORIES.map(c => {
                     const Item = SelectItem as any;
                     return (
