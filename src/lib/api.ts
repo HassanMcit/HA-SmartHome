@@ -461,4 +461,10 @@ export const adminApi = {
 
   resendWelcomeEmail: (id: string) =>
     request(`/admin/users/${id}/resend-welcome`, { method: 'POST' }),
+
+  sendForgotPassword: (email: string) =>
+    request('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
 };

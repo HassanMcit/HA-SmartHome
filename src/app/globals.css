@@ -50,6 +50,31 @@
   --chart-5: #3b82f6;
 }
 
+/* ──────────────────────────────────────────────
+   LIGHT MODE VARIABLES
+────────────────────────────────────────────── */
+html.light {
+  --background: #f1f5f9;
+  --foreground: #1e293b;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+  --popover: #ffffff;
+  --popover-foreground: #1e293b;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #334155;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #e0e7ff;
+  --accent-foreground: #4f46e5;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #6366f1;
+}
+
 
 html {
   direction: rtl;
@@ -57,20 +82,169 @@ html {
 }
 
 body {
-  background: #0f0f23;
-  color: #e2e8f0;
+  background: var(--background);
+  color: var(--foreground);
   font-family: 'Cairo', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Scrollbar */
+/* ──────────────────────────────────────────────
+   DARK MODE: base element colors (default)
+────────────────────────────────────────────── */
+html.dark body,
+body {
+  background: #0f0f23;
+  color: #e2e8f0;
+}
+
+/* ──────────────────────────────────────────────
+   LIGHT MODE: base element overrides
+────────────────────────────────────────────── */
+html.light body {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* ─── Layout backgrounds ─── */
+html.light .bg-\[\#0f0f23\],
+html.light .min-h-screen.bg-\[\#0f0f23\] {
+  background: #f1f5f9 !important;
+}
+
+html.light .bg-\[\#1a1a35\],
+html.light [class*="bg-[#1a1a35]"] {
+  background: #ffffff !important;
+}
+
+html.light .bg-\[\#1a1a35\]\/80 {
+  background: rgba(255,255,255,0.9) !important;
+}
+
+html.light [class*="direction-rtl"],
+html.light .flex.min-h-screen {
+  background: #f1f5f9;
+}
+
+/* ─── Sidebar in light mode ─── */
+html.light aside,
+html.light .w-64.h-full {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .border-white\/5,
+html.light [class*="border-white/5"] {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .border-white\/10,
+html.light [class*="border-white/10"] {
+  border-color: #cbd5e1 !important;
+}
+
+/* ─── Text colors ─── */
+html.light .text-white {
+  color: #1e293b !important;
+}
+
+html.light .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+html.light .text-slate-600 {
+  color: #64748b !important;
+}
+
+html.light .text-slate-300 {
+  color: #475569 !important;
+}
+
+html.light .text-slate-200 {
+  color: #334155 !important;
+}
+
+/* ─── Glass Card ─── */
+html.light .glass-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(99, 102, 241, 0.15) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
+}
+
+/* ─── Backgrounds with opacity ─── */
+html.light .bg-white\/5 {
+  background: rgba(0,0,0,0.03) !important;
+}
+
+html.light .bg-white\/10 {
+  background: rgba(0,0,0,0.06) !important;
+}
+
+html.light .bg-black\/10 {
+  background: rgba(0,0,0,0.04) !important;
+}
+
+html.light .bg-\[\#1a1a35\]\/80 {
+  background: rgba(255,255,255,0.95) !important;
+}
+
+/* ─── Cards inner bg ─── */
+html.light .p-4.rounded-\[20px\].bg-white\/5 {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* ─── Input fields ─── */
+html.light input,
+html.light select,
+html.light textarea {
+  background: #f8fafc !important;
+  color: #1e293b !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* ─── Dialogs / Modals ─── */
+html.light [class*="bg-[#1a1a35]"] {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+
+html.light [class*="DialogContent"] {
+  background: #ffffff !important;
+}
+
+/* ─── Header in light mode ─── */
+html.light header {
+  background: rgba(255,255,255,0.95) !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* ─── Hover states ─── */
+html.light .hover\:bg-white\/5:hover {
+  background: rgba(0,0,0,0.04) !important;
+}
+
+/* ─── Scrollbar ─── */
+html.dark ::-webkit-scrollbar-track,
+::-webkit-scrollbar-track {
+  background: #1a1a35;
+}
+html.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #1a1a35;
 }
 ::-webkit-scrollbar-thumb {
   background: #6366f1;
@@ -78,6 +252,15 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #4f46e5;
+}
+
+/* ─── Navigation links in light ─── */
+html.light nav a.text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light nav a:hover {
+  color: #334155 !important;
 }
 
 /* Glass Card */
@@ -213,4 +396,40 @@ input[type=number] {
   border-radius: 10px;
   border: 1px solid transparent;
   background-clip: content-box;
+}
+
+/* ──────────────────────────────────────────────
+   THEME TOGGLE BUTTON
+────────────────────────────────────────────── */
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.05);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(99,102,241,0.15);
+  border-color: rgba(99,102,241,0.3);
+  color: #818cf8;
+  transform: scale(1.05);
+}
+
+html.light .theme-toggle-btn {
+  border-color: rgba(0,0,0,0.1);
+  background: rgba(0,0,0,0.04);
+  color: #64748b;
+}
+
+html.light .theme-toggle-btn:hover {
+  background: rgba(99,102,241,0.1);
+  color: #6366f1;
 }

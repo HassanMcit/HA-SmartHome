@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ShieldCheck, Check, X, Users, Activity, Trash2, UserCog, Key, Loader2, ArrowUpRight, ArrowDownRight, ChevronLeft, Mail } from 'lucide-react';
+import { ShieldCheck, Check, X, Users, Activity, Trash2, UserCog, Key, Loader2, ArrowUpRight, ArrowDownRight, ChevronLeft, Mail, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +19,7 @@ function AdminPage(): React.ReactNode {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [resendingId, setResendingId] = useState<string | null>(null);
+  const [forgotPasswordId, setForgotPasswordId] = useState<string | null>(null);
   
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -131,6 +132,24 @@ function AdminPage(): React.ReactNode {
       toast.error(error.message || 'فشل إعادة إرسال البريد');
     } finally {
       setResendingId(null);
+    }
+  };
+
+  const handleForgotPassword = async (id: string, email: string, name: string) => {
+    if (forgotPasswordId) return;
+    setForgotPasswordId(id);
+    try {
+      await adminApi.sendForgotPassword(email);
+      // Refresh reset codes so admin can see the new code immediately
+      const freshCodes = await adminApi.getResetCodes();
+      setResetCodes(freshCodes);
+      toast.success(`تم إرسال كود استعادة كلمة المرور إلى ${name} - شوف الكود أدناه ⬇️`, {
+        duration: 5000,
+      });
+    } catch (error: any) {
+      toast.error(error.message || 'حدث خطأ في إرسال كود الاستعادة');
+    } finally {
+      setForgotPasswordId(null);
     }
   };
 
@@ -269,6 +288,22 @@ function AdminPage(): React.ReactNode {
                           <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
                           <Mail className="w-4 h-4" />
+                        )}
+                      </Button>
+
+                      {/* Forgot Password Button */}
+                      <Button 
+                        variant="secondary"
+                        size="icon"
+                        onClick={() => handleForgotPassword(u.id, u.email, u.name)}
+                        disabled={forgotPasswordId !== null}
+                        className="h-8 w-8 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-white border-0"
+                        title="إرسال كود استعادة كلمة المرور"
+                      >
+                        {forgotPasswordId === u.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <KeyRound className="w-4 h-4" />
                         )}
                       </Button>
 

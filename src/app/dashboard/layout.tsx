@@ -3,10 +3,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
 import Link from 'next/link';
-import { Home, Settings, Loader2 } from 'lucide-react';
+import { Home, Settings, Loader2, Sun, Moon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function DashboardLayout({
@@ -16,6 +17,7 @@ export default function DashboardLayout({
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -60,11 +62,19 @@ export default function DashboardLayout({
             <span className="text-xl font-black gradient-text tracking-tight">مدبّر</span>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="text-left hidden sm:block">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">مرحباً</p>
               <p className="text-sm font-black text-white">{user.name.split(' ')[0]}</p>
             </div>
+            {/* Theme toggle for mobile */}
+            <button
+              onClick={toggleTheme}
+              className="theme-toggle-btn"
+              title={theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن'}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <Link href="/dashboard/settings" className="group">
               <Avatar className="w-10 h-10 border-2 border-white/5 group-hover:border-indigo-500/30 transition-all">
                 <AvatarImage src={user?.avatar && !user.avatar.startsWith('RESET:') ? user.avatar : undefined} />

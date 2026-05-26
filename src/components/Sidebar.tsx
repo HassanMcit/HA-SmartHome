@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -15,6 +16,8 @@ import {
   Home,
   ShieldCheck,
   Bell,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -32,6 +35,7 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard';
@@ -121,6 +125,19 @@ export default function Sidebar() {
 
       {/* Bottom Actions */}
       <div className="p-4 border-t border-white/5 bg-black/10">
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group mb-1 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10"
+          title={theme === 'dark' ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-5 h-5 transition-transform group-hover:rotate-12" />
+          ) : (
+            <Moon className="w-5 h-5 transition-transform group-hover:-rotate-12" />
+          )}
+          <span>{theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن'}</span>
+        </button>
         <Link
           href="/dashboard/settings"
           className={cn(
