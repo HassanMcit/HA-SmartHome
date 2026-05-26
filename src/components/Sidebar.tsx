@@ -47,7 +47,7 @@ export default function Sidebar() {
 
   return (
     <div className="w-64 h-full flex flex-col bg-[#1a1a35] border-l border-white/5 direction-rtl overflow-y-auto custom-scrollbar">
-      {/* Logo & Theme Toggle */}
+      {/* Logo & Toggles */}
       <div className="px-6 py-6 border-b border-white/5 flex-shrink-0 flex items-center justify-between gap-2">
         <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
           <div className={cn(
@@ -64,18 +64,30 @@ export default function Sidebar() {
           </div>
         </Link>
 
-        {/* Theme Toggle next to Logo */}
-        <button
-          onClick={toggleTheme}
-          className="theme-toggle-btn w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 border border-white/10 hover:bg-white/10 transition-all"
-          title={theme === 'dark' ? t('theme_light') : t('theme_dark')}
-        >
-          {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-amber-400" />
-          ) : (
-            <Moon className="w-4 h-4 text-[#7650FF]" />
-          )}
-        </button>
+        {/* Quick Actions (Theme & Language) */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle-btn w-9 h-9 rounded-xl flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all"
+            title={theme === 'dark' ? t('theme_light') : t('theme_dark')}
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Moon className="w-4 h-4 text-[#7650FF]" />
+            )}
+          </button>
+
+          {/* Language Toggle */}
+          <button
+            onClick={toggleLang}
+            className="theme-toggle-btn w-9 h-9 rounded-xl flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all text-slate-400 hover:text-emerald-400"
+            title={t('lang_switch_to_en')}
+          >
+            <Languages className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* User info */}
@@ -146,19 +158,6 @@ export default function Sidebar() {
 
       {/* Bottom Actions */}
       <div className="p-4 border-t border-white/5 bg-black/10">
-        {/* Language Toggle */}
-        <button
-          onClick={toggleLang}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group mb-1 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10"
-          title={t('lang_switch_to_en')}
-        >
-          <Languages className="w-5 h-5 transition-transform group-hover:scale-110" />
-          <span>{t('lang_switch_to_en')}</span>
-          <span className="ml-auto text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400">
-            {lang === 'ar' ? 'EN' : 'AR'}
-          </span>
-        </button>
-
         <Link
           href="/dashboard/settings"
           className={cn(
