@@ -134,34 +134,6 @@ export default function MobileNav() {
                 );
               })}
 
-              {/* Theme & Language toggles */}
-              <div className="pt-3 mt-3 border-t border-white/5 space-y-2">
-                {/* Theme */}
-                <button
-                  onClick={toggleTheme}
-                  className="w-full flex items-center gap-4 p-4 rounded-2xl text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                    {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                  </div>
-                  <span className="font-bold">{theme === 'dark' ? t('theme_light') : t('theme_dark')}</span>
-                </button>
-
-                {/* Language */}
-                <button
-                  onClick={toggleLang}
-                  className="w-full flex items-center gap-4 p-4 rounded-2xl text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                    <Languages className="w-5 h-5" />
-                  </div>
-                  <span className="font-bold">{t('lang_switch_to_en')}</span>
-                  <span className="ms-auto text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400">
-                    {lang === 'ar' ? 'EN' : 'AR'}
-                  </span>
-                </button>
-              </div>
-
               <div className="pt-4 mt-4 border-t border-white/5">
                 <button
                   onClick={() => {
