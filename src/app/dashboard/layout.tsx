@@ -4,10 +4,11 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
 import Link from 'next/link';
-import { Home, Settings, Loader2, Sun, Moon } from 'lucide-react';
+import { Home, Loader2, Sun, Moon, Languages } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function DashboardLayout({
@@ -18,6 +19,7 @@ export default function DashboardLayout({
   const { user, loading } = useAuth();
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
+  const { t, lang, toggleLang } = useLanguage();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -33,7 +35,7 @@ export default function DashboardLayout({
         </div>
         <div className="flex flex-col items-center gap-2">
           <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
-          <p className="text-slate-500 text-sm font-bold tracking-widest uppercase">جاري التحميل</p>
+          <p className="text-slate-500 text-sm font-bold tracking-widest uppercase">{t('loading')}</p>
         </div>
       </div>
     );
@@ -42,9 +44,9 @@ export default function DashboardLayout({
   if (!user) return null;
 
   return (
-    <div className="flex min-h-screen bg-[#0f0f23] direction-rtl">
+    <div className="flex min-h-screen bg-[#0f0f23]">
       {/* Desktop Sidebar - sticky */}
-      <aside className="hidden md:block w-64 flex-shrink-0 border-l border-white/5">
+      <aside className={`hidden md:block w-64 flex-shrink-0 ${lang === 'ar' ? 'border-l' : 'border-r'} border-white/5`}>
         <div className="sticky top-0 h-screen overflow-y-auto">
           <Sidebar />
         </div>
@@ -59,21 +61,29 @@ export default function DashboardLayout({
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
               <Home className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-black gradient-text tracking-tight">مدبّر</span>
+            <span className="text-xl font-black gradient-text tracking-tight">{t('app_name')}</span>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div className="text-left hidden sm:block">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">مرحباً</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('welcome')}</p>
               <p className="text-sm font-black text-white">{user.name.split(' ')[0]}</p>
             </div>
-            {/* Theme toggle for mobile */}
+            {/* Theme toggle */}
             <button
               onClick={toggleTheme}
               className="theme-toggle-btn"
-              title={theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن'}
+              title={theme === 'dark' ? t('theme_light') : t('theme_dark')}
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            {/* Language toggle */}
+            <button
+              onClick={toggleLang}
+              className="theme-toggle-btn"
+              title={t('lang_switch_to_en')}
+            >
+              <Languages className="w-4 h-4" />
             </button>
             <Link href="/dashboard/settings" className="group">
               <Avatar className="w-10 h-10 border-2 border-white/5 group-hover:border-indigo-500/30 transition-all">

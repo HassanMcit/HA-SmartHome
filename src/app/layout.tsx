@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
@@ -29,10 +30,12 @@ export default function RootLayout({
       </head>
       <body className="font-cairo antialiased">
         <ThemeProvider>
-          <AuthProvider>
-            {children}
-            <Toaster position="top-center" richColors dir="rtl" />
-          </AuthProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              {children}
+              <Toaster position="top-center" richColors dir="rtl" />
+            </AuthProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { transactionsApi, billsApi, TransactionStats, Transaction, Bill, formatCurrency, getCategoryInfo } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowDownRight, ArrowUpRight, Wallet, Activity, CreditCard, Loader2, AlertCircle, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -11,6 +12,7 @@ import WeatherPrayerWidget from '@/components/WeatherPrayerWidget';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [stats, setStats] = useState<TransactionStats | null>(null);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [unpaidBills, setUnpaidBills] = useState<Bill[]>([]);
@@ -33,7 +35,7 @@ export default function DashboardPage() {
         setRecentTransactions(txData);
         setUnpaidBills(billsData);
       } catch {
-        toast.error('حدث خطأ في تحميل البيانات');
+        toast.error(t('data_load_error'));
       } finally {
         setLoading(false);
       }
@@ -65,15 +67,15 @@ export default function DashboardPage() {
                 <AlertCircle className="w-6 h-6" />
               </div>
               <div className="text-right sm:text-left rtl:text-right">
-                <h4 className="text-lg font-black">تنبيه فواتير مستحقة!</h4>
-                <p className="text-sm font-medium opacity-90">لديك <span className="underline decoration-2 underline-offset-4">{unpaidBills.length}</span> فواتير تنتظر الدفع، بإجمالي {formatCurrency(unpaidBills.reduce((acc, b) => acc + b.amount, 0))}</p>
+                <h4 className="text-lg font-black">{t('bills_alert_title')}</h4>
+                <p className="text-sm font-medium opacity-90">{t('bills_alert_desc_1')} <span className="underline decoration-2 underline-offset-4">{unpaidBills.length}</span> {t('bills_alert_desc_2')} {formatCurrency(unpaidBills.reduce((acc, b) => acc + b.amount, 0))}</p>
               </div>
             </div>
             <Link
               href="/dashboard/bills"
               className="px-6 py-3 bg-white text-orange-600 font-bold rounded-2xl shadow-xl hover:bg-orange-50 transition-all flex items-center gap-2 group/btn"
             >
-              <span>سدد الآن</span>
+              <span>{t('bills_pay_now')}</span>
               <ChevronLeft className="w-4 h-4 group-hover/btn:-translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -82,8 +84,8 @@ export default function DashboardPage() {
 
       {/* Header */}
       <div>
-        <h2 className="text-2xl sm:text-3xl font-black text-white mb-1">الرئيسية</h2>
-        <p className="text-slate-400 text-sm sm:text-base font-medium">نظرة عامة على نشاطك المالي هذا الشهر</p>
+        <h2 className="text-2xl sm:text-3xl font-black text-white mb-1">{t('dashboard_title')}</h2>
+        <p className="text-slate-400 text-sm sm:text-base font-medium">{t('dashboard_subtitle')}</p>
       </div>
 
       {/* Stats Cards - Responsive Grid */}
@@ -92,7 +94,7 @@ export default function DashboardPage() {
         <div className="glass-card p-6 relative overflow-hidden group hover:border-indigo-500/30 transition-all">
           <div className="absolute -top-6 -right-6 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all" />
           <div className="flex justify-between items-start mb-4">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">إجمالي الرصيد</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('total_balance')}</p>
             <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 shadow-lg shadow-indigo-500/5">
               <Wallet className="w-5 h-5" />
             </div>
@@ -104,7 +106,7 @@ export default function DashboardPage() {
         <div className="glass-card p-6 relative overflow-hidden group hover:border-emerald-500/30 transition-all">
           <div className="absolute -top-6 -right-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all" />
           <div className="flex justify-between items-start mb-4">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">الدخل هذا الشهر</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('income_this_month')}</p>
             <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/5">
               <ArrowUpRight className="w-5 h-5" />
             </div>
@@ -116,7 +118,7 @@ export default function DashboardPage() {
         <div className="glass-card p-6 relative overflow-hidden group hover:border-red-500/30 transition-all sm:col-span-2 lg:col-span-1">
           <div className="absolute -top-6 -right-6 w-24 h-24 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-all" />
           <div className="flex justify-between items-start mb-4">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">المصروفات هذا الشهر</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('expenses_this_month')}</p>
             <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-400 shadow-lg shadow-red-500/5">
               <ArrowDownRight className="w-5 h-5" />
             </div>
@@ -133,12 +135,12 @@ export default function DashboardPage() {
             <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
               <Activity className="w-4 h-4" />
             </div>
-            <h3 className="font-bold text-white">أحدث المعاملات</h3>
+            <h3 className="font-bold text-white">{t('recent_transactions')}</h3>
           </div>
           <div className="p-6">
             {recentTransactions.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-slate-500 gap-2">
-                <p className="text-sm font-medium">لا توجد معاملات حديثة</p>
+                <p className="text-sm font-medium">{t('no_recent_transactions')}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -180,12 +182,12 @@ export default function DashboardPage() {
             <div className="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-pink-400">
               <CreditCard className="w-4 h-4" />
             </div>
-            <h3 className="font-bold text-white">توزيع المصروفات</h3>
+            <h3 className="font-bold text-white">{t('expense_breakdown')}</h3>
           </div>
           <div className="p-6">
             {Object.keys(stats?.categoryBreakdown || {}).length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-slate-500 gap-2">
-                <p className="text-sm font-medium">لا توجد بيانات مصروفات</p>
+                <p className="text-sm font-medium">{t('no_expense_data')}</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -207,7 +209,7 @@ export default function DashboardPage() {
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <p className="text-[10px] font-bold text-slate-500 mt-1 text-left">{pct}% من الإجمالي</p>
+                        <p className="text-[10px] font-bold text-slate-500 mt-1 text-left">{pct}% {t('of_total')}</p>
                       </div>
                     );
                   })}

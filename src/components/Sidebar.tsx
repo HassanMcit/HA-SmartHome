@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -18,24 +19,26 @@ import {
   Bell,
   Sun,
   Moon,
+  Languages,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'الرئيسية' },
-  { href: '/dashboard/transactions', icon: ArrowLeftRight, label: 'المعاملات' },
-  { href: '/dashboard/budgets', icon: Target, label: 'الميزانية' },
-  { href: '/dashboard/savings', icon: PiggyBank, label: 'الادخار' },
-  { href: '/dashboard/bills', icon: FileText, label: 'الفواتير' },
-  { href: '/dashboard/reminders', icon: Bell, label: 'ذكّرني' },
-  { href: '/dashboard/ai', icon: Sparkles, label: 'تحليل ذكي' },
-];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t, lang, toggleLang } = useLanguage();
+
+  const navItems = [
+    { href: '/dashboard', icon: LayoutDashboard, labelKey: 'nav_home' as const },
+    { href: '/dashboard/transactions', icon: ArrowLeftRight, labelKey: 'nav_transactions' as const },
+    { href: '/dashboard/budgets', icon: Target, labelKey: 'nav_budgets' as const },
+    { href: '/dashboard/savings', icon: PiggyBank, labelKey: 'nav_savings' as const },
+    { href: '/dashboard/bills', icon: FileText, labelKey: 'nav_bills' as const },
+    { href: '/dashboard/reminders', icon: Bell, labelKey: 'nav_reminders' as const },
+    { href: '/dashboard/ai', icon: Sparkles, labelKey: 'nav_ai' as const },
+  ];
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard';
@@ -51,8 +54,8 @@ export default function Sidebar() {
             <Home className="w-6 h-6 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-black text-white leading-none tracking-tight">مدبّر</span>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">إدارة المنزل</span>
+            <span className="text-xl font-black text-white leading-none tracking-tight">{t('app_name')}</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{t('app_subtitle')}</span>
           </div>
         </Link>
       </div>
@@ -74,7 +77,7 @@ export default function Sidebar() {
           </div>
           {user?.role === 'admin' && (
             <div className="mt-3 py-1 px-3 bg-indigo-500/10 rounded-lg border border-indigo-500/20 text-center">
-              <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">مدير النظام</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">{t('app_tagline')}</span>
             </div>
           )}
         </div>
@@ -82,7 +85,7 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-6 space-y-1">
-        <p className="px-4 mb-2 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">الرئيسية</p>
+        <p className="px-4 mb-2 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">{t('nav_main')}</p>
         {navItems.map((item) => {
           const active = isActive(item.href);
           return (
@@ -98,14 +101,14 @@ export default function Sidebar() {
             >
               {active && <div className="absolute right-0 top-2 bottom-2 w-1 bg-indigo-500 rounded-l-full shadow-[0_0_8px_rgba(99,102,241,0.5)]" />}
               <item.icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", active && "text-indigo-400")} />
-              <span>{item.label}</span>
+              <span>{t(item.labelKey)}</span>
             </Link>
           );
         })}
 
         {user?.role === 'admin' && (
           <div className="pt-6">
-            <p className="px-4 mb-2 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">الإدارة</p>
+            <p className="px-4 mb-2 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">{t('nav_management')}</p>
             <Link
               href="/dashboard/admin"
               className={cn(
@@ -117,7 +120,7 @@ export default function Sidebar() {
             >
               {isActive('/dashboard/admin') && <div className="absolute right-0 top-2 bottom-2 w-1 bg-amber-500 rounded-l-full shadow-[0_0_8px_rgba(245,158,11,0.5)]" />}
               <ShieldCheck className="w-5 h-5 transition-transform group-hover:scale-110" />
-              <span>لوحة التحكم</span>
+              <span>{t('nav_admin')}</span>
             </Link>
           </div>
         )}
@@ -129,15 +132,29 @@ export default function Sidebar() {
         <button
           onClick={toggleTheme}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group mb-1 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10"
-          title={theme === 'dark' ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
+          title={theme === 'dark' ? t('theme_light') : t('theme_dark')}
         >
           {theme === 'dark' ? (
             <Sun className="w-5 h-5 transition-transform group-hover:rotate-12" />
           ) : (
             <Moon className="w-5 h-5 transition-transform group-hover:-rotate-12" />
           )}
-          <span>{theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن'}</span>
+          <span>{theme === 'dark' ? t('theme_light') : t('theme_dark')}</span>
         </button>
+
+        {/* Language Toggle */}
+        <button
+          onClick={toggleLang}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group mb-1 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10"
+          title={t('lang_switch_to_en')}
+        >
+          <Languages className="w-5 h-5 transition-transform group-hover:scale-110" />
+          <span>{t('lang_switch_to_en')}</span>
+          <span className="ml-auto text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400">
+            {lang === 'ar' ? 'EN' : 'AR'}
+          </span>
+        </button>
+
         <Link
           href="/dashboard/settings"
           className={cn(
@@ -148,14 +165,14 @@ export default function Sidebar() {
           )}
         >
           <Settings className="w-5 h-5 transition-transform group-hover:rotate-45" />
-          <span>الإعدادات</span>
+          <span>{t('nav_settings')}</span>
         </Link>
         <button
           onClick={logout}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all group active:scale-95"
         >
           <LogOut className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-          <span>تسجيل الخروج</span>
+          <span>{t('nav_logout')}</span>
         </button>
       </div>
     </div>

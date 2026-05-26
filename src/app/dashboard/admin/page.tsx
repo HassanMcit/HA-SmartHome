@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { adminApi, RegistrationRequest, AdminStats, formatCurrency, User } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,6 +13,7 @@ import { cn } from '@/lib/utils';
 
 function AdminPage(): React.ReactNode {
   const { user, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const [requests, setRequests] = useState<RegistrationRequest[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [resetCodes, setResetCodes] = useState<any[]>([]);
@@ -190,8 +192,8 @@ function AdminPage(): React.ReactNode {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center glass-card p-10">
         <ShieldCheck className="w-16 h-16 text-red-500 mb-4 opacity-50" />
-        <h2 className="text-xl font-bold text-white mb-2">غير مصرح</h2>
-        <p className="text-slate-400">هذه الصفحة مخصصة لمدير النظام فقط</p>
+        <h2 className="text-xl font-bold text-white mb-2">{t('admin_unauthorized')}</h2>
+        <p className="text-slate-400">{t('admin_unauthorized_msg')}</p>
       </div>
     );
   }
@@ -205,9 +207,9 @@ function AdminPage(): React.ReactNode {
       <div>
         <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3 mb-1">
           <ShieldCheck className="w-8 h-8 text-indigo-400" />
-          لوحة الإدارة
+          {t('admin_title')}
         </h2>
-        <p className="text-slate-400 text-sm sm:text-base font-medium">إدارة المستخدمين وطلبات التسجيل</p>
+        <p className="text-slate-400 text-sm sm:text-base font-medium">{t('admin_subtitle')}</p>
       </div>
 
       {/* Stats - Responsive Grid */}
@@ -217,7 +219,7 @@ function AdminPage(): React.ReactNode {
             <Users className="w-6 h-6" />
           </div>
           <p className="text-3xl font-black text-white leading-none">{stats?.totalUsers}</p>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">إجمالي المستخدمين</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">{t('admin_total_users')}</p>
         </div>
         
         <div className="glass-card p-6 flex flex-col items-center text-center group hover:border-amber-500/30 transition-all">
@@ -225,7 +227,7 @@ function AdminPage(): React.ReactNode {
             <Activity className="w-6 h-6" />
           </div>
           <p className="text-3xl font-black text-white leading-none">{stats?.pendingRequests}</p>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">طلبات معلقة</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">{t('admin_pending')}</p>
         </div>
 
         <div className="glass-card p-6 flex flex-col items-center text-center group hover:border-emerald-500/30 transition-all">
@@ -233,7 +235,7 @@ function AdminPage(): React.ReactNode {
             <ArrowUpRight className="w-6 h-6" />
           </div>
           <p className="text-xl font-black text-emerald-500 truncate w-full">{formatCurrency(stats?.totalIncome || 0)}</p>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">دخل العائلة</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">{t('admin_family_income')}</p>
         </div>
 
         <div className="glass-card p-6 flex flex-col items-center text-center group hover:border-red-500/30 transition-all">
@@ -241,7 +243,7 @@ function AdminPage(): React.ReactNode {
             <ArrowDownRight className="w-6 h-6" />
           </div>
           <p className="text-xl font-black text-red-500 truncate w-full">{formatCurrency(stats?.totalExpenses || 0)}</p>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">مصروفات العائلة</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-3">{t('admin_family_expenses')}</p>
         </div>
       </div>
 
@@ -250,11 +252,11 @@ function AdminPage(): React.ReactNode {
         <div className="glass-card overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-white/5 bg-white/5 flex items-center gap-3">
             <UserCog className="w-5 h-5 text-indigo-400" />
-            <h3 className="font-bold text-white">المستخدمين الحاليين</h3>
+            <h3 className="font-bold text-white">{t('admin_current_users')}</h3>
           </div>
           <div className="p-6">
             {users.length === 0 ? (
-              <div className="text-center py-12 text-slate-500 text-sm font-medium">لا يوجد مستخدمين</div>
+              <div className="text-center py-12 text-slate-500 text-sm font-medium">{t('admin_no_users')}</div>
             ) : (
               <div className="space-y-4">
                 {users.map(u => (
@@ -269,7 +271,7 @@ function AdminPage(): React.ReactNode {
                         <div className="flex items-center gap-2">
                           <h4 className="font-bold text-white text-sm">{u.name}</h4>
                           {u.role === 'admin' && (
-                            <span className="text-[9px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20">مدير</span>
+                            <span className="text-[9px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20">{t('admin_role_badge')}</span>
                           )}
                         </div>
                         <p className="text-xs text-slate-500 font-medium">{u.email}</p>
@@ -282,7 +284,7 @@ function AdminPage(): React.ReactNode {
                         onClick={() => handleResendWelcome(u.id, u.name)}
                         disabled={resendingId !== null}
                         className="h-8 w-8 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white border-0"
-                        title="إعادة إرسال دليل الترحيب"
+                        title={t('admin_resend_welcome')}
                       >
                         {resendingId === u.id ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -298,7 +300,7 @@ function AdminPage(): React.ReactNode {
                         onClick={() => handleForgotPassword(u.id, u.email, u.name)}
                         disabled={forgotPasswordId !== null}
                         className="h-8 w-8 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-white border-0"
-                        title="إرسال كود استعادة كلمة المرور"
+                        title={t('admin_forgot_password')}
                       >
                         {forgotPasswordId === u.id ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -318,7 +320,7 @@ function AdminPage(): React.ReactNode {
                               u.role === 'admin' ? "bg-slate-800 text-slate-400 hover:bg-slate-700" : "bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white"
                             )}
                           >
-                            {u.role === 'admin' ? 'عزله' : 'ترقية'}
+                            {u.role === 'admin' ? t('admin_demote') : t('admin_promote')}
                           </Button>
                           {u.role !== 'admin' && (
                             <Button 
@@ -344,11 +346,11 @@ function AdminPage(): React.ReactNode {
         <div className="glass-card overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-white/5 bg-white/5 flex items-center gap-3">
             <Users className="w-5 h-5 text-amber-400" />
-            <h3 className="font-bold text-white">طلبات التسجيل المعلقة</h3>
+            <h3 className="font-bold text-white">{t('admin_pending_requests')}</h3>
           </div>
           <div className="p-6">
             {pendingRequests.length === 0 ? (
-              <div className="text-center py-12 text-slate-500 text-sm font-medium">لا توجد طلبات معلقة</div>
+              <div className="text-center py-12 text-slate-500 text-sm font-medium">{t('admin_no_pending')}</div>
             ) : (
               <div className="space-y-4">
                 {pendingRequests.map(req => (
@@ -373,7 +375,7 @@ function AdminPage(): React.ReactNode {
                         ) : (
                           <>
                             <Check className="w-4 h-4 ml-1.5" />
-                            قبول
+                            {t('admin_approve')}
                           </>
                         )}
                       </Button>
@@ -383,7 +385,7 @@ function AdminPage(): React.ReactNode {
                         className="flex-1 h-10 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold text-xs rounded-xl transition-all border-0"
                       >
                         <X className="w-4 h-4 ml-1.5" />
-                        رفض
+                        {t('admin_reject')}
                       </Button>
                     </div>
                   </div>
@@ -399,7 +401,7 @@ function AdminPage(): React.ReactNode {
         <div className="glass-card overflow-hidden border-indigo-500/20">
           <div className="px-6 py-5 border-b border-indigo-500/20 bg-indigo-500/5 flex items-center gap-3">
             <Key className="w-5 h-5 text-indigo-400" />
-            <h3 className="font-bold text-white">أكواد استعادة كلمة المرور النشطة</h3>
+            <h3 className="font-bold text-white">{t('admin_reset_codes_title')}</h3>
           </div>
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {resetCodes.map(rc => (
@@ -413,7 +415,7 @@ function AdminPage(): React.ReactNode {
                     {rc.code}
                   </div>
                   <div className="text-[10px] font-bold text-slate-500 text-left leading-tight">
-                    ينتهي <br />
+                    {t('admin_expires')} <br />
                     <span className="text-slate-400 font-black">{new Date(rc.expiresAt).toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
@@ -426,11 +428,11 @@ function AdminPage(): React.ReactNode {
       {/* Past Requests */}
       <div className="glass-card overflow-hidden">
         <div className="px-6 py-5 border-b border-white/5 bg-white/5">
-          <h3 className="font-bold text-white">سجل الطلبات السابقة</h3>
+          <h3 className="font-bold text-white">{t('admin_past_requests')}</h3>
         </div>
         <div className="p-6">
           {pastRequests.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 text-sm font-medium">لا يوجد سجل</div>
+            <div className="text-center py-12 text-slate-500 text-sm font-medium">{t('admin_no_history')}</div>
           ) : (
             <div className="space-y-3">
               {pastRequests.slice(0, 5).map(req => (
@@ -444,9 +446,9 @@ function AdminPage(): React.ReactNode {
                     req.status === 'approved' ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
                   )}>
                     {req.status === 'approved' ? (
-                      <><Check className="w-3 h-3" /> مقبول</>
+                      <><Check className="w-3 h-3" /> {t('admin_status_approved')}</>
                     ) : (
-                      <><X className="w-3 h-3" /> مرفوض</>
+                      <><X className="w-3 h-3" /> {t('admin_status_rejected')}</>
                     )}
                   </div>
                 </div>

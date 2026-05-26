@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -15,8 +17,12 @@ import {
   Menu,
   LogOut,
   ChevronLeft,
+  ChevronRight,
   Settings as SettingsIcon,
   Bell,
+  Sun,
+  Moon,
+  Languages,
 } from 'lucide-react';
 import {
   Sheet,
@@ -31,6 +37,8 @@ import { cn } from '@/lib/utils';
 export default function MobileNav() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const { t, lang, toggleLang } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
   const isActive = (href: string) => {
@@ -38,23 +46,27 @@ export default function MobileNav() {
     return pathname.startsWith(href);
   };
 
+  const isRtl = lang === 'ar';
+
   const mainItems = [
-    { href: '/dashboard', icon: LayoutDashboard, label: 'الرئيسية' },
-    { href: '/dashboard/transactions', icon: ArrowLeftRight, label: 'معاملات' },
-    { href: '/dashboard/ai', icon: Sparkles, label: 'ذكاء' },
-    { href: '/dashboard/budgets', icon: Target, label: 'ميزانية' },
+    { href: '/dashboard', icon: LayoutDashboard, labelKey: 'nav_home' as const },
+    { href: '/dashboard/transactions', icon: ArrowLeftRight, labelKey: 'nav_transactions' as const },
+    { href: '/dashboard/ai', icon: Sparkles, labelKey: 'nav_ai' as const },
+    { href: '/dashboard/budgets', icon: Target, labelKey: 'nav_budgets' as const },
   ];
 
   const moreItems = [
-    { href: '/dashboard/savings', icon: PiggyBank, label: 'الادخار والتوفير' },
-    { href: '/dashboard/bills', icon: FileText, label: 'الفواتير والالتزامات' },
-    { href: '/dashboard/reminders', icon: Bell, label: 'ذكّرني (المهام)' },
-    { href: '/dashboard/settings', icon: SettingsIcon, label: 'الإعدادات' },
+    { href: '/dashboard/savings', icon: PiggyBank, labelKey: 'nav_savings' as const },
+    { href: '/dashboard/bills', icon: FileText, labelKey: 'nav_bills' as const },
+    { href: '/dashboard/reminders', icon: Bell, labelKey: 'nav_reminders' as const },
+    { href: '/dashboard/settings', icon: SettingsIcon, labelKey: 'nav_settings' as const },
   ];
 
   if (user?.role === 'admin') {
-    moreItems.push({ href: '/dashboard/admin', icon: ShieldCheck, label: 'لوحة التحكم' });
+    moreItems.push({ href: '/dashboard/admin', icon: ShieldCheck, labelKey: 'nav_admin' as const });
   }
+
+  const ChevronIcon = isRtl ? ChevronLeft : ChevronRight;
 
   return (
     <nav className="md:hidden fixed bottom-4 left-4 right-4 z-50">
@@ -74,7 +86,7 @@ export default function MobileNav() {
                 <div className="absolute inset-0 bg-indigo-500/10 blur-md rounded-xl" />
               )}
               <item.icon className={cn("w-5 h-5 relative z-10", active && "scale-110")} />
-              <span className="text-[10px] font-bold relative z-10">{item.label}</span>
+              <span className="text-[10px] font-bold relative z-10">{t(item.labelKey)}</span>
             </Link>
           );
         })}
@@ -84,14 +96,14 @@ export default function MobileNav() {
           <SheetTrigger asChild>
             <button className="flex flex-col items-center gap-1 p-2 rounded-xl text-slate-500 hover:text-slate-300 flex-1 min-w-0">
               <Menu className="w-5 h-5" />
-              <span className="text-[10px] font-bold">المزيد</span>
+              <span className="text-[10px] font-bold">{t('nav_more')}</span>
             </button>
           </SheetTrigger>
           <SheetContent side="bottom" className="bg-[#0f0f23] border-white/5 rounded-t-[32px] p-6 pb-12 outline-none">
             <SheetHeader className="mb-6">
               <div className="w-12 h-1.5 bg-slate-800 rounded-full mx-auto mb-6" />
-              <SheetTitle className="text-right text-slate-400 text-sm font-bold uppercase tracking-wider pr-2">
-                القائمة الإضافية
+              <SheetTitle className={cn("text-slate-400 text-sm font-bold uppercase tracking-wider", isRtl ? "text-right pr-2" : "text-left pl-2")}>
+                {t('nav_more_menu')}
               </SheetTitle>
             </SheetHeader>
             
@@ -115,12 +127,40 @@ export default function MobileNav() {
                       )}>
                         <item.icon className="w-5 h-5" />
                       </div>
-                      <span className="font-bold">{item.label}</span>
+                      <span className="font-bold">{t(item.labelKey)}</span>
                     </div>
-                    <ChevronLeft className="w-5 h-5 text-slate-600" />
+                    <ChevronIcon className="w-5 h-5 text-slate-600" />
                   </Link>
                 );
               })}
+
+              {/* Theme & Language toggles */}
+              <div className="pt-3 mt-3 border-t border-white/5 space-y-2">
+                {/* Theme */}
+                <button
+                  onClick={toggleTheme}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                    {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                  </div>
+                  <span className="font-bold">{theme === 'dark' ? t('theme_light') : t('theme_dark')}</span>
+                </button>
+
+                {/* Language */}
+                <button
+                  onClick={toggleLang}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-all"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                    <Languages className="w-5 h-5" />
+                  </div>
+                  <span className="font-bold">{t('lang_switch_to_en')}</span>
+                  <span className="ms-auto text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400">
+                    {lang === 'ar' ? 'EN' : 'AR'}
+                  </span>
+                </button>
+              </div>
 
               <div className="pt-4 mt-4 border-t border-white/5">
                 <button
@@ -133,7 +173,7 @@ export default function MobileNav() {
                   <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
                     <LogOut className="w-5 h-5" />
                   </div>
-                  <span className="font-bold text-lg">تسجيل الخروج</span>
+                  <span className="font-bold text-lg">{t('nav_logout')}</span>
                 </button>
               </div>
             </div>
