@@ -47,17 +47,35 @@ export default function Sidebar() {
 
   return (
     <div className="w-64 h-full flex flex-col bg-[#1a1a35] border-l border-white/5 direction-rtl overflow-y-auto custom-scrollbar">
-      {/* Logo */}
-      <div className="px-6 py-8 border-b border-white/5 flex-shrink-0">
+      {/* Logo & Theme Toggle */}
+      <div className="px-6 py-6 border-b border-white/5 flex-shrink-0 flex items-center justify-between gap-2">
         <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
-            <Home className="w-6 h-6 text-white" />
+          <div className={cn(
+            "w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all group-hover:scale-110",
+            theme === 'dark'
+              ? "bg-[#7650FF] border-2 border-white text-white shadow-purple-500/20"
+              : "bg-white border-2 border-[#7650FF] text-[#7650FF] shadow-indigo-500/10"
+          )}>
+            <Home className="w-6 h-6" />
           </div>
           <div className="flex flex-col">
             <span className="text-xl font-black text-white leading-none tracking-tight">{t('app_name')}</span>
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{t('app_subtitle')}</span>
           </div>
         </Link>
+
+        {/* Theme Toggle next to Logo */}
+        <button
+          onClick={toggleTheme}
+          className="theme-toggle-btn w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 border border-white/10 hover:bg-white/10 transition-all"
+          title={theme === 'dark' ? t('theme_light') : t('theme_dark')}
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400" />
+          ) : (
+            <Moon className="w-4 h-4 text-[#7650FF]" />
+          )}
+        </button>
       </div>
 
       {/* User info */}
@@ -128,20 +146,6 @@ export default function Sidebar() {
 
       {/* Bottom Actions */}
       <div className="p-4 border-t border-white/5 bg-black/10">
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group mb-1 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10"
-          title={theme === 'dark' ? t('theme_light') : t('theme_dark')}
-        >
-          {theme === 'dark' ? (
-            <Sun className="w-5 h-5 transition-transform group-hover:rotate-12" />
-          ) : (
-            <Moon className="w-5 h-5 transition-transform group-hover:-rotate-12" />
-          )}
-          <span>{theme === 'dark' ? t('theme_light') : t('theme_dark')}</span>
-        </button>
-
         {/* Language Toggle */}
         <button
           onClick={toggleLang}
