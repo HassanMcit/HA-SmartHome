@@ -97,7 +97,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 p-6 sm:p-10 max-w-7xl mx-auto w-full box-border">
+        <div className="flex-1 p-6 pb-28 sm:p-10 sm:pb-10 max-w-7xl mx-auto w-full box-border">
           {children}
         </div>
       </main>

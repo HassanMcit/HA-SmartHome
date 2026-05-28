@@ -103,22 +103,22 @@ export default function AIPage() {
               </h3>
 
               {/* Stats */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-                <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 12, padding: '1rem 1.25rem' }}>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>الدخل</div>
-                  <div style={{ fontWeight: 700, fontSize: 16, color: '#10b981', wordBreak: 'break-word' }}>{formatCurrency(analysis.totalIncome)}</div>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4 sm:p-5">
+                  <div className="text-xs text-slate-400 mb-2">الدخل</div>
+                  <div className="font-bold text-base sm:text-lg text-emerald-500 break-words">{formatCurrency(analysis.totalIncome)}</div>
                 </div>
-                <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 12, padding: '1rem 1.25rem' }}>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>المصروفات</div>
-                  <div style={{ fontWeight: 700, fontSize: 16, color: '#ef4444', wordBreak: 'break-word' }}>{formatCurrency(analysis.totalExpenses)}</div>
+                <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 sm:p-5">
+                  <div className="text-xs text-slate-400 mb-2">المصروفات</div>
+                  <div className="font-bold text-base sm:text-lg text-red-500 break-words">{formatCurrency(analysis.totalExpenses)}</div>
                 </div>
-                <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: '1rem 1.25rem' }}>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>المتبقي</div>
-                  <div style={{ fontWeight: 700, fontSize: 16, color: '#fff', wordBreak: 'break-word' }}>{formatCurrency(analysis.balance)}</div>
+                <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-xl p-4 sm:p-5">
+                  <div className="text-xs text-slate-400 mb-2">المتبقي</div>
+                  <div className="font-bold text-base sm:text-lg text-white break-words">{formatCurrency(analysis.balance)}</div>
                 </div>
-                <div style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 12, padding: '1rem 1.25rem' }}>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>عدد المعاملات</div>
-                  <div style={{ fontWeight: 700, fontSize: 22, color: '#818cf8' }}>{analysis.transactionCount}</div>
+                <div className="bg-purple-500/5 border border-purple-500/20 rounded-xl p-4 sm:p-5">
+                  <div className="text-xs text-slate-400 mb-2">عدد المعاملات</div>
+                  <div className="font-bold text-xl sm:text-2xl text-indigo-400">{analysis.transactionCount}</div>
                 </div>
               </div>
 

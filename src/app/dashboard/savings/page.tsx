@@ -70,17 +70,17 @@ export default function SavingsPage() {
   const inputStyle = { background: '#242444', border: '1px solid #2d2d5e', borderRadius: 8, padding: '10px 12px', color: '#fff', fontSize: 14, fontFamily: 'Cairo, sans-serif', outline: 'none', width: '100%', boxSizing: 'border-box' as const };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '5rem' }}>
+    <div className="flex flex-col gap-6 animate-fade-in">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: 4 }}>أهداف الادخار</h2>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>خطط لمستقبلك وحقق أهدافك المالية</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-white mb-1">أهداف الادخار</h2>
+          <p className="text-slate-400 text-sm sm:text-base font-medium">خطط لمستقبلك وحقق أهدافك المالية</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={
-            <Button style={{ background: '#10b981', border: 'none', borderRadius: 10, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Cairo, sans-serif', cursor: 'pointer' }}>
-              <Plus style={{ width: 16, height: 16 }} /> هدف جديد
+            <Button className="w-full sm:w-auto bg-[#10b981] hover:bg-[#10b981]/90 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-[#10b981]/10 active:scale-95 transition-all flex items-center justify-center gap-2">
+              <Plus className="w-5 h-5 ml-1" /> هدف جديد
             </Button>
           } />
           <DialogContent className="sm:max-w-[425px] bg-[#1a1a35] border-slate-700 text-white">
@@ -131,49 +131,55 @@ export default function SavingsPage() {
 
       {/* Grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>جاري التحميل...</div>
+        <div className="text-center py-12 text-slate-500 font-bold">جاري التحميل...</div>
       ) : savings.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>لا توجد أهداف ادخار حالياً</div>
+        <div className="glass-card text-center py-24 text-slate-500 font-bold">لا توجد أهداف ادخار حالياً</div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {savings.map((saving) => {
             const pct = Math.min(100, Math.round((saving.currentAmount / saving.targetAmount) * 100));
             const done = pct >= 100;
             return (
-              <div key={saving.id} className="glass-card" style={{ padding: '1.5rem', position: 'relative' }}>
+              <div key={saving.id} className="glass-card p-6 relative flex flex-col justify-between min-h-[200px]">
                 {done && (
-                  <div style={{ position: 'absolute', top: 12, left: 12, fontSize: 11, fontWeight: 700, background: 'rgba(16,185,129,0.15)', color: '#10b981', padding: '3px 10px', borderRadius: 99 }}>
+                  <div className="absolute top-4 left-4 text-[10px] font-black bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-xl border border-emerald-500/20">
                     مكتمل 🎉
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{
-                      width: 46, height: 46, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                      background: `linear-gradient(135deg, ${saving.color}, #1a1a35)`
-                    }}>
-                      {done ? <Target style={{ width: 22, height: 22, color: '#fff' }} /> : <PiggyBank style={{ width: 22, height: 22, color: '#fff' }} />}
+                <div>
+                  <div className="flex justify-between items-start mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{
+                        background: `linear-gradient(135deg, ${saving.color}, #1a1a35)`
+                      }}>
+                        {done ? <Target className="w-5 h-5 text-white" /> : <PiggyBank className="w-5 h-5 text-white" />}
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-200 text-sm mb-0.5 break-words whitespace-normal">{saving.name}</div>
+                        <div className="text-xs text-slate-500">الهدف: {formatCurrency(saving.targetAmount)}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: 15, color: '#e2e8f0', marginBottom: 2 }}>{saving.name}</div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>الهدف: {formatCurrency(saving.targetAmount)}</div>
-                    </div>
+                    <button 
+                      onClick={() => setDeleteDialog({ isOpen: true, savingId: saving.id, savingName: saving.name })} 
+                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90 shrink-0"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button onClick={() => setDeleteDialog({ isOpen: true, savingId: saving.id, savingName: saving.name })} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#475569', padding: 0, flexShrink: 0 }}>
-                    <Trash2 style={{ width: 15, height: 15 }} />
-                  </button>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
-                  <span style={{ color: '#94a3b8' }}>تم جمع: <span style={{ color: '#e2e8f0', fontWeight: 600 }}>{formatCurrency(saving.currentAmount)}</span></span>
-                  <span style={{ fontWeight: 700, fontSize: 15, color: saving.color }}>{pct}%</span>
-                </div>
-                <div style={{ width: '100%', height: 12, background: '#1e1e3f', borderRadius: 99, overflow: 'hidden', border: '1px solid #2d2d5e', padding: 2 }}>
-                  <div style={{ height: '100%', width: `${pct}%`, borderRadius: 99, background: saving.color, transition: 'width 1s ease' }} />
+                  <div className="flex justify-between items-center mb-2 text-xs">
+                    <span className="text-slate-400">تم جمع: <span className="text-slate-200 font-bold">{formatCurrency(saving.currentAmount)}</span></span>
+                    <span className="font-black text-sm" style={{ color: saving.color }}>{pct}%</span>
+                  </div>
+                  <div className="w-full h-3 bg-[#1e1e3f] rounded-full overflow-hidden border border-[#2d2d5e] p-0.5">
+                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: saving.color }} />
+                  </div>
                 </div>
                 {!done && (
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
-                    <button onClick={() => { setSelectedId(saving.id); setDepositOpen(true); }}
-                      style={{ background: 'transparent', border: '1px solid #2d2d5e', borderRadius: 8, padding: '6px 14px', color: '#94a3b8', fontSize: 13, fontFamily: 'Cairo, sans-serif', cursor: 'pointer' }}>
+                  <div className="flex justify-end mt-4">
+                    <button 
+                      onClick={() => { setSelectedId(saving.id); setDepositOpen(true); }}
+                      className="border border-[#2d2d5e] hover:border-slate-500 rounded-lg px-3.5 py-1.5 text-slate-400 hover:text-slate-200 text-xs transition-colors cursor-pointer"
+                    >
                       + إضافة مبلغ
                     </button>
                   </div>
