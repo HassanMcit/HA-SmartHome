@@ -462,6 +462,7 @@ interface BankLogoProps {
 }
 
 export default function BankLogo({ name, className, size = 'md' }: BankLogoProps) {
+  const [imgError, setImgError] = React.useState(false);
   const nameLower = (name || '').toLowerCase();
   
   // Find in catalog
@@ -506,17 +507,31 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
     lg: 'w-8 h-8',
   };
 
+  let logoSrc = '';
+  if (matchedInfo && !imgError) {
+    const isWalletKey = ['vodafone_cash', 'orange_cash', 'etisalat_cash', 'wepay'].includes(matchedInfo.key);
+    const folder = isWalletKey ? 'wallets' : 'banks';
+    logoSrc = `/assets/logos/${folder}/${matchedInfo.key}.png`;
+  }
+
   return (
     <div
       className={cn(
-        'flex items-center justify-center font-black select-none shrink-0 border border-white/10 shadow-lg overflow-hidden',
-        brand.gradient,
-        brand.textColor,
+        'flex items-center justify-center font-black select-none shrink-0 border border-white/10 shadow-lg overflow-hidden bg-[#242444]',
+        !logoSrc && brand.gradient,
+        !logoSrc && brand.textColor,
         sizeClasses[size],
         className
       )}
     >
-      {brand.customIcon ? (
+      {logoSrc ? (
+        <img
+          src={logoSrc}
+          alt={name}
+          className="w-full h-full object-contain p-1"
+          onError={() => setImgError(true)}
+        />
+      ) : brand.customIcon ? (
         <div className={cn('flex items-center justify-center shrink-0', iconSizeClasses[size])}>
           {brand.customIcon}
         </div>

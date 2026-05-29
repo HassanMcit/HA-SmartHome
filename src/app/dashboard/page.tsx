@@ -29,7 +29,8 @@ import {
   X,
   Check,
   Calendar,
-  Clock
+  Clock,
+  Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -275,6 +276,24 @@ export default function DashboardPage() {
     }
   };
 
+  const handleDeleteAccount = async (id: string, name: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent opening detail modal
+    
+    const confirmMsg = lang === 'ar' 
+      ? `هل أنت متأكد من حذف حساب "${name}"؟ سيتم حذف الحساب بالكامل.` 
+      : `Are you sure you want to delete the account "${name}"? This action cannot be undone.`;
+      
+    if (!window.confirm(confirmMsg)) return;
+    
+    try {
+      await accountsApi.delete(id);
+      toast.success(lang === 'ar' ? 'تم حذف الحساب بنجاح' : 'Account deleted successfully');
+      fetchData(); // Refresh the list
+    } catch (err: any) {
+      toast.error(err.message || (lang === 'ar' ? 'حدث خطأ أثناء حذف الحساب' : 'Error deleting account'));
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[50vh]">
@@ -495,10 +514,19 @@ export default function DashboardPage() {
                     )}
                   </div>
 
-                  {/* Right Column: Balance */}
-                  <div className="text-right sm:text-left shrink-0">
-                    <span className="text-[10px] font-bold text-slate-500 block">{lang === 'ar' ? 'الرصيد المتوفر' : 'Available Balance'}</span>
-                    <span className="text-2xl font-black text-white tabular-nums">{formatCurrency(acc.balance)}</span>
+                  {/* Right Column: Balance & Actions */}
+                  <div className="flex items-center gap-4 self-end sm:self-auto shrink-0" dir="ltr">
+                    <button
+                      onClick={(e) => handleDeleteAccount(acc.id, translatedName, e)}
+                      className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white transition-all active:scale-90"
+                      title={lang === 'ar' ? 'حذف الحساب' : 'Delete Account'}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="text-right sm:text-left" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+                      <span className="text-[10px] font-bold text-slate-500 block">{lang === 'ar' ? 'الرصيد المتوفر' : 'Available Balance'}</span>
+                      <span className="text-2xl font-black text-white tabular-nums">{formatCurrency(acc.balance)}</span>
+                    </div>
                   </div>
                 </div>
               );
