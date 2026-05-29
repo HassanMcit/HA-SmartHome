@@ -727,13 +727,20 @@ export default function DashboardPage() {
                     ? (lang === 'ar' ? 'اسم المحفظة الإلكترونية' : 'Mobile Wallet Name') 
                     : (lang === 'ar' ? 'اسم البنك' : 'Bank Name')}
                 </Label>
-                <input
-                  list="onboard-banks"
-                  placeholder={lang === 'ar' ? 'ابحث أو اختر اسم البنك أو المحفظة' : 'Search or choose bank or wallet'}
-                  value={onboardBankName}
-                  onChange={e => setOnboardBankName(e.target.value)}
-                  className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl px-4 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
-                />
+                <div className="relative flex items-center">
+                  <input
+                    list="onboard-banks"
+                    placeholder={lang === 'ar' ? 'ابحث أو اختر اسم البنك أو المحفظة' : 'Search or choose bank or wallet'}
+                    value={onboardBankName}
+                    onChange={e => setOnboardBankName(e.target.value)}
+                    className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl pr-4 pl-12 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
+                  />
+                  {onboardBankName && (
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                      <BankLogo name={onboardBankName} size="sm" />
+                    </div>
+                  )}
+                </div>
                 <datalist id="onboard-banks">
                   {(lang === 'ar' ? [...EGYPTIAN_BANKS_AR, ...EGYPTIAN_WALLETS_AR] : [...EGYPTIAN_BANKS_EN, ...EGYPTIAN_WALLETS_EN]).map(item => (
                     <option key={item} value={item} />
@@ -886,13 +893,20 @@ export default function DashboardPage() {
               <>
                 <div className="space-y-2 text-right">
                   <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم البنك' : 'Bank Name'}</Label>
-                  <input
-                    list="add-banks"
-                    placeholder={lang === 'ar' ? 'اختر البنك' : 'Select Bank'}
-                    value={newAccName}
-                    onChange={e => setNewAccName(e.target.value)}
-                    className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl px-4 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
-                  />
+                  <div className="relative flex items-center">
+                    <input
+                      list="add-banks"
+                      placeholder={lang === 'ar' ? 'اختر البنك' : 'Select Bank'}
+                      value={newAccName}
+                      onChange={e => setNewAccName(e.target.value)}
+                      className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl pr-4 pl-12 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
+                    />
+                    {newAccName && (
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                        <BankLogo name={newAccName} size="sm" />
+                      </div>
+                    )}
+                  </div>
                   <datalist id="add-banks">
                     {(lang === 'ar' ? EGYPTIAN_BANKS_AR : EGYPTIAN_BANKS_EN).map(bank => (
                       <option key={bank} value={bank} />
@@ -939,13 +953,20 @@ export default function DashboardPage() {
               <>
                 <div className="space-y-2 text-right">
                   <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم المحفظة الإلكترونية' : 'Wallet Name'}</Label>
-                  <input
-                    list="add-wallets"
-                    placeholder={lang === 'ar' ? 'اختر المحفظة الإلكترونية' : 'Select Mobile Wallet'}
-                    value={newAccName}
-                    onChange={e => setNewAccName(e.target.value)}
-                    className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl px-4 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
-                  />
+                  <div className="relative flex items-center">
+                    <input
+                      list="add-wallets"
+                      placeholder={lang === 'ar' ? 'اختر المحفظة الإلكترونية' : 'Select Mobile Wallet'}
+                      value={newAccName}
+                      onChange={e => setNewAccName(e.target.value)}
+                      className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl pr-4 pl-12 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
+                    />
+                    {newAccName && (
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                        <BankLogo name={newAccName} size="sm" />
+                      </div>
+                    )}
+                  </div>
                   <datalist id="add-wallets">
                     {(lang === 'ar' ? EGYPTIAN_WALLETS_AR : EGYPTIAN_WALLETS_EN).map(w => (
                       <option key={w} value={w} />

@@ -311,7 +311,12 @@ export default function TransactionsPage() {
                       </SelectItem>
                       {accounts.map(acc => (
                         <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
-                          {getTranslatedBankName(acc.name, lang)} ({acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank')})
+                          <div className="flex items-center gap-2">
+                            <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                            <span>
+                              {getTranslatedBankName(acc.name, lang)} ({acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank')})
+                            </span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -603,7 +608,12 @@ export default function TransactionsPage() {
                   </SelectItem>
                   {accounts.map(acc => (
                     <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
-                      {getTranslatedBankName(acc.name, lang)} ({acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank')})
+                      <div className="flex items-center gap-2">
+                        <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                        <span>
+                          {getTranslatedBankName(acc.name, lang)} ({acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank')})
+                        </span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
