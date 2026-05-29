@@ -65,6 +65,18 @@ export interface User {
   avatar?: string;
 }
 
+export interface Account {
+  id: string;
+  userId: string;
+  name: string;
+  type: 'bank' | 'cash';
+  iban?: string;
+  accountNum?: string;
+  balance: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Transaction {
   id: string;
   userId: string;
@@ -74,6 +86,12 @@ export interface Transaction {
   description: string;
   date: string;
   createdAt: string;
+  accountId?: string;
+  account?: {
+    id: string;
+    name: string;
+    type: 'bank' | 'cash';
+  };
 }
 
 export interface TransactionStats {
@@ -292,6 +310,7 @@ export const transactionsApi = {
     description?: string;
     date: string;
     targetUserId?: string;
+    accountId?: string;
   }) =>
     request<Transaction>('/transactions', {
       method: 'POST',
@@ -307,6 +326,7 @@ export const transactionsApi = {
       description?: string;
       date?: string;
       targetUserId?: string;
+      accountId?: string;
     }
   ) =>
     request<Transaction>(`/transactions/${id}`, {
@@ -432,6 +452,48 @@ export const remindersApi = {
 // ─── AI API ──────────────────────────────────────────────────────────────────
 export const aiApi = {
   getAnalysis: () => request<AIAnalysis>('/ai/analysis'),
+};
+
+// ─── Accounts API ────────────────────────────────────────────────────────────
+export const accountsApi = {
+  getAll: () => request<Account[]>('/accounts'),
+  create: (payload: {
+    name: string;
+    type: 'bank' | 'cash';
+    iban?: string;
+    accountNum?: string;
+    balance?: number;
+  }) =>
+    request<Account>('/accounts', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  onboard: (accounts: Array<{
+    name: string;
+    type: 'bank' | 'cash';
+    iban?: string;
+    accountNum?: string;
+    balance?: number;
+  }>) =>
+    request<Account[]>('/accounts/onboard', {
+      method: 'POST',
+      body: JSON.stringify({ accounts }),
+    }),
+  update: (
+    id: string,
+    payload: Partial<{
+      name: string;
+      iban: string | null;
+      accountNum: string | null;
+      balance: number;
+    }>
+  ) =>
+    request<Account>(`/accounts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  delete: (id: string) =>
+    request(`/accounts/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Admin API ───────────────────────────────────────────────────────────────

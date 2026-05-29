@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { transactionsApi, adminApi, Transaction, User, formatCurrency, getCategoryInfo, INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/lib/api';
+import { transactionsApi, adminApi, accountsApi, Account, Transaction, User, formatCurrency, getCategoryInfo, INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowDownRight, ArrowUpRight, Plus, Trash2, Users, Loader2, Activity, Calendar, Tag, AlertCircle, Pencil } from 'lucide-react';
+import BankLogo from '@/components/BankLogo';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ export default function TransactionsPage() {
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>(currentUser?.id || '');
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -25,6 +27,7 @@ export default function TransactionsPage() {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
+  const [accountId, setAccountId] = useState<string>('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [targetUserId, setTargetUserId] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
@@ -42,6 +45,7 @@ export default function TransactionsPage() {
   const [editAmount, setEditAmount] = useState('');
   const [editCategory, setEditCategory] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editAccountId, setEditAccountId] = useState<string>('');
   const [editDate, setEditDate] = useState('');
   const [editTargetUserId, setEditTargetUserId] = useState<string>('');
   const [editSubmitting, setEditSubmitting] = useState(false);
@@ -54,6 +58,7 @@ export default function TransactionsPage() {
     setEditDescription(tx.description || '');
     setEditDate(new Date(tx.date).toISOString().split('T')[0]);
     setEditTargetUserId(tx.userId);
+    setEditAccountId(tx.accountId || '');
     setEditOpen(true);
   };
 
@@ -72,6 +77,7 @@ export default function TransactionsPage() {
         description: editDescription,
         date: editDate,
         targetUserId: editTargetUserId,
+        accountId: editAccountId && editAccountId !== 'none' ? editAccountId : undefined,
       });
       toast.success('تم تحديث المعاملة بنجاح');
       setEditOpen(false);
@@ -106,9 +112,19 @@ export default function TransactionsPage() {
     }
   };
 
+  const fetchAccounts = async () => {
+    try {
+      const data = await accountsApi.getAll();
+      setAccounts(data || []);
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+    }
+  };
+
   useEffect(() => {
     if (currentUser) {
       fetchUsers();
+      fetchAccounts();
       setSelectedUserId(currentUser.id);
     }
   }, [currentUser, isAdmin]);
@@ -138,14 +154,16 @@ export default function TransactionsPage() {
         category, 
         description, 
         date,
-        targetUserId: targetUserId
-      } as any);
+        targetUserId: targetUserId,
+        accountId: accountId && accountId !== 'none' ? accountId : undefined,
+      });
       
       toast.success(`تم إضافة معاملة ${selectedUser?.name || ''} بنجاح`);
       setOpen(false);
       setAmount('');
       setDescription('');
       setCategory('');
+      setAccountId('');
       setDate(new Date().toISOString().split('T')[0]);
       fetchTransactions();
     } catch (error: any) {
@@ -277,6 +295,23 @@ export default function TransactionsPage() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+
+                <div className="space-y-2 text-right">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الحساب المالي (بنك / كاش)</label>
+                  <Select value={accountId} onValueChange={setAccountId}>
+                    <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                      <SelectValue placeholder="اختر الحساب المالي (اختياري)" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                      <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">بدون ربط (سجل عام)</SelectItem>
+                      {accounts.map(acc => (
+                        <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                          {acc.name} ({acc.type === 'cash' ? 'كاش' : 'بنك'})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2 text-right">
@@ -541,6 +576,23 @@ export default function TransactionsPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الحساب المالي (بنك / كاش)</label>
+              <Select value={editAccountId} onValueChange={setEditAccountId}>
+                <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                  <SelectValue placeholder="اختر الحساب المالي (اختياري)" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                  <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">بدون ربط (سجل عام)</SelectItem>
+                  {accounts.map(acc => (
+                    <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                      {acc.name} ({acc.type === 'cash' ? 'كاش' : 'بنك'})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2 text-right">
