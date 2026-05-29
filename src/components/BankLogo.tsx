@@ -48,7 +48,7 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
   },
   {
     key: 'cairo',
-    matchKeywords: ['القاهرة', 'cairo'],
+    matchKeywords: ['القاهرة', 'cairo', 'caire'],
     ar: 'بنك القاهرة',
     en: 'Banque du Caire',
     gradient: 'from-[#d97706] to-[#ea580c]',
@@ -385,7 +385,7 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     shortName: 'VF',
     customIcon: (
       <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-white">
-        <path d="M12 2C6.5 2 2 6.5 2 12c0 4.1 2.5 7.6 6.1 9.1-.1-2.7.9-5.4 3-7.5 1.2-1.2 2.6-2 4.2-2.3-.1-.3-.2-.6-.2-.9 0-1.3 1-2.3 2.3-2.3s2.3 1 2.3 2.3-1 2.3-2.3 2.3c-.3 0-.6-.1-.9-.2-.3 1.6-1.1 3-2.3 4.2-2.1 2.1-4.8 3.1-7.5 3 3.4 3.3 8.1 4.9 12.8 4.9 6.2 0 11.2-5 11.2-11.2C23 6.5 18 2 12 2z" />
+        <path d="M14.5 6.5C11.5 6.5 9 9 9 12C9 13.5 9.6 15 10.6 16C9 17.5 7.5 20 7 21C9.5 20.5 12 19 13.5 17.4C14 17.5 14.5 17.5 15 17.5C18 17.5 20.5 15 20.5 12C20.5 9 18 6.5 15 6.5 Z" />
       </svg>
     )
   },
@@ -488,7 +488,7 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
       shortName: 'كاش',
       gradient: 'from-[#059669] to-[#10b981]',
       textColor: 'text-white',
-      customIcon: <Wallet className="w-5 h-5 text-white" />,
+      customIcon: <Wallet className="w-full h-full text-white" />,
     };
   }
 
@@ -497,6 +497,13 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
     sm: 'w-8 h-8 rounded-lg text-[10px]',
     md: 'w-10 h-10 rounded-xl text-xs',
     lg: 'w-12 h-12 rounded-2xl text-sm',
+  };
+
+  // Icon inner wrapper size mapping
+  const iconSizeClasses = {
+    sm: 'w-5 h-5',
+    md: 'w-6 h-6',
+    lg: 'w-8 h-8',
   };
 
   return (
@@ -510,7 +517,9 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
       )}
     >
       {brand.customIcon ? (
-        <div className="w-full h-full flex items-center justify-center p-1.5">{brand.customIcon}</div>
+        <div className={cn('flex items-center justify-center shrink-0', iconSizeClasses[size])}>
+          {brand.customIcon}
+        </div>
       ) : (
         <span className="font-extrabold">{brand.shortName}</span>
       )}
