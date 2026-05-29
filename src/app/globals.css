@@ -240,7 +240,9 @@ html.light [class*="bg-indigo-600/20"] {
   background-color: #e0e7ff !important; /* Indigo 100 */
 }
 
-/* Force white text on components that remain dark colored in light mode */
+/* Force white text ONLY on solid dark-colored button/badge backgrounds in light mode */
+/* NOTE: Do NOT use [class*="bg-emerald-500"] or [class*="bg-red-500"] wildcards —
+   they would also match bg-emerald-500/10 icon wrappers and make icons invisible! */
 html.light .bg-indigo-600,
 html.light .bg-indigo-600 *,
 html.light .bg-indigo-700,
@@ -253,12 +255,23 @@ html.light .bg-emerald-500,
 html.light .bg-emerald-500 *,
 html.light .bg-gradient-to-r,
 html.light .bg-gradient-to-r *,
-html.light [class*="bg-indigo-600"] *,
-html.light [class*="bg-red-500"] *,
-html.light [class*="bg-emerald-500"] *,
 html.light .hover\:bg-indigo-600:hover,
 html.light .hover\:bg-indigo-600:hover * {
   color: #ffffff !important;
+}
+
+/* Icon containers with /10 opacity: keep their themed colors visible */
+html.light .bg-emerald-500\/10 svg,
+html.light .bg-red-500\/10 svg,
+html.light .bg-red-400\/10 svg,
+html.light .bg-indigo-500\/10 svg,
+html.light .bg-indigo-400\/10 svg,
+html.light .bg-amber-500\/10 svg,
+html.light .bg-yellow-500\/10 svg,
+html.light .bg-pink-500\/10 svg,
+html.light .bg-purple-500\/10 svg {
+  /* Inherit the text color class applied to the icon itself, not forced white */
+  color: inherit !important;
 }
 
 

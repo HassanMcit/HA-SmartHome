@@ -81,6 +81,8 @@ const translations = {
   admin_unauthorized_msg: { ar: 'هذه الصفحة مخصصة لمدير النظام فقط', en: 'This page is for system admins only' },
   admin_resend_welcome: { ar: 'إعادة إرسال دليل الترحيب', en: 'Resend Welcome Guide' },
   admin_forgot_password: { ar: 'إرسال كود استعادة كلمة المرور', en: 'Send Password Reset Code' },
+  admin_send_eid_email: { ar: 'إرسال تهنئة عيد الأضحى', en: 'Send Eid Al-Adha Greetings' },
+  admin_send_eid_desc: { ar: 'إرسال تهنئة عيد الأضحى المبارك مع شرح الميزات الجديدة لجميع مستخدمي النظام الحاليين عبر البريد الإلكتروني.', en: 'Send Eid Al-Adha congratulations email with explanations of new features to all current system users via email.' },
 
   // ─── Login Page ───────────────────────────────────────────────────────────
   login_title: { ar: 'تسجيل الدخول', en: 'Login' },

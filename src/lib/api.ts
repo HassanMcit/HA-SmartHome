@@ -561,6 +561,12 @@ export const adminApi = {
   resendWelcomeEmail: (id: string) =>
     request(`/admin/users/${id}/resend-welcome`, { method: 'POST' }),
 
+  sendEidEmail: () =>
+    request<{ message: string; successCount: number; failCount: number; total: number }>(
+      '/admin/send-eid-email',
+      { method: 'POST' }
+    ),
+
   sendForgotPassword: (email: string) =>
     request('/auth/forgot-password', {
       method: 'POST',

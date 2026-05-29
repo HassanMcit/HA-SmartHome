@@ -7,7 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ShieldCheck, Check, X, Users, Activity, Trash2, UserCog, Key, Loader2, ArrowUpRight, ArrowDownRight, ChevronLeft, Mail, KeyRound } from 'lucide-react';
+import { ShieldCheck, Check, X, Users, Activity, Trash2, UserCog, Key, Loader2, ArrowUpRight, ArrowDownRight, ChevronLeft, Mail, KeyRound, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +22,7 @@ function AdminPage(): React.ReactNode {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [forgotPasswordId, setForgotPasswordId] = useState<string | null>(null);
+  const [sendingEid, setSendingEid] = useState(false);
   
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -153,6 +154,29 @@ function AdminPage(): React.ReactNode {
     } finally {
       setForgotPasswordId(null);
     }
+  };
+
+  const handleSendEidEmail = async () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: t('admin_send_eid_email'),
+      description: t('admin_send_eid_desc'),
+      actionText: t('confirm'),
+      actionColor: 'bg-emerald-500 hover:bg-emerald-600',
+      onConfirm: async () => {
+        if (sendingEid) return;
+        setSendingEid(true);
+        const toastId = toast.loading('جاري إرسال إيميلات تهنئة عيد الأضحى وتفاصيل الميزات الجديدة...');
+        try {
+          const response = await adminApi.sendEidEmail();
+          toast.success(response.message || 'تم إرسال إيميلات التهنئة والتحديثات بنجاح', { id: toastId });
+        } catch (error: any) {
+          toast.error(error.message || 'حدث خطأ أثناء إرسال إيميلات التهنئة', { id: toastId });
+        } finally {
+          setSendingEid(false);
+        }
+      }
+    });
   };
 
   const handleToggleRole = (id: string, name: string, currentRole: string) => {
@@ -393,6 +417,38 @@ function AdminPage(): React.ReactNode {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Admin Broadcast Actions */}
+      <div className="glass-card overflow-hidden border-emerald-500/20 bg-emerald-500/5">
+        <div className="px-6 py-5 border-b border-emerald-500/20 bg-emerald-500/10 flex items-center gap-3">
+          <Sparkles className="w-5 h-5 text-emerald-400" />
+          <h3 className="font-bold text-white">{t('admin_send_eid_email')}</h3>
+        </div>
+        <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="max-w-2xl">
+            <p className="text-slate-300 text-sm font-medium leading-relaxed">
+              {t('admin_send_eid_desc')}
+            </p>
+            <p className="text-xs text-slate-500 mt-2">
+              * سيقوم النظام بإرسال إيميل تهنئة منسّق لكل مستخدم مسجّل ومفعّل بالاسم الشخصي له، يحتوي على شرح للميزات المضافة حديثاً للمحفظة والتحكم بالحسابات وطريقة الاستخدام.
+            </p>
+          </div>
+          <Button
+            onClick={handleSendEidEmail}
+            disabled={sendingEid}
+            className="bg-emerald-500 text-white hover:bg-emerald-600 font-bold px-6 py-4 rounded-xl flex items-center gap-2 shrink-0 self-start md:self-center transition-all shadow-lg shadow-emerald-500/15"
+          >
+            {sendingEid ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5" />
+                <span>إرسال البريد الجماعي</span>
+              </>
+            )}
+          </Button>
         </div>
       </div>
 
