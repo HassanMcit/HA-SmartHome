@@ -69,8 +69,8 @@ export default function MobileNav() {
   const ChevronIcon = isRtl ? ChevronLeft : ChevronRight;
 
   return (
-    <nav className="md:hidden fixed bottom-4 left-4 right-4 z-50">
-      <div className="bg-[#1a1a35]/90 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl shadow-black/50 p-2 flex items-center justify-around">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="mx-4 mb-4 bg-[#1a1a35]/90 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl shadow-black/50 p-2 flex items-center justify-around">
         {mainItems.map((item) => {
           const active = isActive(item.href);
           return (
