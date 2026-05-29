@@ -462,7 +462,7 @@ export default function DashboardPage() {
             لا توجد حسابات مضافة. اضغط على "إضافة حساب" للبدء.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="divide-y divide-white/10 border border-white/5 rounded-2xl overflow-hidden bg-[#161630]/30 shadow-2xl">
             {accounts.map(acc => {
               const isVisible = visibleAccounts[acc.id] || false;
               const isBank = acc.type === 'bank';
@@ -478,72 +478,64 @@ export default function DashboardPage() {
                 <div
                   key={acc.id}
                   onClick={() => handleOpenAccountDetails(acc)}
-                  className="glass-card p-5 relative overflow-hidden group hover:border-white/20 transition-all cursor-pointer flex flex-col justify-between min-h-[160px] select-none active:scale-[0.98]"
+                  className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors cursor-pointer select-none active:bg-white/[0.04] bg-transparent"
                 >
-                  {/* Top Row: Brand & Type */}
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
-                      <BankLogo name={acc.name} size="md" />
-                      <div className="text-right">
-                        <h4 className="text-sm font-black text-white group-hover:text-indigo-400 transition-colors line-clamp-1">{translatedName}</h4>
-                        <span className="text-[10px] font-bold text-slate-500">{typeLabel}</span>
-                      </div>
+                  {/* Left Column: Brand Logo & Title */}
+                  <div className="flex items-center gap-4">
+                    <BankLogo name={acc.name} size="md" />
+                    <div className="text-right">
+                      <h4 className="text-sm font-black text-white group-hover:text-indigo-400 transition-colors line-clamp-1">{translatedName}</h4>
+                      <span className="text-[10px] font-bold text-slate-500">{typeLabel}</span>
                     </div>
                   </div>
 
-                  {/* Middle Row: Balance */}
-                  <div className="my-3 text-right">
-                    <span className="text-[10px] font-bold text-slate-500 block">{lang === 'ar' ? 'الرصيد المتوفر' : 'Available Balance'}</span>
-                    <span className="text-2xl font-black text-white tabular-nums">{formatCurrency(acc.balance)}</span>
-                  </div>
-
-                  {/* Bottom Row: IBAN / Account Number Actions */}
-                  {isBank && (acc.accountNum || acc.iban) ? (
-                    <div className="pt-3 border-t border-white/5 flex flex-col gap-1.5 text-xs text-slate-400">
-                      {acc.accountNum && (
-                        <div className="flex justify-between items-center gap-2 group/action">
-                          <span className="text-[10px] font-semibold text-slate-500">{lang === 'ar' ? 'رقم الحساب:' : 'Account No:'}</span>
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-mono tracking-wider text-[11px] text-slate-300">
-                              {isVisible ? acc.accountNum : maskNumber(acc.accountNum, false)}
-                            </span>
-                            <button
-                              onClick={(e) => toggleVisibility(acc.id, e)}
-                              className="p-1 rounded text-slate-500 hover:text-white transition-colors"
-                            >
-                              {isVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                            </button>
-                            <button
-                              onClick={(e) => handleCopy(acc.accountNum, 'رقم الحساب', e)}
-                              className="p-1 rounded text-slate-500 hover:text-white transition-colors"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                            </button>
+                  {/* Middle Column: IBAN / Account Number / Phone Number Actions */}
+                  <div className="flex flex-col gap-1.5 text-xs text-slate-400 min-w-[200px]">
+                    {isBank && (acc.accountNum || acc.iban) ? (
+                      <>
+                        {acc.accountNum && (
+                          <div className="flex justify-between sm:justify-end items-center gap-2 group/action">
+                            <span className="text-[10px] font-semibold text-slate-500">{lang === 'ar' ? 'رقم الحساب:' : 'Account No:'}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono tracking-wider text-[11px] text-slate-300">
+                                {isVisible ? acc.accountNum : maskNumber(acc.accountNum, false)}
+                              </span>
+                              <button
+                                onClick={(e) => toggleVisibility(acc.id, e)}
+                                className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                              >
+                                {isVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                              </button>
+                              <button
+                                onClick={(e) => handleCopy(acc.accountNum, 'رقم الحساب', e)}
+                                className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      
-                      {acc.iban && (
-                        <div className="flex justify-between items-center gap-2 group/action">
-                          <span className="text-[10px] font-semibold text-slate-500">IBAN:</span>
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-mono tracking-wider text-[10px] text-slate-300">
-                              {isVisible ? acc.iban : maskNumber(acc.iban, true)}
-                            </span>
-                            <button
-                              onClick={(e) => handleCopy(acc.iban, 'IBAN', e)}
-                              className="p-1 rounded text-slate-500 hover:text-white transition-colors"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                            </button>
+                        )}
+                        
+                        {acc.iban && (
+                          <div className="flex justify-between sm:justify-end items-center gap-2 group/action">
+                            <span className="text-[10px] font-semibold text-slate-500">IBAN:</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono tracking-wider text-[10px] text-slate-300">
+                                {isVisible ? acc.iban : maskNumber(acc.iban, true)}
+                              </span>
+                              <button
+                                onClick={(e) => handleCopy(acc.iban, 'IBAN', e)}
+                                className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  ) : isWallet && acc.accountNum ? (
-                    <div className="pt-3 border-t border-white/5 flex flex-col gap-1.5 text-xs text-slate-400">
-                      <div className="flex justify-between items-center gap-2 group/action">
-                        <span className="text-[10px] font-semibold text-slate-500">{lang === 'ar' ? 'رقم الهاتف:' : 'Phone Number:'}</span>
+                        )}
+                      </>
+                    ) : isWallet && acc.accountNum ? (
+                      <div className="flex justify-between sm:justify-end items-center gap-2 group/action">
+                        <span className="text-[10px] font-semibold text-slate-500">{lang === 'ar' ? 'رقم الهاتف:' : 'Phone No:'}</span>
                         <div className="flex items-center gap-1.5">
                           <span className="font-mono tracking-wider text-[11px] text-slate-300">
                             {isVisible ? acc.accountNum : maskNumber(acc.accountNum, false)}
@@ -562,12 +554,18 @@ export default function DashboardPage() {
                           </button>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="pt-3 border-t border-white/5 flex items-center gap-1 text-[10px] text-slate-500">
-                      <span>{lang === 'ar' ? 'تتبع كاش النقدية السائلة والمشتريات اليدوية' : 'Track cash and manual purchases'}</span>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="flex justify-end text-[10px] text-slate-500">
+                        <span>{lang === 'ar' ? 'نقدية سائلة ومشتريات يدوية' : 'Liquid cash & manual purchases'}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right Column: Balance */}
+                  <div className="text-right sm:text-left shrink-0">
+                    <span className="text-[10px] font-bold text-slate-500 block">{lang === 'ar' ? 'الرصيد المتوفر' : 'Available Balance'}</span>
+                    <span className="text-2xl font-black text-white tabular-nums">{formatCurrency(acc.balance)}</span>
+                  </div>
                 </div>
               );
             })}
@@ -803,11 +801,11 @@ export default function DashboardPage() {
                 <span className="text-[10px] font-bold text-slate-500 block">
                   {lang === 'ar' ? 'الحسابات المضافة للإعداد:' : 'Accounts added to setup:'}
                 </span>
-                <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
+                <div className="divide-y divide-white/10 border border-white/5 rounded-xl max-h-[150px] overflow-y-auto pr-1 bg-transparent">
                   {onboardAccounts.map((acc, index) => (
                     <div
                       key={index}
-                      className="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded-xl text-xs"
+                      className="flex justify-between items-center p-3 text-xs bg-transparent"
                     >
                       <div className="flex items-center gap-2">
                         <BankLogo name={acc.name} size="sm" />

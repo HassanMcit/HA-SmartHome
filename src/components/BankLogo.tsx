@@ -23,10 +23,9 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'الأهلي',
     customIcon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-full h-full">
-        <path d="M12 2L3 7v9c0 5 9 6 9 6s9-1 9-6V7l-9-5z" />
-        <path d="M12 22V12" />
-        <path d="M17 8l-5 4-5-4" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2.2" className="w-full h-full" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="7" r="3" fill="#d4af37" />
+        <path d="M12 10v10M9 20h6M8 14h8" />
       </svg>
     )
   },
@@ -39,7 +38,12 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-[#d4af37]',
     shortName: 'مصر',
     customIcon: (
-      <span className="font-serif text-lg font-black">م</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2" className="w-full h-full" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="8" fill="#d4af37" fillOpacity="0.1" />
+        <path d="M12 8c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4z" />
+        <path d="M8 16c-1.5 1.5-2.5 2-4 2" />
+        <circle cx="12" cy="12" r="1.5" fill="#d4af37" />
+      </svg>
     )
   },
   {
@@ -51,10 +55,10 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'القاهرة',
     customIcon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
-        <circle cx="12" cy="12" r="10" />
-        <circle cx="12" cy="12" r="6" />
-        <circle cx="12" cy="12" r="2" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" className="w-full h-full">
+        <circle cx="12" cy="12" r="8" />
+        <circle cx="12" cy="12" r="5" />
+        <circle cx="12" cy="12" r="2" fill="white" />
       </svg>
     )
   },
@@ -67,7 +71,7 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'العقاري',
     customIcon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 21h18M3 10h18M5 21V10M19 21V10M9 21V10M15 21V10M12 2l9 8H3l9-8z" />
       </svg>
     )
@@ -81,7 +85,11 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'CIB',
     customIcon: (
-      <span className="font-sans text-xs sm:text-sm font-black tracking-tighter">CIB</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" className="w-full h-full" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="3" strokeWidth="2.2" />
+        <path d="M3 12h18" strokeWidth="1.8" />
+        <text x="12" y="12.5" fontFamily="sans-serif" fontSize="7" fontWeight="900" fill="white" textAnchor="middle" dominantBaseline="middle">CIB</text>
+      </svg>
     )
   },
   {
@@ -93,7 +101,9 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-[#d4af37]',
     shortName: 'QNB',
     customIcon: (
-      <span className="font-sans text-xs sm:text-sm font-black italic">QNB</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <text x="12" y="13" fontFamily="sans-serif" fontSize="8" fontWeight="900" fontStyle="italic" fill="#d4af37" textAnchor="middle" dominantBaseline="middle" letterSpacing="-0.5">QNB</text>
+      </svg>
     )
   },
   {
@@ -105,7 +115,11 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'AAIB',
     customIcon: (
-      <span className="font-sans text-[10px] font-black leading-none">AAIB</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" className="w-full h-full">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 3v18M3 12h18" strokeWidth="1" />
+        <path d="M12 3a9 9 0 010 18M12 3a9 9 0 000 18" strokeWidth="1" />
+      </svg>
     )
   },
   {
@@ -131,7 +145,10 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-[#eab308]',
     shortName: 'ADIB',
     customIcon: (
-      <span className="font-sans text-xs font-black">ADIB</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2.2" className="w-full h-full" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 4C8 4 5 7 5 11c0 5 7 9 7 9s7-4 7-9c0-4-3-7-7-7z" fill="#eab308" fillOpacity="0.2" />
+        <path d="M12 8v6M9 11h6" strokeWidth="1.8" />
+      </svg>
     )
   },
   {
@@ -143,7 +160,11 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-[#eab308]',
     shortName: 'فيصل',
     customIcon: (
-      <span className="font-serif text-lg font-black">ف</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2.2" className="w-full h-full" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="8" />
+        <circle cx="12" cy="12" r="4.5" fill="#eab308" fillOpacity="0.2" />
+        <text x="12" y="12.5" fontFamily="serif" fontSize="7" fontWeight="950" fill="white" textAnchor="middle" dominantBaseline="middle">ف</text>
+      </svg>
     )
   },
   {
@@ -155,7 +176,10 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'البركة',
     customIcon: (
-      <span className="font-serif text-base font-black">ب</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 4a8 8 0 008 8 8 8 0 00-8 8" />
+        <text x="11.5" y="12.5" fontFamily="serif" fontSize="7" fontWeight="950" fill="white" textAnchor="middle" dominantBaseline="middle">ب</text>
+      </svg>
     )
   },
   {
@@ -167,8 +191,9 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'HDB',
     customIcon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-full h-full">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="w-full h-full" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        <path d="M9 22V12h6v10" />
       </svg>
     )
   },
@@ -181,7 +206,9 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'EG Bank',
     customIcon: (
-      <span className="font-sans text-[10px] font-black">EG</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <text x="12" y="13" fontFamily="sans-serif" fontSize="9.5" fontWeight="900" fill="white" textAnchor="middle" dominantBaseline="middle" letterSpacing="-1">EG</text>
+      </svg>
     )
   },
   {
@@ -193,7 +220,7 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'السويس',
     customIcon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="w-full h-full" strokeLinecap="round" strokeLinejoin="round">
         <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
       </svg>
     )
@@ -207,7 +234,9 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'SAIB',
     customIcon: (
-      <span className="font-sans text-xs font-black">SAIB</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <text x="12" y="13.5" fontFamily="sans-serif" fontSize="8" fontWeight="900" fill="white" textAnchor="middle" dominantBaseline="middle">saib</text>
+      </svg>
     )
   },
   {
@@ -219,7 +248,9 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'المتحد',
     customIcon: (
-      <span className="font-sans text-xs font-black">UB</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <text x="12" y="13" fontFamily="sans-serif" fontSize="10" fontWeight="900" fill="white" textAnchor="middle" dominantBaseline="middle">UB</text>
+      </svg>
     )
   },
   {
@@ -231,7 +262,9 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'نكست',
     customIcon: (
-      <span className="font-sans text-xs font-black tracking-tighter">NEXT</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <text x="12" y="13" fontFamily="sans-serif" fontSize="8" fontWeight="900" fill="white" textAnchor="middle" dominantBaseline="middle" letterSpacing="-0.5">NEXT</text>
+      </svg>
     )
   },
   {
@@ -243,7 +276,11 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'ENBD',
     customIcon: (
-      <span className="font-sans text-xs font-black">ENBD</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="w-full h-full" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="5" fill="currentColor" fillOpacity="0.2" />
+        <circle cx="12" cy="12" r="2" fill="currentColor" />
+      </svg>
     )
   },
   {
@@ -255,7 +292,10 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-[#eab308]',
     shortName: 'FAB',
     customIcon: (
-      <span className="font-sans text-xs font-black">FAB</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <text x="9" y="13" fontFamily="sans-serif" fontSize="8.5" fontWeight="900" fill="white" textAnchor="middle" dominantBaseline="middle">FAB</text>
+        <path d="M19 8l2.5 3.5-2.5 3.5-2.5-3.5z" fill="#db0011" />
+      </svg>
     )
   },
   {
@@ -284,7 +324,10 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-[#facc15]',
     shortName: 'وفا',
     customIcon: (
-      <span className="font-sans text-xs font-black">ATW</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-[#facc15]" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="4" fill="currentColor" />
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2 2" />
+      </svg>
     )
   },
   {
@@ -296,7 +339,9 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-[#f59e0b]',
     shortName: 'أجريكول',
     customIcon: (
-      <span className="font-sans text-[10px] font-black">CA</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <text x="12" y="13" fontFamily="sans-serif" fontSize="10" fontWeight="900" fill="#f59e0b" textAnchor="middle" dominantBaseline="middle">CA</text>
+      </svg>
     )
   },
   {
@@ -308,7 +353,10 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'Citi',
     customIcon: (
-      <span className="font-sans text-xs font-black">citi</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <path d="M4 10 Q12 4 20 10" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <text x="12" y="15" fontFamily="sans-serif" fontSize="9" fontWeight="900" fill="white" textAnchor="middle" dominantBaseline="middle">citi</text>
+      </svg>
     )
   },
   {
@@ -320,7 +368,10 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-[#d4af37]',
     shortName: 'العربي',
     customIcon: (
-      <span className="font-serif text-base font-black">ع</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2" className="w-full h-full">
+        <circle cx="12" cy="12" r="8" strokeWidth="1.5" />
+        <text x="12" y="12.5" fontFamily="serif" fontSize="10" fontWeight="900" fill="#d4af37" textAnchor="middle" dominantBaseline="middle">ع</text>
+      </svg>
     )
   },
   // Mobile Wallets
@@ -329,11 +380,13 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     matchKeywords: ['vodafone cash', 'فودافون كاش', 'vodafone', 'فودافون'],
     ar: 'فودافون كاش',
     en: 'Vodafone Cash',
-    gradient: 'from-[#e60000] to-[#990000]',
+    gradient: 'from-[#e60000] to-[#b30000]',
     textColor: 'text-white',
     shortName: 'VF',
     customIcon: (
-      <span className="font-sans text-sm font-black tracking-tight">VF</span>
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-white">
+        <path d="M12 2C6.5 2 2 6.5 2 12c0 4.1 2.5 7.6 6.1 9.1-.1-2.7.9-5.4 3-7.5 1.2-1.2 2.6-2 4.2-2.3-.1-.3-.2-.6-.2-.9 0-1.3 1-2.3 2.3-2.3s2.3 1 2.3 2.3-1 2.3-2.3 2.3c-.3 0-.6-.1-.9-.2-.3 1.6-1.1 3-2.3 4.2-2.1 2.1-4.8 3.1-7.5 3 3.4 3.3 8.1 4.9 12.8 4.9 6.2 0 11.2-5 11.2-11.2C23 6.5 18 2 12 2z" />
+      </svg>
     )
   },
   {
@@ -345,7 +398,9 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'Orange',
     customIcon: (
-      <span className="font-sans text-[9px] font-black tracking-tighter">Orange</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <text x="12" y="13" fontFamily="sans-serif" fontSize="7" fontWeight="900" fill="white" textAnchor="middle" dominantBaseline="middle">orange</text>
+      </svg>
     )
   },
   {
@@ -353,11 +408,15 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     matchKeywords: ['etisalat cash', 'اتصالات كاش', 'etisalat', 'etislate', 'اتصالات'],
     ar: 'اتصالات كاش',
     en: 'Etisalat Cash',
-    gradient: 'from-[#7fba00] to-[#4e7300]',
+    gradient: 'from-[#1c1c1c] to-[#2d2d2d]',
     textColor: 'text-white',
     shortName: 'e&',
     customIcon: (
-      <span className="font-sans text-xs font-black">e&</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <path d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8c0 .6-.4 1-1 1h-11c.4 2.8 2.8 5 5.9 5 2.1 0 4-1 5.1-2.6.4-.5 1-.5 1.4-.1l1.6 1.6c.3.3.3.8 0 1.1C17.3 20.2 14.1 22 10.5 22 6.1 22 4 18.4 4 12zm12.9-1.8c-.4-2.6-2.6-4.2-5.4-4.2-2.9 0-5.1 1.7-5.4 4.2h10.8z" fill="#7fba00" />
+        <circle cx="19.5" cy="12.5" r="2.5" fill="#7fba00" />
+        <rect x="18.5" y="16" width="2" height="6" fill="#7fba00" />
+      </svg>
     )
   },
   {
@@ -369,7 +428,9 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     textColor: 'text-white',
     shortName: 'WE',
     customIcon: (
-      <span className="font-sans text-xs font-black tracking-tighter">WE</span>
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+        <path d="M6 13c0-3 1.8-5 4.3-5 1.5 0 2.5.8 3 1.8.5-1 1.5-1.8 3-1.8 2 0 3.5 1.5 3.5 3.8 0 3-2.5 5-5.5 5-2.5 0-4-1.3-4.5-2.3-.5 1-1.8 2.3-3.5 2.3-1.5 0-2.8-1.3-2.8-3 0-2 1.8-3 3.8-2.5l-.2 1c-1 .2-2 .3-2 .8 0 .5.3.8.8.8 1.3 0 2.5-1.3 3.3-2.8l.8-2.5c-.3-.3-.8-.5-1.3-.5-1.5 0-2.5 1.5-2.5 3.5z" fill="white" />
+      </svg>
     )
   }
 ];
@@ -427,7 +488,7 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
       shortName: 'كاش',
       gradient: 'from-[#059669] to-[#10b981]',
       textColor: 'text-white',
-      customIcon: <Wallet className="w-5 h-5" />,
+      customIcon: <Wallet className="w-5 h-5 text-white" />,
     };
   }
 
@@ -441,7 +502,7 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
   return (
     <div
       className={cn(
-        'flex items-center justify-center font-black select-none shrink-0 border border-white/10 shadow-lg',
+        'flex items-center justify-center font-black select-none shrink-0 border border-white/10 shadow-lg overflow-hidden',
         brand.gradient,
         brand.textColor,
         sizeClasses[size],
@@ -449,9 +510,9 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
       )}
     >
       {brand.customIcon ? (
-        <div className="w-5 h-5 flex items-center justify-center">{brand.customIcon}</div>
+        <div className="w-full h-full flex items-center justify-center p-1.5">{brand.customIcon}</div>
       ) : (
-        <span>{brand.shortName}</span>
+        <span className="font-extrabold">{brand.shortName}</span>
       )}
     </div>
   );
