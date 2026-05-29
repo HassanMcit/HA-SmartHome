@@ -30,7 +30,8 @@ import {
   Check,
   Calendar,
   Clock,
-  Trash2
+  Trash2,
+  Pencil
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -101,6 +102,22 @@ export default function DashboardPage() {
     accountId: '',
     accountName: '',
   });
+
+  // Edit Account dialog state
+  const [editDialog, setEditDialog] = useState<{ isOpen: boolean; account: Account | null }>({
+    isOpen: false,
+    account: null,
+  });
+  const [editName, setEditName] = useState('');
+  const [editAlias, setEditAlias] = useState('');
+  const [editAccountNum, setEditAccountNum] = useState('');
+  const [editIban, setEditIban] = useState('');
+  const [editBalance, setEditBalance] = useState('');
+  const [editSubType, setEditSubType] = useState<'current' | 'deposit'>('current');
+  const [editDepositAmount, setEditDepositAmount] = useState('');
+  const [editInterestRate, setEditInterestRate] = useState('');
+  const [editInterestDay, setEditInterestDay] = useState('');
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   const fetchData = async () => {
     if (!user) return;
@@ -305,12 +322,8 @@ export default function DashboardPage() {
   };
 
   const handleDeleteAccount = (id: string, name: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent opening detail modal
-    setDeleteDialog({
-      isOpen: true,
-      accountId: id,
-      accountName: name,
-    });
+    e.stopPropagation();
+    setDeleteDialog({ isOpen: true, accountId: id, accountName: name });
   };
 
   const confirmDeleteAccount = async () => {
@@ -319,9 +332,65 @@ export default function DashboardPage() {
       await accountsApi.delete(deleteDialog.accountId);
       toast.success(lang === 'ar' ? 'تم حذف الحساب بنجاح' : 'Account deleted successfully');
       setDeleteDialog({ isOpen: false, accountId: '', accountName: '' });
-      fetchData(); // Refresh the list
+      fetchData();
     } catch (err: any) {
       toast.error(err.message || (lang === 'ar' ? 'حدث خطأ أثناء حذف الحساب' : 'Error deleting account'));
+    }
+  };
+
+  const handleOpenEditAccount = (acc: Account, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditDialog({ isOpen: true, account: acc });
+    setEditName(acc.name);
+    setEditAlias(acc.alias || '');
+    setEditAccountNum(acc.accountNum || '');
+    setEditIban(acc.iban || '');
+    setEditBalance(String(acc.balance));
+    setEditSubType((acc.subType as 'current' | 'deposit') || 'current');
+    setEditDepositAmount(acc.depositAmount != null ? String(acc.depositAmount) : '');
+    setEditInterestRate(acc.interestRate != null ? String(acc.interestRate) : '');
+    setEditInterestDay(acc.interestDay != null ? String(acc.interestDay) : '');
+  };
+
+  const handleEditAccountSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const acc = editDialog.account;
+    if (!acc) return;
+    if (acc.type !== 'cash' && !editName) {
+      toast.error(lang === 'ar' ? 'يرجى تحديد اسم الحساب المالي' : 'Please specify account name');
+      return;
+    }
+    setEditSubmitting(true);
+    try {
+      const payload: any = {
+        name: acc.type === 'cash' ? 'كاش' : editName,
+        balance: parseFloat(editBalance) || 0,
+        alias: editAlias || null,
+      };
+      if (acc.type === 'bank') {
+        payload.accountNum = editAccountNum || null;
+        payload.iban = editIban || null;
+        payload.subType = editSubType;
+        if (editSubType === 'deposit') {
+          payload.depositAmount = parseFloat(editDepositAmount) || null;
+          payload.interestRate = parseFloat(editInterestRate) || null;
+          payload.interestDay = parseInt(editInterestDay) || null;
+        } else {
+          payload.depositAmount = null;
+          payload.interestRate = null;
+          payload.interestDay = null;
+        }
+      } else if (acc.type === 'wallet') {
+        payload.accountNum = editAccountNum || null;
+      }
+      await accountsApi.update(acc.id, payload);
+      toast.success(lang === 'ar' ? 'تم تعديل الحساب بنجاح! ✏️' : 'Account updated successfully! ✏️');
+      setEditDialog({ isOpen: false, account: null });
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || (lang === 'ar' ? 'حدث خطأ أثناء تعديل الحساب' : 'Error updating account'));
+    } finally {
+      setEditSubmitting(false);
     }
   };
 
@@ -563,7 +632,14 @@ export default function DashboardPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-4 self-end sm:self-auto shrink-0" dir="ltr">
+                  <div className="flex items-center gap-2 self-end sm:self-auto shrink-0" dir="ltr">
+                    <button
+                      onClick={(e) => handleOpenEditAccount(acc, e)}
+                      className="p-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-600 text-indigo-400 hover:text-white transition-all active:scale-90"
+                      title={lang === 'ar' ? 'تعديل الحساب' : 'Edit Account'}
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
                     <button
                       onClick={(e) => handleDeleteAccount(acc.id, translatedName, e)}
                       className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white transition-all active:scale-90"
@@ -1206,6 +1282,130 @@ export default function DashboardPage() {
               )}
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── Edit Account Dialog ─── */}
+      <Dialog open={editDialog.isOpen} onOpenChange={(open) => setEditDialog(prev => ({ ...prev, isOpen: open }))}>
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[460px] max-h-[90vh] overflow-y-auto custom-scrollbar" dir="rtl">
+          <DialogHeader className="text-right">
+            <DialogTitle className="text-2xl font-black mb-4">
+              {lang === 'ar' ? 'تعديل الحساب المالي ✏️' : 'Edit Financial Account ✏️'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleEditAccountSubmit} className="space-y-6">
+            {editDialog.account?.type === 'bank' && (
+              <>
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اختر البنك' : 'Select Bank'}</Label>
+                  <BankSelector selectedName={editName} onSelect={setEditName} type="bank" />
+                </div>
+
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم الحساب المخصص (اختياري)' : 'Account Alias (Optional)'}</Label>
+                  <Input
+                    placeholder={lang === 'ar' ? 'مثال: حساب التوفير، مرتب...' : 'e.g. Savings account...'}
+                    value={editAlias}
+                    onChange={e => setEditAlias(e.target.value)}
+                    className="h-11 bg-[#242444] border-[#2d2d5e]"
+                  />
+                </div>
+
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'نوع الحساب البنكي' : 'Bank Account Type'}</Label>
+                  <div className="flex gap-2 p-1 bg-black/10 rounded-xl border border-white/5">
+                    <button type="button" onClick={() => setEditSubType('current')} className={cn('flex-1 py-2 rounded-lg font-bold text-[11px] transition-all', editSubType === 'current' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white')}>
+                      {lang === 'ar' ? 'حساب جاري / توفير عادي' : 'Current / Savings'}
+                    </button>
+                    <button type="button" onClick={() => setEditSubType('deposit')} className={cn('flex-1 py-2 rounded-lg font-bold text-[11px] transition-all', editSubType === 'deposit' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white')}>
+                      {lang === 'ar' ? 'وديعة / شهادة ادخار' : 'Certificate of Deposit'}
+                    </button>
+                  </div>
+                </div>
+
+                {editSubType === 'deposit' && (
+                  <div className="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/10 space-y-4 animate-fade-in">
+                    <div className="space-y-2 text-right">
+                      <Label className="text-xs font-bold text-indigo-300">{lang === 'ar' ? 'مبلغ الوديعة الأساسي (ج.م)' : 'Deposit Principal (EGP)'}</Label>
+                      <Input type="number" placeholder="0.00" value={editDepositAmount} onChange={e => setEditDepositAmount(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2 text-right">
+                        <Label className="text-xs font-bold text-indigo-300">{lang === 'ar' ? 'نسبة الفائدة السنوية (%)' : 'Annual Interest Rate (%)'}</Label>
+                        <Input type="number" step="0.01" placeholder="e.g. 18.5" value={editInterestRate} onChange={e => setEditInterestRate(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e] text-center" />
+                      </div>
+                      <div className="space-y-2 text-right">
+                        <Label className="text-xs font-bold text-indigo-300">{lang === 'ar' ? 'يوم صرف الفائدة شهرياً' : 'Payout Day'}</Label>
+                        <Input type="number" min="1" max="31" placeholder="e.g. 25" value={editInterestDay} onChange={e => setEditInterestDay(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e] text-center" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2 text-right">
+                    <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رقم الحساب المحلي' : 'Local Account No'}</Label>
+                    <Input placeholder={lang === 'ar' ? 'رقم الحساب' : 'Account number'} value={editAccountNum} onChange={e => setEditAccountNum(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                  </div>
+                  <div className="space-y-2 text-right">
+                    <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'الرصيد' : 'Balance'}</Label>
+                    <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e] text-center" />
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رقم الحساب الدولي (IBAN)' : 'IBAN'}</Label>
+                  <Input placeholder="EG00 0000 0000 0000 0000 0000 0" value={editIban} onChange={e => setEditIban(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e] text-left uppercase" dir="ltr" />
+                </div>
+              </>
+            )}
+
+            {editDialog.account?.type === 'wallet' && (
+              <>
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اختر المحفظة الإلكترونية' : 'Select Mobile Wallet'}</Label>
+                  <BankSelector selectedName={editName} onSelect={setEditName} type="wallet" />
+                </div>
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم المحفظة المخصص (اختياري)' : 'Wallet Alias (Optional)'}</Label>
+                  <Input placeholder={lang === 'ar' ? 'مثال: محفظتي الأساسية...' : 'e.g. My primary wallet...'} value={editAlias} onChange={e => setEditAlias(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2 text-right">
+                    <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رقم الهاتف للمحفظة' : 'Wallet Phone No'}</Label>
+                    <Input placeholder="01xxxxxxxxx" value={editAccountNum} onChange={e => setEditAccountNum(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                  </div>
+                  <div className="space-y-2 text-right">
+                    <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'الرصيد' : 'Balance'}</Label>
+                    <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e] text-center" />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {editDialog.account?.type === 'cash' && (
+              <>
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم الحساب المخصص' : 'Account Alias'}</Label>
+                  <Input placeholder={lang === 'ar' ? 'كاش' : 'Cash'} value={editAlias} onChange={e => setEditAlias(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                </div>
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'الرصيد النقدي الحالي' : 'Current Cash Balance'}</Label>
+                  <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                </div>
+              </>
+            )}
+
+            <div className="flex gap-3 pt-4 border-t border-white/5">
+              <Button type="submit" disabled={editSubmitting} className="flex-1 h-12 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm">
+                {editSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes')}
+              </Button>
+              <Button type="button" onClick={() => setEditDialog({ isOpen: false, account: null })} disabled={editSubmitting} variant="outline" className="flex-1 h-12 border-white/5 bg-transparent text-slate-400 hover:bg-white/5 hover:text-white rounded-xl text-sm">
+                {lang === 'ar' ? 'إلغاء' : 'Cancel'}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
 

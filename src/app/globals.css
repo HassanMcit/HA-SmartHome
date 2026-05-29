@@ -48,6 +48,8 @@
   --chart-3: #f59e0b;
   --chart-4: #ef4444;
   --chart-5: #3b82f6;
+  --logo-bg: #242444;
+  --logo-border: rgba(255, 255, 255, 0.1);
 }
 
 /* ──────────────────────────────────────────────
@@ -73,6 +75,8 @@ html.light {
   --border: #e2e8f0;
   --input: #e2e8f0;
   --ring: #6366f1;
+  --logo-bg: #ffffff;
+  --logo-border: #cbd5e1;
 }
 
 
@@ -178,23 +182,28 @@ html.light .text-white {
 }
 
 html.light .text-slate-400 {
-  color: #64748b !important;
+  color: #475569 !important; /* Darker slate for readability */
 }
 
 html.light .text-slate-500 {
-  color: #94a3b8 !important;
+  color: #475569 !important; /* Darker slate for readability */
 }
 
 html.light .text-slate-600 {
-  color: #64748b !important;
+  color: #334155 !important;
 }
 
 html.light .text-slate-300 {
-  color: #475569 !important;
+  color: #1e293b !important; /* Dark slate for prominent values (like account numbers/IBANs) */
 }
 
 html.light .text-slate-200 {
-  color: #334155 !important;
+  color: #0f172a !important;
+}
+
+/* Account numbers / IBAN font-mono values: always dark and readable in light mode */
+html.light .font-mono {
+  color: #1e293b !important;
 }
 
 /* ─── Light Mode Theme Contrast Overrides ─── */
@@ -277,10 +286,10 @@ html.light .bg-\[\#1a1a35\]\/80 {
   background: rgba(255,255,255,0.95) !important;
 }
 
-/* ─── Cards inner bg ─── */
-html.light .p-4.rounded-\[20px\].bg-white\/5 {
-  background: #f8fafc !important;
-  border-color: #e2e8f0 !important;
+/* ─── Credentials / account number panels ─── */
+html.light .bg-black\/20 {
+  background: rgba(99, 102, 241, 0.04) !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
 }
 
 /* ─── Input fields ─── */

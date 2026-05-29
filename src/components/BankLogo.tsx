@@ -502,7 +502,7 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
       shortName: 'كاش',
       gradient: 'from-[#059669] to-[#10b981]',
       textColor: 'text-white',
-      customIcon: <Wallet className="w-full h-full text-white" />,
+      customIcon: <Wallet className="w-full h-full" style={{ color: 'white' }} />,
     };
   }
 
@@ -531,9 +531,13 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
 
   return (
     <div
+      style={{
+        backgroundColor: logoSrc ? 'var(--logo-bg)' : undefined,
+        borderColor: 'var(--logo-border)'
+      }}
       className={cn(
-        'flex items-center justify-center font-black select-none shrink-0 border border-white/10 shadow-lg overflow-hidden bg-[#242444]',
-        !logoSrc && brand.gradient,
+        'flex items-center justify-center font-black select-none shrink-0 border shadow-lg overflow-hidden',
+        !logoSrc && cn('bg-gradient-to-r', brand.gradient),
         !logoSrc && brand.textColor,
         sizeClasses[size],
         className
@@ -547,11 +551,14 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
           onError={() => setImgError(true)}
         />
       ) : brand.customIcon ? (
-        <div className={cn('flex items-center justify-center shrink-0', iconSizeClasses[size])}>
+        <div
+          className={cn('flex items-center justify-center shrink-0', iconSizeClasses[size])}
+          style={{ color: 'white' }}
+        >
           {brand.customIcon}
         </div>
       ) : (
-        <span className="font-extrabold">{brand.shortName}</span>
+        <span className="font-extrabold" style={{ color: 'white' }}>{brand.shortName}</span>
       )}
     </div>
   );
