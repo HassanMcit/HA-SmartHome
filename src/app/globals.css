@@ -203,6 +203,12 @@ html.light [class*="bg-[#161630]"] {
   border-color: #e2e8f0 !important;
 }
 
+html.light .bg-\[\#242444\],
+html.light [class*="bg-[#242444]"] {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
 html.light .divide-white\/10 > * + *,
 html.light [class*="divide-white/10"] > * + * {
   border-color: #e2e8f0 !important;
