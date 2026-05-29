@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { transactionsApi, adminApi, accountsApi, Account, Transaction, User, formatCurrency, getCategoryInfo, INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ArrowDownRight, ArrowUpRight, Plus, Trash2, Users, Loader2, Activity, Calendar, Tag, AlertCircle, Pencil } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Plus, Trash2, Users, Loader2, Activity, Calendar, Tag, AlertCircle, Pencil, ArrowLeftRight } from 'lucide-react';
 import BankLogo, { getTranslatedBankName } from '@/components/BankLogo';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -33,6 +33,15 @@ export default function TransactionsPage() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [targetUserId, setTargetUserId] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
+  
+  // Transfer form state
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [fromAccountId, setFromAccountId] = useState('');
+  const [toAccountId, setToAccountId] = useState('');
+  const [transferAmount, setTransferAmount] = useState('');
+  const [transferDesc, setTransferDesc] = useState('');
+  const [transferDate, setTransferDate] = useState(new Date().toISOString().split('T')[0]);
+  const [transferSubmitting, setTransferSubmitting] = useState(false);
   
   const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; transactionId: string; description: string }>({
     isOpen: false,
@@ -168,10 +177,46 @@ export default function TransactionsPage() {
       setAccountId('');
       setDate(new Date().toISOString().split('T')[0]);
       fetchTransactions();
+      fetchAccounts();
     } catch (error: any) {
       toast.error(error.message || 'حدث خطأ أثناء الإضافة');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleTransferSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fromAccountId || !toAccountId || !transferAmount) {
+      toast.error(lang === 'ar' ? 'يرجى تحديد الحسابات والمبلغ' : 'Please select accounts and amount');
+      return;
+    }
+    if (fromAccountId === toAccountId) {
+      toast.error(lang === 'ar' ? 'لا يمكن التحويل لنفس الحساب المالي' : 'Cannot transfer to the same account');
+      return;
+    }
+    setTransferSubmitting(true);
+    try {
+      await transactionsApi.transfer({
+        fromAccountId,
+        toAccountId,
+        amount: parseFloat(transferAmount),
+        description: transferDesc,
+        date: transferDate
+      });
+      toast.success(lang === 'ar' ? 'تمت عملية التحويل المالي بنجاح! 💸' : 'Transfer completed successfully! 💸');
+      setTransferOpen(false);
+      setFromAccountId('');
+      setToAccountId('');
+      setTransferAmount('');
+      setTransferDesc('');
+      setTransferDate(new Date().toISOString().split('T')[0]);
+      fetchTransactions();
+      fetchAccounts();
+    } catch (error: any) {
+      toast.error(error.message || (lang === 'ar' ? 'حدث خطأ أثناء إجراء التحويل' : 'Error performing transfer'));
+    } finally {
+      setTransferSubmitting(false);
     }
   };
 
@@ -203,19 +248,136 @@ export default function TransactionsPage() {
             <p className="text-slate-400 text-sm sm:text-base font-medium">سجل وراقب كافة تحركاتك المالية</p>
           </div>
 
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                onClick={() => {
-                  setTargetUserId(currentUser?.id || '');
-                  setOpen(true);
-                }}
-                className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
-              >
-                <Plus className="w-5 h-5 ml-2" />
-                إضافة معاملة
-              </Button>
-            </DialogTrigger>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {/* Transfer Dialog */}
+            <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-black rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
+                >
+                  <ArrowLeftRight className="w-5 h-5 ml-2" />
+                  {lang === 'ar' ? 'تحويل مالي' : 'Transfer'}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar">
+                <DialogHeader className="text-right">
+                  <DialogTitle className="text-2xl font-black mb-6">{lang === 'ar' ? 'تحويل مالي بين الحسابات' : 'Transfer Between Accounts'}</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleTransferSubmit} className="space-y-6">
+                  <div className="space-y-2 text-right">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'من الحساب' : 'From Account'}</label>
+                    <Select value={fromAccountId} onValueChange={setFromAccountId}>
+                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                        <SelectValue placeholder={lang === 'ar' ? 'اختر الحساب المصدر' : 'Select source account'} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                        {accounts.map(acc => (
+                          <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                            <div className="flex items-center gap-2">
+                              <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                              <span>
+                                {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}) - {formatCurrency(acc.balance)}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2 text-right">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'إلى الحساب' : 'To Account'}</label>
+                    <Select value={toAccountId} onValueChange={setToAccountId}>
+                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                        <SelectValue placeholder={lang === 'ar' ? 'اختر الحساب المستهدف' : 'Select target account'} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                        {accounts.map(acc => (
+                          <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                            <div className="flex items-center gap-2">
+                              <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                              <span>
+                                {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}) - {formatCurrency(acc.balance)}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2 text-right">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'المبلغ' : 'Amount'}</label>
+                      <div className="relative">
+                        <input 
+                          type="number" 
+                          step="0.01" 
+                          required 
+                          value={transferAmount} 
+                          onChange={e => setTransferAmount(e.target.value)} 
+                          className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
+                          placeholder="0.00"
+                          dir="ltr"
+                        />
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ج.م</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 text-right">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'التاريخ' : 'Date'}</label>
+                      <div className="relative group cursor-pointer" onClick={(e) => {
+                        const input = e.currentTarget.querySelector('input');
+                        if (input) input.showPicker?.();
+                      }}>
+                        <input 
+                          type="date" 
+                          value={transferDate} 
+                          onChange={e => setTransferDate(e.target.value)} 
+                          className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all cursor-pointer"
+                          dir="ltr"
+                        />
+                        <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-indigo-400 transition-colors pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-right">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'الوصف / ملاحظات' : 'Description / Notes'}</label>
+                    <input 
+                      type="text" 
+                      value={transferDesc} 
+                      onChange={e => setTransferDesc(e.target.value)} 
+                      className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all text-right"
+                      placeholder={lang === 'ar' ? 'مثال: تحويل مصروف، سداد حصة...' : 'e.g. Allowance, split pay...'}
+                    />
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    disabled={transferSubmitting || !fromAccountId || !toAccountId || !transferAmount}
+                    className="w-full h-14 bg-amber-500 hover:bg-amber-600 text-black rounded-2xl font-black text-lg shadow-lg shadow-amber-500/20 active:scale-[0.98] transition-all disabled:opacity-50 mt-4"
+                  >
+                    {transferSubmitting ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : (lang === 'ar' ? 'إجراء التحويل المالي' : 'Execute Transfer')}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            {/* Standard Transaction Dialog */}
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  onClick={() => {
+                    setTargetUserId(currentUser?.id || '');
+                    setOpen(true);
+                  }}
+                  className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+                >
+                  <Plus className="w-5 h-5 ml-2" />
+                  إضافة معاملة
+                </Button>
+              </DialogTrigger>
             <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar">
               <DialogHeader className="text-right">
                 <DialogTitle className="text-2xl font-black mb-6">إضافة معاملة جديدة</DialogTitle>
@@ -365,6 +527,7 @@ export default function TransactionsPage() {
             </DialogContent>
           </Dialog>
         </div>
+      </div>
 
         {isAdmin && (
           <div className="w-full sm:w-[300px]">

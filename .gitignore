@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# scratch files
+/scratch/
+/public/assets/logos/banks/test_write.txt

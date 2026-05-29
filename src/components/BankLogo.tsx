@@ -63,8 +63,8 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     )
   },
   {
-    key: 'eaeb',
-    matchKeywords: ['العقاري', 'eaeb', 'land bank'],
+    key: 'ealb',
+    matchKeywords: ['العقاري', 'ealb', 'land bank'],
     ar: 'البنك العقاري المصري العربي',
     en: 'Egyptian Arab Land Bank',
     gradient: 'from-[#1e3a8a] to-[#2563eb]',
@@ -169,7 +169,7 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
   },
   {
     key: 'baraka',
-    matchKeywords: ['البركة', 'baraka'],
+    matchKeywords: ['البركة', 'البركه', 'baraka'],
     ar: 'بنك البركة مصر',
     en: 'Al Baraka Bank Egypt',
     gradient: 'from-[#854d0e] to-[#a16207]',
@@ -300,7 +300,7 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
   },
   {
     key: 'hsbc',
-    matchKeywords: ['hsbc', 'اتش اس بي سي'],
+    matchKeywords: ['hsbc', 'اتش اس بي سي', 'إتش إس بي سي'],
     ar: 'بنك إتش إس بي سي مصر (HSBC)',
     en: 'HSBC Bank Egypt',
     gradient: 'from-[#1f2937] to-[#374151]',
@@ -317,7 +317,7 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
   },
   {
     key: 'attijari',
-    matchKeywords: ['التجاري وفا', 'attijari'],
+    matchKeywords: ['التجاري وفا', 'تجاري وفا', 'attijari'],
     ar: 'التجاري وفا بنك',
     en: 'Attijariwafa Bank',
     gradient: 'from-[#ea580c] to-[#f97316]',
@@ -435,19 +435,31 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
   }
 ];
 
+function normalizeArabicText(text: string): string {
+  if (!text) return '';
+  return text
+    .toLowerCase()
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .replace(/\s+/g, '')
+    .trim();
+}
+
 export function getTranslatedBankName(name: string, lang: 'ar' | 'en'): string {
   if (!name) return '';
-  const nameLower = name.toLowerCase();
+  const normalizedName = normalizeArabicText(name);
   
   // Find match in catalog
   const found = BANK_WALLET_CATALOG.find(item => 
-    item.matchKeywords.some(keyword => nameLower.includes(keyword.toLowerCase()))
+    item.matchKeywords.some(keyword => normalizedName.includes(normalizeArabicText(keyword)))
   );
   if (found) {
     return lang === 'ar' ? found.ar : found.en;
   }
   
   // Custom case: Cash
+  const nameLower = name.toLowerCase();
   if (nameLower.includes('كاش') || nameLower.includes('cash')) {
     return lang === 'ar' ? 'نقد كاش' : 'Cash';
   }
@@ -464,10 +476,11 @@ interface BankLogoProps {
 export default function BankLogo({ name, className, size = 'md' }: BankLogoProps) {
   const [imgError, setImgError] = React.useState(false);
   const nameLower = (name || '').toLowerCase();
+  const normalizedName = normalizeArabicText(name);
   
   // Find in catalog
   const matchedInfo = BANK_WALLET_CATALOG.find(item => 
-    item.matchKeywords.some(keyword => nameLower.includes(keyword.toLowerCase()))
+    item.matchKeywords.some(keyword => normalizedName.includes(normalizeArabicText(keyword)))
   );
   
   let brand = {
@@ -511,7 +524,9 @@ export default function BankLogo({ name, className, size = 'md' }: BankLogoProps
   if (matchedInfo && !imgError) {
     const isWalletKey = ['vodafone_cash', 'orange_cash', 'etisalat_cash', 'wepay'].includes(matchedInfo.key);
     const folder = isWalletKey ? 'wallets' : 'banks';
-    logoSrc = `/assets/logos/${folder}/${matchedInfo.key}.png`;
+    const isSvg = ['suez', 'hsbc', 'attijari', 'baraka'].includes(matchedInfo.key);
+    const ext = isSvg ? 'svg' : 'png';
+    logoSrc = `/assets/logos/${folder}/${matchedInfo.key}.${ext}`;
   }
 
   return (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { billsApi, adminApi, Bill, User, formatCurrency, EXPENSE_CATEGORIES, getCategoryInfo } from '@/lib/api';
+import { billsApi, adminApi, accountsApi, Bill, User, Account, formatCurrency, EXPENSE_CATEGORIES, getCategoryInfo } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Plus, Trash2, CheckCircle2, Circle, AlertCircle, Pencil, Users, FileText, Loader2, Tag } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import BankLogo, { getTranslatedBankName } from '@/components/BankLogo';
 
 export default function BillsPage() {
   const { user: currentUser } = useAuth();
@@ -38,6 +39,14 @@ export default function BillsPage() {
   const [editAmount, setEditAmount] = useState('');
   const [editCategory, setEditCategory] = useState('general_bills');
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [payDialog, setPayDialog] = useState<{ isOpen: boolean; billId: string; billAmount: number; billName: string }>({
+    isOpen: false,
+    billId: '',
+    billAmount: 0,
+    billName: '',
+  });
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('none');
 
   const fetchUsers = async () => {
     if (!isAdmin) return;
@@ -64,6 +73,15 @@ export default function BillsPage() {
     }
   };
 
+  const fetchAccounts = async () => {
+    try {
+      const data = await accountsApi.getAll();
+      setAccounts(data || []);
+    } catch {
+      console.error('Error fetching accounts');
+    }
+  };
+
   useEffect(() => {
     if (currentUser) {
       if (isAdmin) {
@@ -71,6 +89,7 @@ export default function BillsPage() {
         setSelectedUserId(currentUser.id);
       }
       fetchBills(currentUser.id);
+      fetchAccounts();
     }
   }, [currentUser, isAdmin]);
 
@@ -117,12 +136,45 @@ export default function BillsPage() {
     finally { setSubmitting(false); }
   };
 
-  const handleToggle = async (id: string) => {
-    if (togglingId) return;
-    setTogglingId(id);
-    try { await billsApi.toggle(id); fetchBills(); }
-    catch { toast.error('حدث خطأ'); }
-    finally { setTogglingId(null); }
+  const handleToggle = async (id: string, isPaid: boolean, amount: number, name: string) => {
+    if (isPaid) {
+      if (togglingId) return;
+      setTogglingId(id);
+      try {
+        await billsApi.toggle(id);
+        toast.success('تم إلغاء سداد الفاتورة');
+        fetchBills();
+        fetchAccounts();
+      } catch {
+        toast.error('حدث خطأ');
+      } finally {
+        setTogglingId(null);
+      }
+    } else {
+      setPayDialog({
+        isOpen: true,
+        billId: id,
+        billAmount: amount,
+        billName: name
+      });
+      setSelectedAccountId('none');
+    }
+  };
+
+  const confirmPayment = async () => {
+    if (!payDialog.billId || togglingId) return;
+    setTogglingId(payDialog.billId);
+    try {
+      await billsApi.toggle(payDialog.billId, selectedAccountId === 'none' ? undefined : selectedAccountId);
+      toast.success('تم سداد الفاتورة بنجاح');
+      setPayDialog({ isOpen: false, billId: '', billAmount: 0, billName: '' });
+      fetchBills();
+      fetchAccounts();
+    } catch {
+      toast.error('حدث خطأ أثناء دفع الفاتورة');
+    } finally {
+      setTogglingId(null);
+    }
   };
 
   const openEdit = (bill: Bill) => {
@@ -288,7 +340,7 @@ export default function BillsPage() {
               )}>
                 <div className="flex items-center gap-4 flex-1 min-w-0">
                   <button
-                    onClick={() => handleToggle(bill.id)}
+                    onClick={() => handleToggle(bill.id, bill.isPaid, bill.amount, bill.name)}
                     disabled={isToggling}
                     className={cn(
                       "w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
@@ -407,6 +459,67 @@ export default function BillsPage() {
               </Button>
               <Button variant="outline" className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all"
                 onClick={() => setDeleteDialog({ isOpen: false, billId: '', billName: '' })}>
+                إلغاء
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Account Selection Dialog for Bill Payment */}
+      <Dialog open={payDialog.isOpen} onOpenChange={(isOpen) => setPayDialog(prev => ({ ...prev, isOpen }))}>
+        <DialogContent className="bg-[#1a1a35] border-slate-700 text-white p-6 sm:max-w-[440px] rounded-[32px] outline-none text-right" dir="rtl">
+          <div className="text-right">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-6">
+              <CheckCircle2 className="w-7 h-7" />
+            </div>
+            <DialogHeader className="text-right">
+              <DialogTitle className="text-2xl font-black text-white">سداد الفاتورة</DialogTitle>
+            </DialogHeader>
+            <p className="text-slate-400 text-sm font-medium mt-3 leading-relaxed">
+              أنت على وشك تحديد فاتورة <span className="text-amber-400 font-bold">"{payDialog.billName}"</span> بقيمة <span className="text-white font-bold">{formatCurrency(payDialog.billAmount)}</span> كمدفوعة.
+              <br />
+              يرجى اختيار الحساب المالي الذي تم السداد منه لخصم القيمة وتسجيل معاملة مصروف:
+            </p>
+
+            <div className="mt-5 space-y-2 text-right">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الحساب المالي</label>
+              <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+                <SelectTrigger className="w-full bg-[#242444] border border-[#2d2d5e] text-right h-12 rounded-xl px-4 text-white" dir="rtl">
+                  <SelectValue placeholder="اختر حساب الخصم" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a35] border-slate-700 text-white rounded-xl max-h-[300px] custom-scrollbar" dir="rtl">
+                  <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">
+                    بدون ربط (سجل عام بدون خصم)
+                  </SelectItem>
+                  {accounts.map(acc => (
+                    <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                        <span className="font-bold text-sm">
+                          {getTranslatedBankName(acc.name, 'ar')} {acc.alias ? `(${acc.alias})` : ''} - {formatCurrency(acc.balance)}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
+              <Button 
+                className="flex-1 h-14 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl active:scale-[0.98] transition-all"
+                onClick={confirmPayment}
+                disabled={togglingId !== null}
+              >
+                {togglingId ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'تأكيد السداد والخصم'}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all"
+                onClick={() => setPayDialog({ isOpen: false, billId: '', billAmount: 0, billName: '' })}
+                disabled={togglingId !== null}
+              >
                 إلغاء
               </Button>
             </div>

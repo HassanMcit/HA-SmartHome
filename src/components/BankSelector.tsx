@@ -127,10 +127,10 @@ export default function BankSelector({ selectedName, onSelect, type = 'all' }: B
 
                 {/* Primary & Secondary Titles */}
                 <div className="min-w-0 text-right flex-1">
-                  <h5 className="text-[11px] font-bold text-white truncate line-clamp-1">
+                  <h5 className="text-[11px] font-bold text-white break-words whitespace-normal leading-tight">
                     {lang === 'ar' ? item.nameAr : item.nameEn}
                   </h5>
-                  <span className="text-[9px] font-semibold text-slate-500 block truncate leading-none mt-1.5">
+                  <span className="text-[9px] font-semibold text-slate-500 block break-words whitespace-normal leading-normal mt-1">
                     {lang === 'ar' ? item.nameEn : item.nameAr}
                   </span>
                 </div>

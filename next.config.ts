@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import withPWAInit from "@ducanh2912/next-pwa";
+import path from "path";
 
 const withPWA = withPWAInit({
   dest: "public",
@@ -13,9 +14,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  outputFileTracingRoot: path.join(__dirname),
   turbopack: {},
   async rewrites() {
     return [

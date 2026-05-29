@@ -75,6 +75,12 @@ export interface Account {
   balance: number;
   createdAt: string;
   updatedAt: string;
+  alias?: string;
+  subType?: 'current' | 'deposit';
+  depositAmount?: number;
+  interestRate?: number;
+  interestDay?: number;
+  lastInterestPaid?: string;
 }
 
 export interface Transaction {
@@ -336,6 +342,18 @@ export const transactionsApi = {
 
   delete: (id: string) =>
     request(`/transactions/${id}`, { method: 'DELETE' }),
+
+  transfer: (payload: {
+    fromAccountId: string;
+    toAccountId: string;
+    amount: number;
+    description?: string;
+    date: string;
+  }) =>
+    request<{ fromTx: Transaction; toTx: Transaction }>('/transactions/transfer', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 };
 
 // ─── Budgets API ─────────────────────────────────────────────────────────────
@@ -401,8 +419,11 @@ export const billsApi = {
       body: JSON.stringify(payload),
     }),
 
-  toggle: (id: string) =>
-    request<Bill>(`/bills/${id}/toggle`, { method: 'PUT' }),
+  toggle: (id: string, accountId?: string) =>
+    request<Bill>(`/bills/${id}/toggle`, {
+      method: 'PUT',
+      body: accountId ? JSON.stringify({ accountId }) : undefined,
+    }),
 
   update: (
     id: string,
@@ -457,12 +478,18 @@ export const aiApi = {
 // ─── Accounts API ────────────────────────────────────────────────────────────
 export const accountsApi = {
   getAll: () => request<Account[]>('/accounts'),
+  getById: (id: string) => request<Account>(`/accounts/${id}`),
   create: (payload: {
     name: string;
     type: 'bank' | 'cash' | 'wallet';
     iban?: string;
     accountNum?: string;
     balance?: number;
+    alias?: string;
+    subType?: 'current' | 'deposit';
+    depositAmount?: number;
+    interestRate?: number;
+    interestDay?: number;
   }) =>
     request<Account>('/accounts', {
       method: 'POST',
@@ -474,6 +501,11 @@ export const accountsApi = {
     iban?: string;
     accountNum?: string;
     balance?: number;
+    alias?: string;
+    subType?: 'current' | 'deposit';
+    depositAmount?: number;
+    interestRate?: number;
+    interestDay?: number;
   }>) =>
     request<Account[]>('/accounts/onboard', {
       method: 'POST',
@@ -486,6 +518,11 @@ export const accountsApi = {
       iban: string | null;
       accountNum: string | null;
       balance: number;
+      alias: string | null;
+      subType: 'current' | 'deposit' | null;
+      depositAmount: number | null;
+      interestRate: number | null;
+      interestDay: number | null;
     }>
   ) =>
     request<Account>(`/accounts/${id}`, {

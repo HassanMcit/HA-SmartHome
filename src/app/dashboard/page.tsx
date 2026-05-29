@@ -43,11 +43,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useRouter } from 'next/navigation';
 
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const { t, lang } = useLanguage();
+  const router = useRouter();
   
   // Dashboard states
   const [stats, setStats] = useState<any>(null);
@@ -76,6 +78,11 @@ export default function DashboardPage() {
   const [newAccIban, setNewAccIban] = useState('');
   const [newAccNo, setNewAccNo] = useState('');
   const [newAccBalance, setNewAccBalance] = useState('');
+  const [newAccAlias, setNewAccAlias] = useState('');
+  const [newAccSubType, setNewAccSubType] = useState<'current' | 'deposit'>('current');
+  const [newAccDepositAmount, setNewAccDepositAmount] = useState('');
+  const [newAccInterestRate, setNewAccInterestRate] = useState('');
+  const [newAccInterestDay, setNewAccInterestDay] = useState('');
   const [addAccountSubmitting, setAddAccountSubmitting] = useState(false);
 
   const isWalletName = (name: string) => {
@@ -87,6 +94,13 @@ export default function DashboardPage() {
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [accountTransactions, setAccountTransactions] = useState<Transaction[]>([]);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+
+  // Delete Account custom dialog state
+  const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; accountId: string; accountName: string }>({
+    isOpen: false,
+    accountId: '',
+    accountName: '',
+  });
 
   const fetchData = async () => {
     if (!user) return;
@@ -233,27 +247,41 @@ export default function DashboardPage() {
 
     const name = newAccType === 'cash' ? 'كاش' : newAccName;
 
-    // Check if duplicate cash/bank/wallet
-    if (accounts.some(acc => acc.name.toLowerCase() === name.toLowerCase())) {
-      toast.error(lang === 'ar' ? 'هذا الحساب مسجل بالفعل' : 'This account is already registered');
-      return;
-    }
-
     setAddAccountSubmitting(true);
     try {
-      await accountsApi.create({
+      const payload: any = {
         name,
         type: newAccType,
-        iban: newAccType === 'bank' ? newAccIban : undefined,
-        accountNum: (newAccType === 'bank' || newAccType === 'wallet') ? newAccNo : undefined,
-        balance: parseFloat(newAccBalance) || 0
-      });
+        balance: parseFloat(newAccBalance) || 0,
+      };
+
+      if (newAccType === 'bank') {
+        payload.accountNum = newAccNo;
+        payload.iban = newAccIban;
+        payload.alias = newAccAlias || undefined;
+        payload.subType = newAccSubType;
+        if (newAccSubType === 'deposit') {
+          payload.depositAmount = parseFloat(newAccDepositAmount) || undefined;
+          payload.interestRate = parseFloat(newAccInterestRate) || undefined;
+          payload.interestDay = parseInt(newAccInterestDay) || undefined;
+        }
+      } else if (newAccType === 'wallet') {
+        payload.accountNum = newAccNo;
+        payload.alias = newAccAlias || undefined;
+      }
+
+      await accountsApi.create(payload);
       toast.success(lang === 'ar' ? 'تم إضافة الحساب بنجاح! 💳' : 'Account added successfully! 💳');
       setShowAddAccount(false);
       setNewAccName('');
       setNewAccIban('');
       setNewAccNo('');
       setNewAccBalance('');
+      setNewAccAlias('');
+      setNewAccSubType('current');
+      setNewAccDepositAmount('');
+      setNewAccInterestRate('');
+      setNewAccInterestDay('');
       fetchData();
     } catch (err: any) {
       toast.error(err.message || (lang === 'ar' ? 'حدث خطأ أثناء إضافة الحساب' : 'Error adding account'));
@@ -276,18 +304,21 @@ export default function DashboardPage() {
     }
   };
 
-  const handleDeleteAccount = async (id: string, name: string, e: React.MouseEvent) => {
+  const handleDeleteAccount = (id: string, name: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent opening detail modal
-    
-    const confirmMsg = lang === 'ar' 
-      ? `هل أنت متأكد من حذف حساب "${name}"؟ سيتم حذف الحساب بالكامل.` 
-      : `Are you sure you want to delete the account "${name}"? This action cannot be undone.`;
-      
-    if (!window.confirm(confirmMsg)) return;
-    
+    setDeleteDialog({
+      isOpen: true,
+      accountId: id,
+      accountName: name,
+    });
+  };
+
+  const confirmDeleteAccount = async () => {
+    if (!deleteDialog.accountId) return;
     try {
-      await accountsApi.delete(id);
+      await accountsApi.delete(deleteDialog.accountId);
       toast.success(lang === 'ar' ? 'تم حذف الحساب بنجاح' : 'Account deleted successfully');
+      setDeleteDialog({ isOpen: false, accountId: '', accountName: '' });
       fetchData(); // Refresh the list
     } catch (err: any) {
       toast.error(err.message || (lang === 'ar' ? 'حدث خطأ أثناء حذف الحساب' : 'Error deleting account'));
@@ -412,125 +443,210 @@ export default function DashboardPage() {
 
         {accounts.length === 0 ? (
           <div className="glass-card p-8 flex flex-col items-center justify-center text-slate-500 text-sm">
-            لا توجد حسابات مضافة. اضغط على "إضافة حساب" للبدء.
+            {lang === 'ar' ? 'لا توجد حسابات مضافة. اضغط على "إضافة حساب" للبدء.' : 'No accounts added. Click "Add Account" to start.'}
           </div>
         ) : (
-          <div className="divide-y divide-white/10 border border-white/5 rounded-2xl overflow-hidden bg-[#161630]/30 shadow-2xl">
-            {accounts.map(acc => {
-              const isVisible = visibleAccounts[acc.id] || false;
-              const isBank = acc.type === 'bank';
-              const isWallet = acc.type === 'wallet';
-              const translatedName = getTranslatedBankName(acc.name, lang);
-              const typeLabel = isBank 
-                ? (lang === 'ar' ? 'حساب بنكي' : 'Bank Account') 
-                : isWallet 
-                ? (lang === 'ar' ? 'محفظة إلكترونية' : 'Mobile Wallet') 
-                : (lang === 'ar' ? 'نقد كاش' : 'Cash');
-              
-              return (
-                <div
-                  key={acc.id}
-                  onClick={() => handleOpenAccountDetails(acc)}
-                  className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors cursor-pointer select-none active:bg-white/[0.04] bg-transparent"
-                >
-                  {/* Left Column: Brand Logo & Title */}
-                  <div className="flex items-center gap-4">
-                    <BankLogo name={acc.name} size="md" />
-                    <div className="text-right">
-                      <h4 className="text-sm font-black text-white group-hover:text-indigo-400 transition-colors line-clamp-1">{translatedName}</h4>
-                      <span className="text-[10px] font-bold text-slate-500">{typeLabel}</span>
-                    </div>
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Bank Accounts & Cash */}
+            <div className="flex flex-col gap-3">
+              <span className="text-xs font-bold text-indigo-400 tracking-wider uppercase px-1">
+                {lang === 'ar' ? '🏦 الحسابات البنكية والنقدية' : '🏦 Bank Accounts & Cash'}
+              </span>
+              {accounts.filter(acc => acc.type === 'bank' || acc.type === 'cash').length === 0 ? (
+                <div className="glass-card p-8 flex items-center justify-center text-slate-500 text-xs font-bold">
+                  {lang === 'ar' ? 'لا توجد حسابات بنكية أو نقدية مضافة' : 'No bank accounts or cash added'}
+                </div>
+              ) : (
+                <div className="divide-y divide-white/10 border border-white/5 rounded-2xl overflow-hidden bg-[#161630]/30 shadow-2xl">
+                  {accounts.filter(acc => acc.type === 'bank' || acc.type === 'cash').map(acc => {
+                    const isVisible = visibleAccounts[acc.id] || false;
+                    const isBank = acc.type === 'bank';
+                    const translatedName = getTranslatedBankName(acc.name, lang);
+                    const typeLabel = isBank 
+                      ? (lang === 'ar' ? 'حساب بنكي' : 'Bank Account') 
+                      : (lang === 'ar' ? 'نقد كاش' : 'Cash');
+                    
+                    return (
+                      <div
+                        key={acc.id}
+                        onClick={() => router.push(`/dashboard/accounts/${acc.id}`)}
+                        className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors cursor-pointer select-none active:bg-white/[0.04] bg-transparent"
+                      >
+                        <div className="flex items-center gap-4">
+                          <BankLogo name={acc.name} size="md" />
+                          <div className="text-right">
+                            <h4 className="text-sm font-black text-white group-hover:text-indigo-400 transition-colors break-words whitespace-normal leading-snug">
+                              {translatedName}
+                              {acc.alias && (
+                                <span className="text-[9px] bg-indigo-500/25 text-indigo-300 font-bold px-2 py-0.5 rounded-md mr-1.5 inline-block">
+                                  {acc.alias}
+                                </span>
+                              )}
+                              {acc.subType === 'deposit' && (
+                                <span className="text-[9px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-md mr-1.5 inline-block">
+                                  {lang === 'ar' ? 'وديعة' : 'Deposit'}
+                                </span>
+                              )}
+                            </h4>
+                            <span className="text-[9px] font-bold text-slate-500">{typeLabel}</span>
+                          </div>
+                        </div>
 
-                  {/* Middle Column: IBAN / Account Number / Phone Number Actions */}
-                  <div className="flex flex-col gap-1.5 text-xs text-slate-400 min-w-[200px]">
-                    {isBank && (acc.accountNum || acc.iban) ? (
-                      <>
-                        {acc.accountNum && (
-                          <div className="flex justify-between sm:justify-end items-center gap-2 group/action">
-                            <span className="text-[10px] font-semibold text-slate-500">{lang === 'ar' ? 'رقم الحساب:' : 'Account No:'}</span>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono tracking-wider text-[11px] text-slate-300">
-                                {isVisible ? acc.accountNum : maskNumber(acc.accountNum, false)}
-                              </span>
-                              <button
-                                onClick={(e) => toggleVisibility(acc.id, e)}
-                                className="p-1 rounded text-slate-500 hover:text-white transition-colors"
-                              >
-                                {isVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                              </button>
-                              <button
-                                onClick={(e) => handleCopy(acc.accountNum, 'رقم الحساب', e)}
-                                className="p-1 rounded text-slate-500 hover:text-white transition-colors"
-                              >
-                                <Copy className="w-3.5 h-3.5" />
-                              </button>
+                        <div className="flex flex-col gap-1.5 text-xs text-slate-400 min-w-[200px] sm:min-w-[250px]">
+                          {isBank && (acc.accountNum || acc.iban) ? (
+                            <>
+                              {acc.accountNum && (
+                                <div className="flex items-center justify-between gap-2 group/action" dir="rtl">
+                                  <span className="text-[9px] font-semibold text-slate-500 min-w-[70px] text-right shrink-0">
+                                    {lang === 'ar' ? 'رقم الحساب:' : 'Account No:'}
+                                  </span>
+                                  <div className="flex items-center gap-1.5" dir="ltr">
+                                    <button
+                                      onClick={(e) => handleCopy(acc.accountNum, 'رقم الحساب', e)}
+                                      className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                      onClick={(e) => toggleVisibility(acc.id, e)}
+                                      className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                                    >
+                                      {isVisible ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                                    </button>
+                                    <span className="font-mono tracking-wider text-[10px] text-slate-300">
+                                      {isVisible ? acc.accountNum : maskNumber(acc.accountNum, false)}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                              {acc.iban && (
+                                <div className="flex items-center justify-between gap-2 group/action" dir="rtl">
+                                  <span className="text-[9px] font-semibold text-slate-500 min-w-[70px] text-right shrink-0">
+                                    IBAN:
+                                  </span>
+                                  <div className="flex items-center gap-1.5" dir="ltr">
+                                    <button
+                                      onClick={(e) => handleCopy(acc.iban, 'IBAN', e)}
+                                      className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                    </button>
+                                    <span className="font-mono tracking-wider text-[9px] text-slate-300">
+                                      {isVisible ? acc.iban : maskNumber(acc.iban, true)}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="flex justify-end text-[9px] text-slate-500">
+                              <span>{lang === 'ar' ? 'نقدية سائلة ومشتريات يدوية' : 'Liquid cash & manual purchases'}</span>
                             </div>
-                          </div>
-                        )}
-                        
-                        {acc.iban && (
-                          <div className="flex justify-between sm:justify-end items-center gap-2 group/action">
-                            <span className="text-[10px] font-semibold text-slate-500">IBAN:</span>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono tracking-wider text-[10px] text-slate-300">
-                                {isVisible ? acc.iban : maskNumber(acc.iban, true)}
-                              </span>
-                              <button
-                                onClick={(e) => handleCopy(acc.iban, 'IBAN', e)}
-                                className="p-1 rounded text-slate-500 hover:text-white transition-colors"
-                              >
-                                <Copy className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    ) : isWallet && acc.accountNum ? (
-                      <div className="flex justify-between sm:justify-end items-center gap-2 group/action">
-                        <span className="text-[10px] font-semibold text-slate-500">{lang === 'ar' ? 'رقم الهاتف:' : 'Phone No:'}</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono tracking-wider text-[11px] text-slate-300">
-                            {isVisible ? acc.accountNum : maskNumber(acc.accountNum, false)}
-                          </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-4 self-end sm:self-auto shrink-0" dir="ltr">
                           <button
-                            onClick={(e) => toggleVisibility(acc.id, e)}
-                            className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                            onClick={(e) => handleDeleteAccount(acc.id, translatedName, e)}
+                            className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white transition-all active:scale-90"
+                            title={lang === 'ar' ? 'حذف الحساب' : 'Delete Account'}
                           >
-                            {isVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
-                          <button
-                            onClick={(e) => handleCopy(acc.accountNum, 'رقم الهاتف', e)}
-                            className="p-1 rounded text-slate-500 hover:text-white transition-colors"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="text-right sm:text-left" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+                            <span className="text-[9px] font-bold text-slate-500 block">{lang === 'ar' ? 'الرصيد المتوفر' : 'Available Balance'}</span>
+                            <span className="text-xl font-black text-white tabular-nums">{formatCurrency(acc.balance)}</span>
+                          </div>
                         </div>
                       </div>
-                    ) : (
-                      <div className="flex justify-end text-[10px] text-slate-500">
-                        <span>{lang === 'ar' ? 'نقدية سائلة ومشتريات يدوية' : 'Liquid cash & manual purchases'}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right Column: Balance & Actions */}
-                  <div className="flex items-center gap-4 self-end sm:self-auto shrink-0" dir="ltr">
-                    <button
-                      onClick={(e) => handleDeleteAccount(acc.id, translatedName, e)}
-                      className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white transition-all active:scale-90"
-                      title={lang === 'ar' ? 'حذف الحساب' : 'Delete Account'}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                    <div className="text-right sm:text-left" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-                      <span className="text-[10px] font-bold text-slate-500 block">{lang === 'ar' ? 'الرصيد المتوفر' : 'Available Balance'}</span>
-                      <span className="text-2xl font-black text-white tabular-nums">{formatCurrency(acc.balance)}</span>
-                    </div>
-                  </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              )}
+            </div>
+
+            {/* Mobile Wallets */}
+            <div className="flex flex-col gap-3">
+              <span className="text-xs font-bold text-amber-400 tracking-wider uppercase px-1">
+                {lang === 'ar' ? '📱 المحافظ الإلكترونية' : '📱 Mobile Wallets'}
+              </span>
+              {accounts.filter(acc => acc.type === 'wallet').length === 0 ? (
+                <div className="glass-card p-8 flex items-center justify-center text-slate-500 text-xs font-bold">
+                  {lang === 'ar' ? 'لا توجد محافظ إلكترونية مضافة' : 'No mobile wallets added'}
+                </div>
+              ) : (
+                <div className="divide-y divide-white/10 border border-white/5 rounded-2xl overflow-hidden bg-[#161630]/30 shadow-2xl">
+                  {accounts.filter(acc => acc.type === 'wallet').map(acc => {
+                    const isVisible = visibleAccounts[acc.id] || false;
+                    const translatedName = getTranslatedBankName(acc.name, lang);
+                    
+                    return (
+                      <div
+                        key={acc.id}
+                        onClick={() => router.push(`/dashboard/accounts/${acc.id}`)}
+                        className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors cursor-pointer select-none active:bg-white/[0.04] bg-transparent"
+                      >
+                        <div className="flex items-center gap-4">
+                          <BankLogo name={acc.name} size="md" />
+                          <div className="text-right">
+                            <h4 className="text-sm font-black text-white group-hover:text-indigo-400 transition-colors break-words whitespace-normal leading-snug">
+                              {translatedName}
+                              {acc.alias && (
+                                <span className="text-[9px] bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded-md mr-1.5 inline-block">
+                                  {acc.alias}
+                                </span>
+                              )}
+                            </h4>
+                            <span className="text-[9px] font-bold text-slate-500">{lang === 'ar' ? 'محفظة إلكترونية' : 'Mobile Wallet'}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 text-xs text-slate-400 min-w-[200px] sm:min-w-[250px]">
+                          {acc.accountNum && (
+                            <div className="flex items-center justify-between gap-2 group/action" dir="rtl">
+                              <span className="text-[9px] font-semibold text-slate-500 min-w-[70px] text-right shrink-0">
+                                {lang === 'ar' ? 'رقم الهاتف:' : 'Phone No:'}
+                              </span>
+                              <div className="flex items-center gap-1.5" dir="ltr">
+                                <button
+                                  onClick={(e) => handleCopy(acc.accountNum, 'رقم الهاتف', e)}
+                                  className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={(e) => toggleVisibility(acc.id, e)}
+                                  className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                                >
+                                  {isVisible ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                                </button>
+                                <span className="font-mono tracking-wider text-[10px] text-slate-300">
+                                  {isVisible ? acc.accountNum : maskNumber(acc.accountNum, false)}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-4 self-end sm:self-auto shrink-0" dir="ltr">
+                          <button
+                            onClick={(e) => handleDeleteAccount(acc.id, translatedName, e)}
+                            className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white transition-all active:scale-90"
+                            title={lang === 'ar' ? 'حذف الحساب' : 'Delete Account'}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                          <div className="text-right sm:text-left" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+                            <span className="text-[9px] font-bold text-slate-500 block">{lang === 'ar' ? 'الرصيد المتوفر' : 'Available Balance'}</span>
+                            <span className="text-xl font-black text-white tabular-nums">{formatCurrency(acc.balance)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -849,6 +965,88 @@ export default function DashboardPage() {
                   />
                 </div>
 
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم الحساب المخصص (اختياري - مثل: حساب المرتب)' : 'Account Alias (Optional - e.g. Salary Account)'}</Label>
+                  <Input
+                    placeholder={lang === 'ar' ? 'مثال: حساب التوفير، مرتب...' : 'e.g. Savings account...'}
+                    value={newAccAlias}
+                    onChange={e => setNewAccAlias(e.target.value)}
+                    className="h-11 bg-[#242444] border-[#2d2d5e]"
+                  />
+                </div>
+
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'نوع الحساب البنكي' : 'Bank Account Type'}</Label>
+                  <div className="flex gap-2 p-1 bg-black/10 rounded-xl border border-white/5">
+                    <button
+                      key="current"
+                      type="button"
+                      onClick={() => setNewAccSubType('current')}
+                      className={cn(
+                        'flex-1 py-2 rounded-lg font-bold text-[11px] transition-all',
+                        newAccSubType === 'current'
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-white'
+                      )}
+                    >
+                      {lang === 'ar' ? 'حساب جاري / توفير عادي' : 'Current / Savings Account'}
+                    </button>
+                    <button
+                      key="deposit"
+                      type="button"
+                      onClick={() => setNewAccSubType('deposit')}
+                      className={cn(
+                        'flex-1 py-2 rounded-lg font-bold text-[11px] transition-all',
+                        newAccSubType === 'deposit'
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-white'
+                      )}
+                    >
+                      {lang === 'ar' ? 'وديعة / شهادة ادخار' : 'Certificate of Deposit (وديعة)'}
+                    </button>
+                  </div>
+                </div>
+
+                {newAccSubType === 'deposit' && (
+                  <div className="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/10 space-y-4 animate-fade-in">
+                    <div className="space-y-2 text-right">
+                      <Label className="text-xs font-bold text-indigo-300">{lang === 'ar' ? 'مبلغ الوديعة الأساسي (ج.م)' : 'Deposit Principal Amount (EGP)'}</Label>
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        value={newAccDepositAmount}
+                        onChange={e => setNewAccDepositAmount(e.target.value)}
+                        className="h-11 bg-[#242444] border-[#2d2d5e]"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2 text-right">
+                        <Label className="text-xs font-bold text-indigo-300">{lang === 'ar' ? 'نسبة الفائدة السنوية (%)' : 'Annual Interest Rate (%)'}</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="e.g. 18.5"
+                          value={newAccInterestRate}
+                          onChange={e => setNewAccInterestRate(e.target.value)}
+                          className="h-11 bg-[#242444] border-[#2d2d5e] text-center"
+                        />
+                      </div>
+                      <div className="space-y-2 text-right">
+                        <Label className="text-xs font-bold text-indigo-300">{lang === 'ar' ? 'يوم صرف الفائدة شهرياً' : 'Payout Day of Month'}</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="31"
+                          placeholder="e.g. 25"
+                          value={newAccInterestDay}
+                          onChange={e => setNewAccInterestDay(e.target.value)}
+                          className="h-11 bg-[#242444] border-[#2d2d5e] text-center"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2 text-right">
                     <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رقم الحساب المحلي' : 'Local Account No'}</Label>
@@ -892,6 +1090,16 @@ export default function DashboardPage() {
                     selectedName={newAccName}
                     onSelect={setNewAccName}
                     type="wallet"
+                  />
+                </div>
+
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم المحفظة المخصص (اختياري - مثل: محفظة الشغل)' : 'Wallet Alias (Optional - e.g. Work Wallet)'}</Label>
+                  <Input
+                    placeholder={lang === 'ar' ? 'مثال: محفظتي الأساسية، الكاش...' : 'e.g. My primary wallet...'}
+                    value={newAccAlias}
+                    onChange={e => setNewAccAlias(e.target.value)}
+                    className="h-11 bg-[#242444] border-[#2d2d5e]"
                   />
                 </div>
 
@@ -1066,6 +1274,48 @@ export default function DashboardPage() {
               )}
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Custom Delete Dialog for Bank/Wallet Account */}
+      <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
+        <DialogContent className="bg-[#1a1a35] border-slate-700 text-white p-8 sm:max-w-[400px] rounded-[32px] outline-none" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+          <div className={cn("text-right", lang === 'en' && "text-left")}>
+            <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
+              <Trash2 className="w-7 h-7" />
+            </div>
+            <DialogHeader className={cn("text-right", lang === 'en' && "text-left")}>
+              <DialogTitle className="text-2xl font-black text-white">
+                {lang === 'ar' ? 'حذف الحساب المالي' : 'Delete Financial Account'}
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
+              {lang === 'ar' ? (
+                <>
+                  هل أنت متأكد من حذف حساب <span className="text-white font-bold">"{deleteDialog.accountName}"</span>؟ لا يمكن التراجع عن هذا الإجراء وسيتم حذف الحساب بالكامل.
+                </>
+              ) : (
+                <>
+                  Are you sure you want to delete the account <span className="text-white font-bold">"{deleteDialog.accountName}"</span>? This action cannot be undone.
+                </>
+              )}
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
+              <Button 
+                className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl active:scale-[0.98] transition-all" 
+                onClick={confirmDeleteAccount}
+              >
+                {lang === 'ar' ? 'حذف نهائي' : 'Delete permanently'}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all"
+                onClick={() => setDeleteDialog({ isOpen: false, accountId: '', accountName: '' })}
+              >
+                {lang === 'ar' ? 'إلغاء' : 'Cancel'}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
