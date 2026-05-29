@@ -6,10 +6,29 @@ import { Plus, Trash2, PiggyBank, Target } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function SavingsPage() {
+  const { theme } = useTheme();
   const [savings, setSavings] = useState<Saving[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const getGoalColor = (hex: string) => {
+    if (theme !== 'light') return hex;
+    const color = hex.replace('#', '');
+    const r = parseInt(color.substring(0, 2), 16);
+    const g = parseInt(color.substring(2, 4), 16);
+    const b = parseInt(color.substring(4, 6), 16);
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    if (yiq > 170) {
+      const darken = (val: number) => Math.max(0, Math.floor(val * 0.65));
+      const newR = darken(r).toString(16).padStart(2, '0');
+      const newG = darken(g).toString(16).padStart(2, '0');
+      const newB = darken(b).toString(16).padStart(2, '0');
+      return `#${newR}${newG}${newB}`;
+    }
+    return hex;
+  };
   const [open, setOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -142,17 +161,18 @@ export default function SavingsPage() {
             return (
               <div key={saving.id} className="glass-card p-6 relative flex flex-col justify-between min-h-[200px]">
                 {done && (
-                  <div className="absolute top-4 left-4 text-[10px] font-black bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-xl border border-emerald-500/20">
+                  <div className="absolute top-4 left-4 text-[10px] font-black bg-emerald-500/10 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-xl border border-emerald-500/20 dark:border-emerald-500/20">
                     مكتمل 🎉
                   </div>
                 )}
                 <div>
                   <div className="flex justify-between items-start mb-5">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{
-                        background: `linear-gradient(135deg, ${saving.color}, #1a1a35)`
+                      <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors" style={{
+                        backgroundColor: `${getGoalColor(saving.color)}15`,
+                        color: getGoalColor(saving.color)
                       }}>
-                        {done ? <Target className="w-5 h-5 text-white" /> : <PiggyBank className="w-5 h-5 text-white" />}
+                        {done ? <Target className="w-5 h-5" /> : <PiggyBank className="w-5 h-5" />}
                       </div>
                       <div>
                         <div className="font-bold text-slate-200 text-sm mb-0.5 break-words whitespace-normal">{saving.name}</div>
@@ -168,17 +188,17 @@ export default function SavingsPage() {
                   </div>
                   <div className="flex justify-between items-center mb-2 text-xs">
                     <span className="text-slate-400">تم جمع: <span className="text-slate-200 font-bold">{formatCurrency(saving.currentAmount)}</span></span>
-                    <span className="font-black text-sm" style={{ color: saving.color }}>{pct}%</span>
+                    <span className="font-black text-sm" style={{ color: getGoalColor(saving.color) }}>{pct}%</span>
                   </div>
-                  <div className="w-full h-3 bg-[#1e1e3f] rounded-full overflow-hidden border border-[#2d2d5e] p-0.5">
-                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: saving.color }} />
+                  <div className="w-full h-3 bg-slate-100 dark:bg-[#1e1e3f] rounded-full overflow-hidden border border-slate-200 dark:border-[#2d2d5e] p-0.5">
+                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: getGoalColor(saving.color) }} />
                   </div>
                 </div>
                 {!done && (
                   <div className="flex justify-end mt-4">
                     <button 
                       onClick={() => { setSelectedId(saving.id); setDepositOpen(true); }}
-                      className="border border-[#2d2d5e] hover:border-slate-500 rounded-lg px-3.5 py-1.5 text-slate-400 hover:text-slate-200 text-xs transition-colors cursor-pointer"
+                      className="border border-slate-200 dark:border-[#2d2d5e] hover:border-slate-400 dark:hover:border-slate-500 rounded-lg px-3.5 py-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 text-xs transition-colors cursor-pointer"
                     >
                       + إضافة مبلغ
                     </button>
