@@ -126,7 +126,14 @@ export default function TransactionsPage() {
   const fetchAccounts = async () => {
     try {
       const data = await accountsApi.getAll();
-      setAccounts(data || []);
+      const sortedAccs = (data || []).sort((a: any, b: any) => {
+        const typeOrder = { cash: 1, bank: 2, wallet: 3 };
+        const orderA = typeOrder[a.type as keyof typeof typeOrder] || 99;
+        const orderB = typeOrder[b.type as keyof typeof typeOrder] || 99;
+        if (orderA !== orderB) return orderA - orderB;
+        return (a.name || '').localeCompare(b.name || '', 'ar');
+      });
+      setAccounts(sortedAccs);
     } catch (error) {
       console.error('Error fetching accounts:', error);
     }

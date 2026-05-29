@@ -136,7 +136,16 @@ export default function DashboardPage() {
       setStats(statsData);
       setRecentTransactions(txData);
       setUnpaidBills(billsData);
-      setAccounts(accountsData || []);
+      
+      const sortedAccs = (accountsData || []).sort((a: any, b: any) => {
+        const typeOrder = { cash: 1, bank: 2, wallet: 3 };
+        const orderA = typeOrder[a.type as keyof typeof typeOrder] || 99;
+        const orderB = typeOrder[b.type as keyof typeof typeOrder] || 99;
+        if (orderA !== orderB) return orderA - orderB;
+        return (a.name || '').localeCompare(b.name || '', 'ar');
+      });
+      setAccounts(sortedAccs);
+
       
       // Auto-trigger onboarding if user has NO accounts registered
       if (!accountsData || accountsData.length === 0) {
