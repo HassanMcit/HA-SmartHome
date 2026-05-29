@@ -197,6 +197,56 @@ html.light .text-slate-200 {
   color: #334155 !important;
 }
 
+/* ─── Light Mode Theme Contrast Overrides ─── */
+html.light [class*="bg-[#161630]"] {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .divide-white\/10 > * + *,
+html.light [class*="divide-white/10"] > * + * {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .text-indigo-300,
+html.light [class*="text-indigo-300"],
+html.light .text-indigo-400,
+html.light [class*="text-indigo-400"] {
+  color: #4f46e5 !important; /* Indigo 600 */
+}
+
+html.light .text-amber-400,
+html.light [class*="text-amber-400"] {
+  color: #b45309 !important; /* Amber 700 */
+}
+
+html.light .bg-indigo-600\/20,
+html.light [class*="bg-indigo-600/20"] {
+  background-color: #e0e7ff !important; /* Indigo 100 */
+}
+
+/* Force white text on components that remain dark colored in light mode */
+html.light .bg-indigo-600,
+html.light .bg-indigo-600 *,
+html.light .bg-indigo-700,
+html.light .bg-indigo-700 *,
+html.light .bg-red-500,
+html.light .bg-red-500 *,
+html.light .bg-red-600,
+html.light .bg-red-600 *,
+html.light .bg-emerald-500,
+html.light .bg-emerald-500 *,
+html.light .bg-gradient-to-r,
+html.light .bg-gradient-to-r *,
+html.light [class*="bg-indigo-600"] *,
+html.light [class*="bg-red-500"] *,
+html.light [class*="bg-emerald-500"] *,
+html.light .hover\:bg-indigo-600:hover,
+html.light .hover\:bg-indigo-600:hover * {
+  color: #ffffff !important;
+}
+
+
 /* ─── Glass Card ─── */
 html.light .glass-card {
   background: rgba(255, 255, 255, 0.95) !important;
