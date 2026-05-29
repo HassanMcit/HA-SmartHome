@@ -191,12 +191,7 @@ export default function BillsPage() {
     setEditCategory(bill.category || 'general_bills');
   };
 
-  const inputStyle = {
-    background: '#242444', border: '1px solid #2d2d5e', borderRadius: 8,
-    padding: '10px 12px', color: '#fff', fontSize: 14,
-    fontFamily: 'Cairo, sans-serif', outline: 'none', width: '100%',
-    boxSizing: 'border-box' as const,
-  };
+  // inputStyle is now handled via globals.css (.bills-input) for proper light/dark mode support
 
   const selectedUserName = selectedUserId === 'all'
     ? 'كل الأعضاء'
@@ -207,11 +202,11 @@ export default function BillsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3 mb-1">
+          <h2 className="text-2xl sm:text-3xl font-black flex items-center gap-3 mb-1" style={{ color: 'var(--foreground)' }}>
             <FileText className="w-8 h-8 text-amber-400" />
             الفواتير والالتزامات
           </h2>
-          <p className="text-slate-400 text-sm font-medium">تتبع فواتيرك ولا تفوت أي موعد استحقاق</p>
+          <p className="text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>تتبع فواتيرك ولا تفوت أي موعد استحقاق</p>
         </div>
 
         <Dialog open={open} onOpenChange={setOpen}>
@@ -221,28 +216,28 @@ export default function BillsPage() {
               إضافة فاتورة
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px] bg-[#1a1a35] border-slate-700 text-white rounded-[24px] outline-none">
+          <DialogContent className="sm:max-w-[425px] border-slate-700 rounded-[24px] outline-none" style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}>
             <DialogHeader><DialogTitle className="text-right text-xl font-black">إضافة فاتورة جديدة</DialogTitle></DialogHeader>
             <form onSubmit={handleCreate} className="flex flex-col gap-4 mt-2">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">اسم الفاتورة</label>
-                <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="مثال: كهرباء، إنترنت" style={{ ...inputStyle, textAlign: 'right' }} />
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>اسم الفاتورة</label>
+                <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="مثال: كهرباء، إنترنت" className="bills-input" style={{ textAlign: 'right' }} />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">المبلغ (ج.م)</label>
-                <input type="number" step="0.01" required value={amount} onChange={e => setAmount(e.target.value)} dir="ltr" style={inputStyle} />
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>المبلغ (ج.م)</label>
+                <input type="number" step="0.01" required value={amount} onChange={e => setAmount(e.target.value)} dir="ltr" className="bills-input" />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">تاريخ الاستحقاق</label>
-                <input type="date" required value={dueDate} onChange={e => setDueDate(e.target.value)} dir="ltr" style={inputStyle} />
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>تاريخ الاستحقاق</label>
+                <input type="date" required value={dueDate} onChange={e => setDueDate(e.target.value)} dir="ltr" className="bills-input" />
               </div>
               <div className="flex flex-col gap-1.5 text-right">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">الفئة</label>
+                <label className="text-xs font-bold uppercase tracking-wider mr-1" style={{ color: 'var(--muted-foreground)' }}>الفئة</label>
                 <Select value={category} onValueChange={(val) => setCategory(val || 'general_bills')}>
-                  <SelectTrigger className="w-full bg-[#242444] border border-[#2d2d5e] text-right h-12 rounded-[8px] px-4 text-white" dir="rtl">
+                  <SelectTrigger className="w-full border text-right h-12 rounded-[8px] px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
                     <SelectValue placeholder="اختر الفئة" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a35] border-slate-700 text-white rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
+                  <SelectContent className="border rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
                     {EXPENSE_CATEGORIES.map(c => {
                       const Item = SelectItem as any;
                       return (
@@ -257,8 +252,8 @@ export default function BillsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/5">
-                <label className="text-sm font-bold text-slate-300 cursor-pointer">فاتورة متكررة شهرياً؟</label>
+              <div className="flex justify-between items-center p-4 rounded-xl border" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
+                <label className="text-sm font-bold cursor-pointer" style={{ color: 'var(--foreground)' }}>فاتورة متكررة شهرياً؟</label>
                 <input type="checkbox" checked={isRecurring} onChange={e => setIsRecurring(e.target.checked)} style={{ width: 18, height: 18, cursor: 'pointer', accentColor: '#f59e0b' }} />
               </div>
               <button type="submit" disabled={submitting || !name || !amount || !dueDate}
@@ -320,15 +315,15 @@ export default function BillsPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 className="w-10 h-10 text-amber-400 animate-spin" />
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">جاري التحميل</p>
+          <p className="font-bold uppercase tracking-widest text-xs" style={{ color: 'var(--muted-foreground)' }}>جاري التحميل</p>
         </div>
       ) : bills.length === 0 ? (
         <div className="glass-card py-20 flex flex-col items-center text-center px-6">
           <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-4">
             <FileText className="w-8 h-8 text-amber-400/50" />
           </div>
-          <h3 className="text-lg font-bold text-white mb-1">لا توجد فواتير</h3>
-          <p className="text-slate-500 text-sm">{isAdmin && selectedUserId === 'all' ? 'لا توجد فواتير لأي عضو' : 'لا توجد فواتير مسجلة حالياً'}</p>
+          <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--foreground)' }}>لا توجد فواتير</h3>
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{isAdmin && selectedUserId === 'all' ? 'لا توجد فواتير لأي عضو' : 'لا توجد فواتير مسجلة حالياً'}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -367,20 +362,20 @@ export default function BillsPage() {
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className={cn("font-bold text-sm sm:text-base break-words whitespace-normal", bill.isPaid ? "text-emerald-400 line-through" : "text-white")}>
+                      <span className={cn("font-bold text-sm sm:text-base break-words whitespace-normal", bill.isPaid ? "text-emerald-500 line-through" : "")} style={bill.isPaid ? {} : { color: 'var(--foreground)' }}>
                         {bill.name}
                       </span>
                       {bill.isRecurring && <span className="text-[9px] font-black uppercase tracking-wider bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20 shrink-0">متكررة</span>}
-                      {bill.isPaid && <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-md border border-emerald-500/20 shrink-0">مدفوعة</span>}
+                      {bill.isPaid && <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-500 px-2 py-0.5 rounded-md border border-emerald-500/20 shrink-0">مدفوعة</span>}
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
-                      {ownerName && <span className="text-purple-400 font-bold">👤 {ownerName}</span>}
-                      <span className={cn("flex items-center gap-1", late && "text-red-400 font-bold")}>
+                    <div className="flex items-center gap-3 text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
+                      {ownerName && <span className="text-purple-500 font-bold">👤 {ownerName}</span>}
+                      <span className={cn("flex items-center gap-1", late && "text-red-500 font-bold")}>
                         {late && <AlertCircle className="w-3 h-3" />}
                         {new Date(bill.dueDate).toLocaleDateString('ar-EG-u-nu-latn')}
                         {late && ' (متأخرة)'}
                       </span>
-                      <span className="flex items-center gap-1 text-slate-400 bg-white/5 px-2 py-0.5 rounded-md text-[10px]">
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px]" style={{ background: 'var(--secondary)', color: 'var(--muted-foreground)' }}>
                         <span>{getCategoryInfo(bill.category, 'expense').icon}</span>
                         <span>{getCategoryInfo(bill.category, 'expense').label}</span>
                       </span>
@@ -389,13 +384,13 @@ export default function BillsPage() {
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className={cn("font-black text-base sm:text-lg tabular-nums", bill.isPaid ? "text-slate-500" : "text-white")}>
+                  <span className={cn("font-black text-base sm:text-lg tabular-nums", bill.isPaid ? "text-slate-400" : "")} style={bill.isPaid ? {} : { color: 'var(--foreground)' }}>
                     {formatCurrency(bill.amount)}
                   </span>
-                  <button onClick={() => openEdit(bill)} className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-white/10 hover:text-white transition-all">
+                  <button onClick={() => openEdit(bill)} className="p-2 rounded-lg hover:bg-white/10 transition-all" style={{ background: 'var(--secondary)', color: 'var(--muted-foreground)' }}>
                     <Pencil className="w-4 h-4" />
                   </button>
-                  <button onClick={() => setDeleteDialog({ isOpen: true, billId: bill.id, billName: bill.name })} className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all">
+                  <button onClick={() => setDeleteDialog({ isOpen: true, billId: bill.id, billName: bill.name })} className="p-2 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-all" style={{ background: 'var(--secondary)', color: 'var(--muted-foreground)' }}>
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -407,24 +402,24 @@ export default function BillsPage() {
 
       {/* Edit Modal */}
       <Dialog open={editDialog.isOpen} onOpenChange={(isOpen) => setEditDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="sm:max-w-[425px] bg-[#1a1a35] border-slate-700 text-white rounded-[24px] outline-none">
+        <DialogContent className="sm:max-w-[425px] border-slate-700 rounded-[24px] outline-none" style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}>
           <DialogHeader><DialogTitle className="text-right text-xl font-black">تعديل الفاتورة</DialogTitle></DialogHeader>
           <form onSubmit={handleUpdate} className="flex flex-col gap-4 mt-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">اسم الفاتورة</label>
-              <input type="text" required value={editName} onChange={e => setEditName(e.target.value)} style={{ ...inputStyle, textAlign: 'right' }} />
+              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>اسم الفاتورة</label>
+              <input type="text" required value={editName} onChange={e => setEditName(e.target.value)} className="bills-input" style={{ textAlign: 'right' }} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">المبلغ (ج.م)</label>
-              <input type="number" step="0.01" required value={editAmount} onChange={e => setEditAmount(e.target.value)} dir="ltr" style={inputStyle} />
+              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>المبلغ (ج.م)</label>
+              <input type="number" step="0.01" required value={editAmount} onChange={e => setEditAmount(e.target.value)} dir="ltr" className="bills-input" />
             </div>
             <div className="flex flex-col gap-1.5 text-right">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">الفئة</label>
+              <label className="text-xs font-bold uppercase tracking-wider mr-1" style={{ color: 'var(--muted-foreground)' }}>الفئة</label>
               <Select value={editCategory} onValueChange={(val) => setEditCategory(val || 'general_bills')}>
-                <SelectTrigger className="w-full bg-[#242444] border border-[#2d2d5e] text-right h-12 rounded-[8px] px-4 text-white" dir="rtl">
+                <SelectTrigger className="w-full border text-right h-12 rounded-[8px] px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
                   <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a35] border-slate-700 text-white rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
+                <SelectContent className="border rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
                   {EXPENSE_CATEGORIES.map(c => {
                     const Item = SelectItem as any;
                     return (
@@ -449,22 +444,22 @@ export default function BillsPage() {
 
       {/* Delete Modal */}
       <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-slate-700 text-white p-8 sm:max-w-[400px] rounded-[32px] outline-none">
+        <DialogContent className="border p-8 sm:max-w-[400px] rounded-[32px] outline-none" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }}>
           <div className="text-right">
             <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
               <Trash2 className="w-7 h-7" />
             </div>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-black text-white">حذف الفاتورة</DialogTitle>
+              <DialogTitle className="text-2xl font-black">حذف الفاتورة</DialogTitle>
             </DialogHeader>
-            <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
-              هل أنت متأكد من حذف فاتورة <span className="text-white font-bold">"{deleteDialog.billName}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
+            <p className="text-base font-medium mt-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+              هل أنت متأكد من حذف فاتورة <span className="font-bold" style={{ color: 'var(--foreground)' }}>"{deleteDialog.billName}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
               <Button className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl active:scale-[0.98] transition-all" onClick={handleDelete}>
                 حذف نهائي
               </Button>
-              <Button variant="outline" className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all"
+              <Button variant="outline" className="flex-1 h-14 font-bold rounded-2xl transition-all" style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
                 onClick={() => setDeleteDialog({ isOpen: false, billId: '', billName: '' })}>
                 إلغاء
               </Button>
@@ -475,28 +470,28 @@ export default function BillsPage() {
 
       {/* Account Selection Dialog for Bill Payment */}
       <Dialog open={payDialog.isOpen} onOpenChange={(isOpen) => setPayDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-slate-700 text-white p-6 sm:max-w-[440px] rounded-[32px] outline-none text-right" dir="rtl">
+        <DialogContent className="border p-6 sm:max-w-[440px] rounded-[32px] outline-none text-right" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
           <div className="text-right">
             <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-6">
               <CheckCircle2 className="w-7 h-7" />
             </div>
             <DialogHeader className="text-right">
-              <DialogTitle className="text-2xl font-black text-white">سداد الفاتورة</DialogTitle>
+              <DialogTitle className="text-2xl font-black">سداد الفاتورة</DialogTitle>
             </DialogHeader>
-            <p className="text-slate-400 text-sm font-medium mt-3 leading-relaxed">
-              أنت على وشك تحديد فاتورة <span className="text-amber-400 font-bold">"{payDialog.billName}"</span> بقيمة <span className="text-white font-bold">{formatCurrency(payDialog.billAmount)}</span> كمدفوعة.
+            <p className="text-sm font-medium mt-3 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+              أنت على وشك تحديد فاتورة <span className="text-amber-500 font-bold">"{payDialog.billName}"</span> بقيمة <span className="font-bold" style={{ color: 'var(--foreground)' }}>{formatCurrency(payDialog.billAmount)}</span> كمدفوعة.
               <br />
               يرجى اختيار الحساب المالي الذي تم السداد منه لخصم القيمة وتسجيل معاملة مصروف:
             </p>
 
             <div className="mt-5 space-y-2 text-right">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الحساب المالي</label>
+              <label className="text-xs font-bold uppercase tracking-widest mr-1" style={{ color: 'var(--muted-foreground)' }}>الحساب المالي</label>
               <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-                <SelectTrigger className="w-full bg-[#242444] border border-[#2d2d5e] text-right h-12 rounded-xl px-4 text-white" dir="rtl">
+                <SelectTrigger className="w-full border text-right h-12 rounded-xl px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
                   <SelectValue placeholder="اختر حساب الخصم" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a35] border-slate-700 text-white rounded-xl max-h-[300px] custom-scrollbar" dir="rtl">
-                  <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">
+                <SelectContent className="border rounded-xl max-h-[300px] custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
+                  <SelectItem value="none" className="focus:bg-white/10 rounded-lg" style={{ color: 'var(--muted-foreground)' }}>
                     بدون ربط (سجل عام بدون خصم)
                   </SelectItem>
                   {accounts.map(acc => (
@@ -523,7 +518,8 @@ export default function BillsPage() {
               </Button>
               <Button 
                 variant="outline" 
-                className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all"
+                className="flex-1 h-14 font-bold rounded-2xl transition-all"
+                style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
                 onClick={() => setPayDialog({ isOpen: false, billId: '', billAmount: 0, billName: '' })}
                 disabled={togglingId !== null}
               >

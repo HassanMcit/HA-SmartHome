@@ -444,6 +444,42 @@ dialog input, dialog select, dialog textarea {
 }
 
 
+/* ──────────────────────────────────────────────
+   BILLS PAGE INPUTS (theme-aware)
+────────────────────────────────────────────── */
+.bills-input {
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--foreground);
+  font-size: 14px;
+  font-family: 'Cairo', sans-serif;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bills-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.bills-input::placeholder {
+  color: var(--muted-foreground);
+  opacity: 0.7;
+}
+
+/* ──────────────────────────────────────────────
+   DATE PICKER LIGHT MODE
+────────────────────────────────────────────── */
+html.light input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5) sepia(1) hue-rotate(190deg);
+  opacity: 0.7;
+  cursor: pointer;
+}
+
 /* Custom animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
