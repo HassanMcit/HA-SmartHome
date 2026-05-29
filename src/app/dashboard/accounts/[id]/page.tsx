@@ -289,36 +289,36 @@ export default function AccountDetailPage() {
 
         {/* Account credentials */}
         {(account.accountNum || account.iban) && (
-          <div className="flex flex-col gap-2.5 bg-black/20 p-4 rounded-2xl border border-white/5 min-w-[260px]" dir="rtl">
+          <div className="flex flex-col gap-3 bg-black/20 p-4 rounded-2xl border border-white/5 min-w-[260px] w-full md:w-auto" dir="rtl">
             {account.accountNum && (
-              <div className="flex justify-between items-center gap-4">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider min-w-[90px] text-right shrink-0">
+              <div className="flex flex-col gap-1 text-right">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">
                   {isWallet ? (lang === 'ar' ? 'رقم الهاتف:' : 'Phone No:') : (lang === 'ar' ? 'رقم الحساب:' : 'Account No:')}
                 </span>
-                <div className="flex items-center gap-2" dir="ltr">
+                <div className="flex items-center justify-between gap-2 w-full" dir="ltr">
+                  <span className="font-mono text-xs font-bold text-slate-300 break-all select-all">{account.accountNum}</span>
                   <button 
                     onClick={(e) => handleCopy(account.accountNum!, isWallet ? 'رقم الهاتف' : 'رقم الحساب', e)}
-                    className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                    className="p-1 rounded text-slate-500 hover:text-white transition-colors shrink-0"
                   >
                     <Copy className="w-3.5 h-3.5" />
                   </button>
-                  <span className="font-mono text-xs font-bold text-slate-300">{account.accountNum}</span>
                 </div>
               </div>
             )}
             {isBank && account.iban && (
-              <div className="flex justify-between items-center gap-4 border-t border-white/5 pt-2">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider min-w-[90px] text-right shrink-0">
+              <div className="flex flex-col gap-1 border-t border-white/5 pt-2 text-right">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">
                   IBAN:
                 </span>
-                <div className="flex items-center gap-2" dir="ltr">
+                <div className="flex items-center justify-between gap-2 w-full" dir="ltr">
+                  <span className="font-mono text-xs font-bold text-slate-300 break-all select-all">{account.iban}</span>
                   <button 
                     onClick={(e) => handleCopy(account.iban!, 'IBAN', e)}
-                    className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                    className="p-1 rounded text-slate-500 hover:text-white transition-colors shrink-0"
                   >
                     <Copy className="w-3.5 h-3.5" />
                   </button>
-                  <span className="font-mono text-xs font-bold text-slate-300">{account.iban}</span>
                 </div>
               </div>
             )}
@@ -447,27 +447,27 @@ export default function AccountDetailPage() {
               return (
                 <div
                   key={tx.id}
-                  className="flex justify-between items-center p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-white/10 transition-all group"
+                  className="flex justify-between items-center p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-white/10 transition-all group gap-4"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 min-w-0 flex-1">
                     <div
                       className={cn(
-                        'w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-lg transition-transform group-hover:scale-105',
+                        'w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-lg transition-transform group-hover:scale-105 shrink-0',
                         isIncome ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
                       )}
                     >
                       {cat.icon}
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm sm:text-base font-bold text-slate-100 mb-0.5">
+                    <div className="text-right min-w-0 flex-1">
+                      <p className="text-sm sm:text-base font-bold text-slate-200 mb-0.5 truncate">
                         {tx.description || cat.label}
                       </p>
-                      <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
-                        <span className="flex items-center gap-1">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 font-medium">
+                        <span className="flex items-center gap-1 shrink-0">
                           <Calendar className="w-3.5 h-3.5" />
                           {txDate.toLocaleDateString('ar-EG-u-nu-latn')}
                         </span>
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 shrink-0">
                           <Clock className="w-3.5 h-3.5" />
                           {txDate.toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })}
                         </span>

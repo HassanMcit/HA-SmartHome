@@ -690,27 +690,27 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={tx.id}
-                      className="flex justify-between items-center p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all group"
+                      className="flex justify-between items-center p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all group gap-4"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 min-w-0 flex-1">
                         <div
                           className={cn(
-                            'w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110',
+                            'w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 shrink-0',
                             tx.type === 'income' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
                           )}
                         >
                           {tx.type === 'income' ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1 text-right">
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm sm:text-base font-bold text-slate-100 mb-0.5 break-words whitespace-normal">
+                            <p className="text-sm sm:text-base font-bold text-slate-200 mb-0.5 truncate">
                               {tx.description || cat.label}
                             </p>
                           </div>
-                          <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500 font-medium">
-                            <span>{new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}</span>
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5 text-xs text-slate-500 font-medium">
+                            <span className="shrink-0">{new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}</span>
                             {tx.account && (
-                              <span className="flex items-center gap-1 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full text-slate-400 font-semibold text-[10px]">
+                              <span className="flex items-center gap-1 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full text-slate-400 font-semibold text-[10px] shrink-0">
                                 <BankLogo name={tx.account.name} size="sm" className="w-3.5 h-3.5 rounded border-0" />
                                 {getTranslatedBankName(tx.account.name, lang)}
                               </span>
