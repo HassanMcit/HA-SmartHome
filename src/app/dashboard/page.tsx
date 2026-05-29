@@ -36,79 +36,13 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import WeatherPrayerWidget from '@/components/WeatherPrayerWidget';
 import BankLogo, { BANK_WALLET_CATALOG, getTranslatedBankName } from '@/components/BankLogo';
+import BankSelector from '@/components/BankSelector';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const EGYPTIAN_BANKS_AR = [
-  'البنك الأهلي المصري (NBE)',
-  'بنك مصر',
-  'بنك القاهرة',
-  'البنك العقاري المصري العربي',
-  'البنك التجاري الدولي (CIB)',
-  'بنك QNB',
-  'البنك العربي الأفريقي الدولي (AAIB)',
-  'بنك الإسكندرية',
-  'مصرف أبوظبي الإسلامي (ADIB)',
-  'بنك فيصل الإسلامي المصري',
-  'بنك البركة مصر',
-  'بنك التعمير والإسكان (HDB)',
-  'البنك المصري الخليجى (EG Bank)',
-  'بنك قناة السويس',
-  'بنك الشركة المصرفية العربية الدولية (SAIB)',
-  'المصرف المتحد',
-  'بنك نكست',
-  'بنك الإمارات دبي الوطني',
-  'بنك أبوظبي الأول (FAB)',
-  'إتش إس بي سي مصر (HSBC)',
-  'التجاري وفا بنك',
-  'كريدي أجريكول مصر',
-  'سيتي بنك (Citibank)',
-  'البنك العربي'
-];
-
-const EGYPTIAN_BANKS_EN = [
-  'National Bank of Egypt (NBE)',
-  'Banque Misr',
-  'Banque du Caire',
-  'Egyptian Arab Land Bank',
-  'Commercial International Bank (CIB)',
-  'QNB Bank',
-  'Arab African International Bank (AAIB)',
-  'Bank of Alexandria',
-  'Abu Dhabi Islamic Bank (ADIB)',
-  'Faisal Islamic Bank',
-  'Al Baraka Bank Egypt',
-  'Housing & Development Bank (HDB)',
-  'Egyptian Gulf Bank (EG Bank)',
-  'Suez Canal Bank',
-  'Société Arabe Internationale de Banque (SAIB)',
-  'The United Bank',
-  'Next Bank',
-  'Emirates NBD',
-  'First Abu Dhabi Bank (FAB)',
-  'HSBC Bank Egypt',
-  'Attijariwafa Bank',
-  'Crédit Agricole Egypt',
-  'Citibank',
-  'Arab Bank'
-];
-
-const EGYPTIAN_WALLETS_AR = [
-  'فودافون كاش (Vodafone Cash)',
-  'أورانج كاش (Orange Cash)',
-  'اتصالات كاش (Etisalat Cash)',
-  'وي باي (WE Pay)'
-];
-
-const EGYPTIAN_WALLETS_EN = [
-  'Vodafone Cash',
-  'Orange Cash',
-  'Etisalat Cash',
-  'WE Pay'
-];
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -723,29 +657,13 @@ export default function DashboardPage() {
               
               <div className="space-y-2 text-right">
                 <Label className="text-xs font-bold text-slate-400">
-                  {isWalletName(onboardBankName) 
-                    ? (lang === 'ar' ? 'اسم المحفظة الإلكترونية' : 'Mobile Wallet Name') 
-                    : (lang === 'ar' ? 'اسم البنك' : 'Bank Name')}
+                  {lang === 'ar' ? 'اختر البنك أو المحفظة الإلكترونية' : 'Select Bank or Mobile Wallet'}
                 </Label>
-                <div className="relative flex items-center">
-                  <input
-                    list="onboard-banks"
-                    placeholder={lang === 'ar' ? 'ابحث أو اختر اسم البنك أو المحفظة' : 'Search or choose bank or wallet'}
-                    value={onboardBankName}
-                    onChange={e => setOnboardBankName(e.target.value)}
-                    className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl pr-4 pl-12 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
-                  />
-                  {onboardBankName && (
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                      <BankLogo name={onboardBankName} size="sm" />
-                    </div>
-                  )}
-                </div>
-                <datalist id="onboard-banks">
-                  {(lang === 'ar' ? [...EGYPTIAN_BANKS_AR, ...EGYPTIAN_WALLETS_AR] : [...EGYPTIAN_BANKS_EN, ...EGYPTIAN_WALLETS_EN]).map(item => (
-                    <option key={item} value={item} />
-                  ))}
-                </datalist>
+                <BankSelector
+                  selectedName={onboardBankName}
+                  onSelect={setOnboardBankName}
+                  type="all"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -872,7 +790,10 @@ export default function DashboardPage() {
                 <button
                   key={t}
                   type="button"
-                  onClick={() => setNewAccType(t)}
+                  onClick={() => {
+                    setNewAccType(t);
+                    setNewAccName('');
+                  }}
                   className={cn(
                     'flex-1 py-2.5 rounded-xl font-bold text-xs transition-all',
                     newAccType === t
@@ -892,26 +813,12 @@ export default function DashboardPage() {
             {newAccType === 'bank' && (
               <>
                 <div className="space-y-2 text-right">
-                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم البنك' : 'Bank Name'}</Label>
-                  <div className="relative flex items-center">
-                    <input
-                      list="add-banks"
-                      placeholder={lang === 'ar' ? 'اختر البنك' : 'Select Bank'}
-                      value={newAccName}
-                      onChange={e => setNewAccName(e.target.value)}
-                      className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl pr-4 pl-12 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
-                    />
-                    {newAccName && (
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                        <BankLogo name={newAccName} size="sm" />
-                      </div>
-                    )}
-                  </div>
-                  <datalist id="add-banks">
-                    {(lang === 'ar' ? EGYPTIAN_BANKS_AR : EGYPTIAN_BANKS_EN).map(bank => (
-                      <option key={bank} value={bank} />
-                    ))}
-                  </datalist>
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اختر البنك' : 'Select Bank'}</Label>
+                  <BankSelector
+                    selectedName={newAccName}
+                    onSelect={setNewAccName}
+                    type="bank"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -952,26 +859,12 @@ export default function DashboardPage() {
             {newAccType === 'wallet' && (
               <>
                 <div className="space-y-2 text-right">
-                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم المحفظة الإلكترونية' : 'Wallet Name'}</Label>
-                  <div className="relative flex items-center">
-                    <input
-                      list="add-wallets"
-                      placeholder={lang === 'ar' ? 'اختر المحفظة الإلكترونية' : 'Select Mobile Wallet'}
-                      value={newAccName}
-                      onChange={e => setNewAccName(e.target.value)}
-                      className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl pr-4 pl-12 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
-                    />
-                    {newAccName && (
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                        <BankLogo name={newAccName} size="sm" />
-                      </div>
-                    )}
-                  </div>
-                  <datalist id="add-wallets">
-                    {(lang === 'ar' ? EGYPTIAN_WALLETS_AR : EGYPTIAN_WALLETS_EN).map(w => (
-                      <option key={w} value={w} />
-                    ))}
-                  </datalist>
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اختر المحفظة الإلكترونية' : 'Select Mobile Wallet'}</Label>
+                  <BankSelector
+                    selectedName={newAccName}
+                    onSelect={setNewAccName}
+                    type="wallet"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
