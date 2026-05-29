@@ -35,15 +35,14 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import WeatherPrayerWidget from '@/components/WeatherPrayerWidget';
-import BankLogo from '@/components/BankLogo';
+import BankLogo, { BANK_WALLET_CATALOG, getTranslatedBankName } from '@/components/BankLogo';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// 24 Egyptian Banks list
-const EGYPTIAN_BANKS_LIST = [
+const EGYPTIAN_BANKS_AR = [
   'البنك الأهلي المصري (NBE)',
   'بنك مصر',
   'بنك القاهرة',
@@ -70,9 +69,50 @@ const EGYPTIAN_BANKS_LIST = [
   'البنك العربي'
 ];
 
+const EGYPTIAN_BANKS_EN = [
+  'National Bank of Egypt (NBE)',
+  'Banque Misr',
+  'Banque du Caire',
+  'Egyptian Arab Land Bank',
+  'Commercial International Bank (CIB)',
+  'QNB Bank',
+  'Arab African International Bank (AAIB)',
+  'Bank of Alexandria',
+  'Abu Dhabi Islamic Bank (ADIB)',
+  'Faisal Islamic Bank',
+  'Al Baraka Bank Egypt',
+  'Housing & Development Bank (HDB)',
+  'Egyptian Gulf Bank (EG Bank)',
+  'Suez Canal Bank',
+  'Société Arabe Internationale de Banque (SAIB)',
+  'The United Bank',
+  'Next Bank',
+  'Emirates NBD',
+  'First Abu Dhabi Bank (FAB)',
+  'HSBC Bank Egypt',
+  'Attijariwafa Bank',
+  'Crédit Agricole Egypt',
+  'Citibank',
+  'Arab Bank'
+];
+
+const EGYPTIAN_WALLETS_AR = [
+  'فودافون كاش (Vodafone Cash)',
+  'أورانج كاش (Orange Cash)',
+  'اتصالات كاش (Etisalat Cash)',
+  'وي باي (WE Pay)'
+];
+
+const EGYPTIAN_WALLETS_EN = [
+  'Vodafone Cash',
+  'Orange Cash',
+  'Etisalat Cash',
+  'WE Pay'
+];
+
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   
   // Dashboard states
   const [stats, setStats] = useState<any>(null);
@@ -96,12 +136,17 @@ export default function DashboardPage() {
 
   // Add Account dialog states (for existing users)
   const [showAddAccount, setShowAddAccount] = useState(false);
-  const [newAccType, setNewAccType] = useState<'bank' | 'cash'>('bank');
+  const [newAccType, setNewAccType] = useState<'bank' | 'cash' | 'wallet'>('bank');
   const [newAccName, setNewAccName] = useState('');
   const [newAccIban, setNewAccIban] = useState('');
   const [newAccNo, setNewAccNo] = useState('');
   const [newAccBalance, setNewAccBalance] = useState('');
   const [addAccountSubmitting, setAddAccountSubmitting] = useState(false);
+
+  const isWalletName = (name: string) => {
+    const n = (name || '').toLowerCase();
+    return n.includes('كاش') || n.includes('cash') || n.includes('wepay') || n.includes('وي باي') || n.includes('orange') || n.includes('vodafone') || n.includes('etisalat') || n.includes('اتصالات');
+  };
 
   // Detail Modal states
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
@@ -170,20 +215,23 @@ export default function DashboardPage() {
   // Add account during onboarding list
   const addAccountToOnboardList = () => {
     if (!onboardBankName) {
-      toast.error('يرجى تحديد اسم البنك');
+      toast.error(lang === 'ar' ? 'يرجى تحديد اسم الحساب المالي' : 'Please specify account name');
       return;
     }
     
     // Check if duplicate bank
     if (onboardAccounts.some(acc => acc.name === onboardBankName)) {
-      toast.error('لقد قمت بإضافة هذا البنك بالفعل');
+      toast.error(lang === 'ar' ? 'لقد قمت بإضافة هذا الحساب بالفعل' : 'You have already added this account');
       return;
     }
 
+    const isWallet = isWalletName(onboardBankName);
+    const type = isWallet ? 'wallet' : 'bank';
+
     const newAcc = {
       name: onboardBankName,
-      type: 'bank',
-      iban: onboardIban || null,
+      type,
+      iban: type === 'bank' ? (onboardIban || null) : null,
       accountNum: onboardAccountNum || null,
       balance: parseFloat(onboardBalance) || 0
     };
@@ -193,7 +241,7 @@ export default function DashboardPage() {
     setOnboardIban('');
     setOnboardAccountNum('');
     setOnboardBalance('');
-    toast.success('تمت إضافة البنك للقائمة. يمكنك إضافة المزيد أو الحفظ.');
+    toast.success(lang === 'ar' ? 'تمت إضافة الحساب للقائمة. يمكنك إضافة المزيد أو الحفظ.' : 'Added to the list. You can add more or save.');
   };
 
   const removeAccountFromOnboardList = (index: number) => {
@@ -243,16 +291,16 @@ export default function DashboardPage() {
   // Submit single Add Account
   const handleAddAccountSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newAccType === 'bank' && !newAccName) {
-      toast.error('يرجى تحديد اسم البنك');
+    if (newAccType !== 'cash' && !newAccName) {
+      toast.error(newAccType === 'wallet' ? (lang === 'ar' ? 'يرجى تحديد اسم المحفظة الإلكترونية' : 'Please select wallet name') : (lang === 'ar' ? 'يرجى تحديد اسم البنك' : 'Please select bank name'));
       return;
     }
 
     const name = newAccType === 'cash' ? 'كاش' : newAccName;
 
-    // Check if duplicate cash/bank
+    // Check if duplicate cash/bank/wallet
     if (accounts.some(acc => acc.name.toLowerCase() === name.toLowerCase())) {
-      toast.error('هذا الحساب مسجل بالفعل');
+      toast.error(lang === 'ar' ? 'هذا الحساب مسجل بالفعل' : 'This account is already registered');
       return;
     }
 
@@ -262,10 +310,10 @@ export default function DashboardPage() {
         name,
         type: newAccType,
         iban: newAccType === 'bank' ? newAccIban : undefined,
-        accountNum: newAccType === 'bank' ? newAccNo : undefined,
+        accountNum: (newAccType === 'bank' || newAccType === 'wallet') ? newAccNo : undefined,
         balance: parseFloat(newAccBalance) || 0
       });
-      toast.success('تم إضافة الحساب بنجاح! 💳');
+      toast.success(lang === 'ar' ? 'تم إضافة الحساب بنجاح! 💳' : 'Account added successfully! 💳');
       setShowAddAccount(false);
       setNewAccName('');
       setNewAccIban('');
@@ -273,7 +321,7 @@ export default function DashboardPage() {
       setNewAccBalance('');
       fetchData();
     } catch (err: any) {
-      toast.error(err.message || 'حدث خطأ أثناء إضافة الحساب');
+      toast.error(err.message || (lang === 'ar' ? 'حدث خطأ أثناء إضافة الحساب' : 'Error adding account'));
     } finally {
       setAddAccountSubmitting(false);
     }
@@ -418,6 +466,13 @@ export default function DashboardPage() {
             {accounts.map(acc => {
               const isVisible = visibleAccounts[acc.id] || false;
               const isBank = acc.type === 'bank';
+              const isWallet = acc.type === 'wallet';
+              const translatedName = getTranslatedBankName(acc.name, lang);
+              const typeLabel = isBank 
+                ? (lang === 'ar' ? 'حساب بنكي' : 'Bank Account') 
+                : isWallet 
+                ? (lang === 'ar' ? 'محفظة إلكترونية' : 'Mobile Wallet') 
+                : (lang === 'ar' ? 'نقد كاش' : 'Cash');
               
               return (
                 <div
@@ -430,15 +485,15 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-3">
                       <BankLogo name={acc.name} size="md" />
                       <div className="text-right">
-                        <h4 className="text-sm font-black text-white group-hover:text-indigo-400 transition-colors line-clamp-1">{acc.name}</h4>
-                        <span className="text-[10px] font-bold text-slate-500">{isBank ? 'حساب بنكي' : 'نقد كاش'}</span>
+                        <h4 className="text-sm font-black text-white group-hover:text-indigo-400 transition-colors line-clamp-1">{translatedName}</h4>
+                        <span className="text-[10px] font-bold text-slate-500">{typeLabel}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Middle Row: Balance */}
                   <div className="my-3 text-right">
-                    <span className="text-[10px] font-bold text-slate-500 block">الرصيد المتوفر</span>
+                    <span className="text-[10px] font-bold text-slate-500 block">{lang === 'ar' ? 'الرصيد المتوفر' : 'Available Balance'}</span>
                     <span className="text-2xl font-black text-white tabular-nums">{formatCurrency(acc.balance)}</span>
                   </div>
 
@@ -447,7 +502,7 @@ export default function DashboardPage() {
                     <div className="pt-3 border-t border-white/5 flex flex-col gap-1.5 text-xs text-slate-400">
                       {acc.accountNum && (
                         <div className="flex justify-between items-center gap-2 group/action">
-                          <span className="text-[10px] font-semibold text-slate-500">رقم الحساب:</span>
+                          <span className="text-[10px] font-semibold text-slate-500">{lang === 'ar' ? 'رقم الحساب:' : 'Account No:'}</span>
                           <div className="flex items-center gap-1.5">
                             <span className="font-mono tracking-wider text-[11px] text-slate-300">
                               {isVisible ? acc.accountNum : maskNumber(acc.accountNum, false)}
@@ -485,9 +540,32 @@ export default function DashboardPage() {
                         </div>
                       )}
                     </div>
+                  ) : isWallet && acc.accountNum ? (
+                    <div className="pt-3 border-t border-white/5 flex flex-col gap-1.5 text-xs text-slate-400">
+                      <div className="flex justify-between items-center gap-2 group/action">
+                        <span className="text-[10px] font-semibold text-slate-500">{lang === 'ar' ? 'رقم الهاتف:' : 'Phone Number:'}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono tracking-wider text-[11px] text-slate-300">
+                            {isVisible ? acc.accountNum : maskNumber(acc.accountNum, false)}
+                          </span>
+                          <button
+                            onClick={(e) => toggleVisibility(acc.id, e)}
+                            className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                          >
+                            {isVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                          <button
+                            onClick={(e) => handleCopy(acc.accountNum, 'رقم الهاتف', e)}
+                            className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   ) : (
                     <div className="pt-3 border-t border-white/5 flex items-center gap-1 text-[10px] text-slate-500">
-                      <span>تتبع كاش النقدية السائلة والمشتريات اليدوية</span>
+                      <span>{lang === 'ar' ? 'تتبع كاش النقدية السائلة والمشتريات اليدوية' : 'Track cash and manual purchases'}</span>
                     </div>
                   )}
                 </div>
@@ -540,8 +618,8 @@ export default function DashboardPage() {
                             <span>{new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}</span>
                             {tx.account && (
                               <span className="flex items-center gap-1 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full text-slate-400 font-semibold text-[10px]">
-                                <BankLogo name={accName => tx.account?.name || ''} name={tx.account.name} size="sm" className="w-3.5 h-3.5 rounded border-0" />
-                                {tx.account.name}
+                                <BankLogo name={tx.account.name} size="sm" className="w-3.5 h-3.5 rounded border-0" />
+                                {getTranslatedBankName(tx.account.name, lang)}
                               </span>
                             )}
                           </div>
@@ -610,23 +688,27 @@ export default function DashboardPage() {
 
       {/* --- Onboarding Modal Dialog --- */}
       <Dialog open={showOnboarding} onOpenChange={() => {}}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none max-w-[500px]" dir="rtl">
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[500px] max-h-[90vh] overflow-y-auto custom-scrollbar" dir="rtl">
           <DialogHeader className="text-right">
             <DialogTitle className="text-2xl font-black mb-2 flex items-center gap-2">
-              💳 تهيئة حساباتك المالية
+              {lang === 'ar' ? '💳 تهيئة حساباتك المالية' : '💳 Set Up Financial Accounts'}
             </DialogTitle>
             <p className="text-xs font-semibold text-slate-400 leading-relaxed">
-              أهلاً بك في مدبّر! لنقم بإضافة البنوك التي تستخدمها ورصيدك الحالي لتسهيل تتبع معاملاتك. (هذا الإعداد اختياري ويمكن تخطيه)
+              {lang === 'ar' 
+                ? 'أهلاً بك في مدبّر! لنقم بإضافة البنوك أو المحافظ الإلكترونية التي تستخدمها ورصيدك الحالي لتسهيل تتبع معاملاتك.' 
+                : 'Welcome to Mudabber! Let\'s add the banks or mobile wallets you use and their balances to easily track transactions.'}
             </p>
           </DialogHeader>
 
           <div className="space-y-6 mt-4">
             {/* Cash setup (mandatory placeholder or simple initial cash input) */}
             <div className="space-y-2 text-right">
-              <Label className="text-xs font-bold text-slate-400">💵 رصيد الكاش الحالي (إن وجد)</Label>
+              <Label className="text-xs font-bold text-slate-400">
+                {lang === 'ar' ? '💵 رصيد الكاش الحالي (إن وجد)' : '💵 Current Cash Balance (If any)'}
+              </Label>
               <Input
                 type="number"
-                placeholder="أدخل المبلغ النقدي المتوفر معك الآن"
+                placeholder={lang === 'ar' ? 'أدخل المبلغ النقدي المتوفر معك الآن' : 'Enter the cash amount you have now'}
                 value={onboardCashBalance}
                 onChange={e => setOnboardCashBalance(e.target.value)}
                 className="h-12 bg-[#242444] border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl text-center"
@@ -637,36 +719,48 @@ export default function DashboardPage() {
 
             {/* Bank account setup */}
             <div className="space-y-4">
-              <h4 className="text-xs font-bold text-indigo-400">🏦 إضافة حساب بنكي جديد</h4>
+              <h4 className="text-xs font-bold text-indigo-400">
+                {lang === 'ar' ? '🏦 إضافة حساب بنكي أو محفظة جديدة' : '🏦 Add New Bank or Mobile Wallet'}
+              </h4>
               
               <div className="space-y-2 text-right">
-                <Label className="text-xs font-bold text-slate-400">اسم البنك</Label>
+                <Label className="text-xs font-bold text-slate-400">
+                  {isWalletName(onboardBankName) 
+                    ? (lang === 'ar' ? 'اسم المحفظة الإلكترونية' : 'Mobile Wallet Name') 
+                    : (lang === 'ar' ? 'اسم البنك' : 'Bank Name')}
+                </Label>
                 <input
                   list="onboard-banks"
-                  placeholder="ابحث أو اختر اسم البنك"
+                  placeholder={lang === 'ar' ? 'ابحث أو اختر اسم البنك أو المحفظة' : 'Search or choose bank or wallet'}
                   value={onboardBankName}
                   onChange={e => setOnboardBankName(e.target.value)}
                   className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl px-4 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
                 />
                 <datalist id="onboard-banks">
-                  {EGYPTIAN_BANKS_LIST.map(bank => (
-                    <option key={bank} value={bank} />
+                  {(lang === 'ar' ? [...EGYPTIAN_BANKS_AR, ...EGYPTIAN_WALLETS_AR] : [...EGYPTIAN_BANKS_EN, ...EGYPTIAN_WALLETS_EN]).map(item => (
+                    <option key={item} value={item} />
                   ))}
                 </datalist>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 text-right">
-                  <Label className="text-xs font-bold text-slate-400">رقم الحساب المحلي</Label>
+                  <Label className="text-xs font-bold text-slate-400">
+                    {isWalletName(onboardBankName) 
+                      ? (lang === 'ar' ? 'رقم الهاتف للمحفظة' : 'Wallet Phone Number') 
+                      : (lang === 'ar' ? 'رقم الحساب المحلي' : 'Local Account Number')}
+                  </Label>
                   <Input
-                    placeholder="مثال: 123456"
+                    placeholder={isWalletName(onboardBankName) ? '01xxxxxxxxx' : (lang === 'ar' ? 'مثال: 123456' : 'Example: 123456')}
                     value={onboardAccountNum}
                     onChange={e => setOnboardAccountNum(e.target.value)}
                     className="h-11 bg-[#242444] border-[#2d2d5e]"
                   />
                 </div>
                 <div className="space-y-2 text-right">
-                  <Label className="text-xs font-bold text-slate-400">رصيد البنك الحالي</Label>
+                  <Label className="text-xs font-bold text-slate-400">
+                    {lang === 'ar' ? 'الرصيد الحالي' : 'Current Balance'}
+                  </Label>
                   <Input
                     type="number"
                     placeholder="0.00"
@@ -677,30 +771,38 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="space-y-2 text-right">
-                <Label className="text-xs font-bold text-slate-400">رقم الحساب الدولي (IBAN)</Label>
-                <Input
-                  placeholder="EG00 0000 0000 0000 0000 0000 0"
-                  value={onboardIban}
-                  onChange={e => setOnboardIban(e.target.value)}
-                  className="h-11 bg-[#242444] border-[#2d2d5e] text-left uppercase"
-                  dir="ltr"
-                />
-              </div>
+              {!isWalletName(onboardBankName) && (
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">
+                    {lang === 'ar' ? 'رقم الحساب الدولي (IBAN)' : 'International Account Number (IBAN)'}
+                  </Label>
+                  <Input
+                    placeholder="EG00 0000 0000 0000 0000 0000 0"
+                    value={onboardIban}
+                    onChange={e => setOnboardIban(e.target.value)}
+                    className="h-11 bg-[#242444] border-[#2d2d5e] text-left uppercase"
+                    dir="ltr"
+                  />
+                </div>
+              )}
 
               <Button
                 type="button"
                 onClick={addAccountToOnboardList}
                 className="w-full h-11 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white font-bold rounded-xl border border-indigo-500/20 active:scale-95 transition-all text-xs"
               >
-                + إضافة البنك الحالي للقائمة
+                {isWalletName(onboardBankName) 
+                  ? (lang === 'ar' ? '+ إضافة المحفظة الحالية للقائمة' : '+ Add Current Wallet to List') 
+                  : (lang === 'ar' ? '+ إضافة البنك الحالي للقائمة' : '+ Add Current Bank to List')}
               </Button>
             </div>
 
             {/* List of pending banks */}
             {onboardAccounts.length > 0 && (
               <div className="space-y-2">
-                <span className="text-[10px] font-bold text-slate-500 block">البنوك المضافة للإعداد:</span>
+                <span className="text-[10px] font-bold text-slate-500 block">
+                  {lang === 'ar' ? 'الحسابات المضافة للإعداد:' : 'Accounts added to setup:'}
+                </span>
                 <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
                   {onboardAccounts.map((acc, index) => (
                     <div
@@ -710,8 +812,10 @@ export default function DashboardPage() {
                       <div className="flex items-center gap-2">
                         <BankLogo name={acc.name} size="sm" />
                         <div className="text-right">
-                          <span className="font-bold text-white block">{acc.name}</span>
-                          <span className="text-[10px] text-slate-400">الرصيد الأول: {formatCurrency(acc.balance)}</span>
+                          <span className="font-bold text-white block">{getTranslatedBankName(acc.name, lang)}</span>
+                          <span className="text-[10px] text-slate-400">
+                            {lang === 'ar' ? 'الرصيد الأول:' : 'Initial balance:'} {formatCurrency(acc.balance)}
+                          </span>
                         </div>
                       </div>
                       <button
@@ -733,7 +837,7 @@ export default function DashboardPage() {
                 disabled={onboardSubmitting}
                 className="flex-1 h-12 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm"
               >
-                {onboardSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'حفظ وإعداد الحسابات'}
+                {onboardSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (lang === 'ar' ? 'حفظ وإعداد الحسابات' : 'Save and Setup Accounts')}
               </Button>
               <Button
                 onClick={handleOnboardingSkip}
@@ -741,7 +845,7 @@ export default function DashboardPage() {
                 variant="outline"
                 className="flex-1 h-12 border-white/5 bg-transparent text-slate-400 hover:bg-white/5 hover:text-white rounded-xl text-sm"
               >
-                تخطي (كاش فقط)
+                {lang === 'ar' ? 'تخطي (كاش فقط)' : 'Skip (Cash only)'}
               </Button>
             </div>
           </div>
@@ -750,14 +854,16 @@ export default function DashboardPage() {
 
       {/* --- Add Account Dialog (for existing users) --- */}
       <Dialog open={showAddAccount} onOpenChange={setShowAddAccount}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none max-w-[460px]" dir="rtl">
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[460px] max-h-[90vh] overflow-y-auto custom-scrollbar" dir="rtl">
           <DialogHeader className="text-right">
-            <DialogTitle className="text-2xl font-black mb-4">إضافة حساب مالي جديد</DialogTitle>
+            <DialogTitle className="text-2xl font-black mb-4">
+              {lang === 'ar' ? 'إضافة حساب مالي جديد' : 'Add New Account'}
+            </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleAddAccountSubmit} className="space-y-6">
             <div className="flex gap-2 p-1.5 bg-black/20 rounded-2xl border border-white/5">
-              {(['bank', 'cash'] as const).map(t => (
+              {(['bank', 'cash', 'wallet'] as const).map(t => (
                 <button
                   key={t}
                   type="button"
@@ -769,24 +875,28 @@ export default function DashboardPage() {
                       : 'text-slate-400 hover:text-white hover:bg-white/5'
                   )}
                 >
-                  {t === 'bank' ? 'حساب بنكي' : 'نقد كاش'}
+                  {t === 'bank' 
+                    ? (lang === 'ar' ? 'حساب بنكي' : 'Bank') 
+                    : t === 'wallet' 
+                    ? (lang === 'ar' ? 'محفظة' : 'Wallet') 
+                    : (lang === 'ar' ? 'كاش' : 'Cash')}
                 </button>
               ))}
             </div>
 
-            {newAccType === 'bank' ? (
+            {newAccType === 'bank' && (
               <>
                 <div className="space-y-2 text-right">
-                  <Label className="text-xs font-bold text-slate-400">اسم البنك</Label>
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم البنك' : 'Bank Name'}</Label>
                   <input
                     list="add-banks"
-                    placeholder="اختر البنك"
+                    placeholder={lang === 'ar' ? 'اختر البنك' : 'Select Bank'}
                     value={newAccName}
                     onChange={e => setNewAccName(e.target.value)}
                     className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl px-4 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
                   />
                   <datalist id="add-banks">
-                    {EGYPTIAN_BANKS_LIST.map(bank => (
+                    {(lang === 'ar' ? EGYPTIAN_BANKS_AR : EGYPTIAN_BANKS_EN).map(bank => (
                       <option key={bank} value={bank} />
                     ))}
                   </datalist>
@@ -794,16 +904,16 @@ export default function DashboardPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2 text-right">
-                    <Label className="text-xs font-bold text-slate-400">رقم الحساب المحلي</Label>
+                    <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رقم الحساب المحلي' : 'Local Account No'}</Label>
                     <Input
-                      placeholder="رقم الحساب"
+                      placeholder={lang === 'ar' ? 'رقم الحساب' : 'Account number'}
                       value={newAccNo}
                       onChange={e => setNewAccNo(e.target.value)}
                       className="h-11 bg-[#242444] border-[#2d2d5e]"
                     />
                   </div>
                   <div className="space-y-2 text-right">
-                    <Label className="text-xs font-bold text-slate-400">الرصيد الأولي</Label>
+                    <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'الرصيد الأولي' : 'Initial Balance'}</Label>
                     <Input
                       type="number"
                       placeholder="0.00"
@@ -815,7 +925,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="space-y-2 text-right">
-                  <Label className="text-xs font-bold text-slate-400">رقم الحساب الدولي (IBAN)</Label>
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رقم الحساب الدولي (IBAN)' : 'IBAN'}</Label>
                   <Input
                     placeholder="EG00 0000 0000 0000 0000 0000 0"
                     value={newAccIban}
@@ -825,9 +935,53 @@ export default function DashboardPage() {
                   />
                 </div>
               </>
-            ) : (
+            )}
+
+            {newAccType === 'wallet' && (
+              <>
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم المحفظة الإلكترونية' : 'Wallet Name'}</Label>
+                  <input
+                    list="add-wallets"
+                    placeholder={lang === 'ar' ? 'اختر المحفظة الإلكترونية' : 'Select Mobile Wallet'}
+                    value={newAccName}
+                    onChange={e => setNewAccName(e.target.value)}
+                    className="w-full h-12 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl px-4 outline-none text-right placeholder:text-slate-500 text-sm font-semibold"
+                  />
+                  <datalist id="add-wallets">
+                    {(lang === 'ar' ? EGYPTIAN_WALLETS_AR : EGYPTIAN_WALLETS_EN).map(w => (
+                      <option key={w} value={w} />
+                    ))}
+                  </datalist>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2 text-right">
+                    <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رقم الهاتف للمحفظة' : 'Wallet Phone No'}</Label>
+                    <Input
+                      placeholder="01xxxxxxxxx"
+                      value={newAccNo}
+                      onChange={e => setNewAccNo(e.target.value)}
+                      className="h-11 bg-[#242444] border-[#2d2d5e]"
+                    />
+                  </div>
+                  <div className="space-y-2 text-right">
+                    <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'الرصيد الأولي' : 'Initial Balance'}</Label>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      value={newAccBalance}
+                      onChange={e => setNewAccBalance(e.target.value)}
+                      className="h-11 bg-[#242444] border-[#2d2d5e] text-center"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {newAccType === 'cash' && (
               <div className="space-y-2 text-right">
-                <Label className="text-xs font-bold text-slate-400">رصيد الكاش الأولي</Label>
+                <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رصيد الكاش الأولي' : 'Initial Cash Balance'}</Label>
                 <Input
                   type="number"
                   placeholder="0.00"
@@ -843,7 +997,7 @@ export default function DashboardPage() {
               disabled={addAccountSubmitting}
               className="w-full h-12 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm mt-4"
             >
-              {addAccountSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'إضافة الحساب المالي'}
+              {addAccountSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (lang === 'ar' ? 'إضافة الحساب المالي' : 'Add Financial Account')}
             </Button>
           </form>
         </DialogContent>
@@ -851,15 +1005,17 @@ export default function DashboardPage() {
 
       {/* --- Detail Log Modal of transactions for selected account --- */}
       <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none max-w-[550px]" dir="rtl">
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[550px] max-h-[90vh] overflow-y-auto custom-scrollbar" dir="rtl">
           {selectedAccount && (
             <>
               <DialogHeader className="text-right">
                 <div className="flex items-center gap-3 mb-2">
                   <BankLogo name={selectedAccount.name} size="lg" />
                   <div>
-                    <DialogTitle className="text-2xl font-black text-white">{selectedAccount.name}</DialogTitle>
-                    <span className="text-xs font-bold text-slate-400">كشف حركات الحساب المالي والتفاصيل بالوقت</span>
+                    <DialogTitle className="text-2xl font-black text-white">{getTranslatedBankName(selectedAccount.name, lang)}</DialogTitle>
+                    <span className="text-xs font-bold text-slate-400">
+                      {lang === 'ar' ? 'كشف حركات الحساب المالي والتفاصيل بالوقت' : 'Financial account statement & details with time'}
+                    </span>
                   </div>
                 </div>
               </DialogHeader>
@@ -867,25 +1023,25 @@ export default function DashboardPage() {
               {/* Account Quick Stats */}
               <div className="grid grid-cols-3 gap-3 my-5 p-4 bg-black/20 rounded-2xl border border-white/5">
                 <div className="text-center">
-                  <span className="text-[10px] font-bold text-slate-500 block">رصيد الحساب</span>
+                  <span className="text-[10px] font-bold text-slate-500 block">{lang === 'ar' ? 'رصيد الحساب' : 'Account Balance'}</span>
                   <span className="text-sm font-black text-white tabular-nums">{formatCurrency(selectedAccount.balance)}</span>
                 </div>
                 <div className="text-center border-r border-white/5">
-                  <span className="text-[10px] font-bold text-slate-500 block text-emerald-500">إجمالي الإيداع</span>
+                  <span className="text-[10px] font-bold text-slate-500 block text-emerald-500">{lang === 'ar' ? 'إجمالي الإيداع' : 'Total Deposits'}</span>
                   <span className="text-sm font-black text-emerald-400 tabular-nums">+{formatCurrency(accountStats.income)}</span>
                 </div>
                 <div className="text-center border-r border-white/5">
-                  <span className="text-[10px] font-bold text-slate-500 block text-red-500">إجمالي السحب</span>
+                  <span className="text-[10px] font-bold text-slate-500 block text-red-500">{lang === 'ar' ? 'إجمالي السحب' : 'Total Withdrawals'}</span>
                   <span className="text-sm font-black text-red-400 tabular-nums">-{formatCurrency(accountStats.expense)}</span>
                 </div>
               </div>
 
               {/* Transactions List */}
               <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
-                <h4 className="text-xs font-bold text-slate-400 mb-2">الحركات المالية الأخيرة:</h4>
+                <h4 className="text-xs font-bold text-slate-400 mb-2">{lang === 'ar' ? 'الحركات المالية الأخيرة:' : 'Recent transactions:'}</h4>
                 {accountTransactions.length === 0 ? (
                   <div className="text-center py-10 text-xs text-slate-500">
-                    لا توجد حركات مسجلة لهذا الحساب.
+                    {lang === 'ar' ? 'لا توجد حركات مسجلة لهذا الحساب.' : 'No transactions recorded for this account.'}
                   </div>
                 ) : (
                   accountTransactions.map(tx => {
@@ -910,11 +1066,11 @@ export default function DashboardPage() {
                           <div className="text-right">
                             <span className="font-bold text-white block">{tx.description || cat.label}</span>
                             <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-500 font-semibold">
-                              <span className="flex items-center gap-0.5"><Calendar className="w-3 h-3" /> {txDate.toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}</span>
+                              <span className="flex items-center gap-0.5"><Calendar className="w-3 h-3" /> {txDate.toLocaleDateString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { day: 'numeric', month: 'short' })}</span>
                               <span>•</span>
                               <span className="flex items-center gap-0.5">
                                 <Clock className="w-3 h-3" /> 
-                                {txDate.toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                {txDate.toLocaleTimeString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
                               </span>
                             </div>
                           </div>
@@ -934,15 +1090,17 @@ export default function DashboardPage() {
               </div>
 
               {/* Account Numbers (Hidden behind eye toggle for reference inside detail view too) */}
-              {selectedAccount.type === 'bank' && (selectedAccount.accountNum || selectedAccount.iban) && (
+              {(selectedAccount.type === 'bank' || selectedAccount.type === 'wallet') && (selectedAccount.accountNum || selectedAccount.iban) && (
                 <div className="mt-5 pt-4 border-t border-white/5 text-xs text-slate-400 flex flex-col gap-2">
                   {selectedAccount.accountNum && (
                     <div className="flex justify-between items-center bg-black/20 p-2.5 rounded-xl border border-white/5">
-                      <span className="text-[10px] font-bold text-slate-500">رقم الحساب المحلي:</span>
+                      <span className="text-[10px] font-bold text-slate-500">
+                        {selectedAccount.type === 'wallet' ? (lang === 'ar' ? 'رقم الهاتف للمحفظة:' : 'Wallet Phone Number:') : (lang === 'ar' ? 'رقم الحساب المحلي:' : 'Local Account Number:')}
+                      </span>
                       <div className="flex items-center gap-2">
                         <span className="font-mono font-semibold text-[11px] text-slate-300">{selectedAccount.accountNum}</span>
                         <button
-                          onClick={(e) => handleCopy(selectedAccount.accountNum, 'رقم الحساب', e)}
+                          onClick={(e) => handleCopy(selectedAccount.accountNum, selectedAccount.type === 'wallet' ? 'رقم الهاتف' : 'رقم الحساب', e)}
                           className="p-1 rounded text-slate-500 hover:text-white transition-colors"
                         >
                           <Copy className="w-3.5 h-3.5" />
@@ -950,9 +1108,9 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   )}
-                  {selectedAccount.iban && (
+                  {selectedAccount.type === 'bank' && selectedAccount.iban && (
                     <div className="flex justify-between items-center bg-black/20 p-2.5 rounded-xl border border-white/5">
-                      <span className="text-[10px] font-bold text-slate-500">رقم الحساب الدولي (IBAN):</span>
+                      <span className="text-[10px] font-bold text-slate-500">{lang === 'ar' ? 'رقم الحساب الدولي (IBAN):' : 'IBAN:'}</span>
                       <div className="flex items-center gap-2">
                         <span className="font-mono font-semibold text-[10px] text-slate-300">{selectedAccount.iban}</span>
                         <button

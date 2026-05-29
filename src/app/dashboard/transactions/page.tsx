@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { transactionsApi, adminApi, accountsApi, Account, Transaction, User, formatCurrency, getCategoryInfo, INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowDownRight, ArrowUpRight, Plus, Trash2, Users, Loader2, Activity, Calendar, Tag, AlertCircle, Pencil } from 'lucide-react';
-import BankLogo from '@/components/BankLogo';
+import BankLogo, { getTranslatedBankName } from '@/components/BankLogo';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils';
 
 export default function TransactionsPage() {
   const { user: currentUser } = useAuth();
+  const { lang } = useLanguage();
   const isAdmin = currentUser?.role === 'admin';
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -214,7 +216,7 @@ export default function TransactionsPage() {
                 إضافة معاملة
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none sm:max-w-[480px]">
+            <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar">
               <DialogHeader className="text-right">
                 <DialogTitle className="text-2xl font-black mb-6">إضافة معاملة جديدة</DialogTitle>
               </DialogHeader>
@@ -304,10 +306,12 @@ export default function TransactionsPage() {
                       <SelectValue placeholder="اختر الحساب المالي (اختياري)" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
-                      <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">بدون ربط (سجل عام)</SelectItem>
+                      <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">
+                        {lang === 'ar' ? 'بدون ربط (سجل عام)' : 'No account link (General Log)'}
+                      </SelectItem>
                       {accounts.map(acc => (
                         <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
-                          {acc.name} ({acc.type === 'cash' ? 'كاش' : 'بنك'})
+                          {getTranslatedBankName(acc.name, lang)} ({acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank')})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -428,6 +432,15 @@ export default function TransactionsPage() {
                         <Calendar className="w-3 h-3" />
                         {new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}
                       </span>
+                      {tx.account && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-1 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full text-slate-400 font-semibold text-[10px]">
+                            <BankLogo name={tx.account.name} size="sm" className="w-3.5 h-3.5 rounded border-0" />
+                            {getTranslatedBankName(tx.account.name, lang)}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -465,7 +478,7 @@ export default function TransactionsPage() {
 
       {/* Delete Confirmation */}
       <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-8 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none">
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-5 sm:p-8 overflow-hidden sm:max-w-[440px] rounded-[24px] sm:rounded-[32px] outline-none">
           <div className="text-right">
             <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
               <Trash2 className="w-7 h-7" />
@@ -497,7 +510,7 @@ export default function TransactionsPage() {
 
       {/* Edit Transaction Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none sm:max-w-[480px]">
+        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar">
           <DialogHeader className="text-right">
             <DialogTitle className="text-2xl font-black mb-6">تعديل المعاملة</DialogTitle>
           </DialogHeader>
@@ -585,10 +598,12 @@ export default function TransactionsPage() {
                   <SelectValue placeholder="اختر الحساب المالي (اختياري)" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
-                  <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">بدون ربط (سجل عام)</SelectItem>
+                  <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">
+                    {lang === 'ar' ? 'بدون ربط (سجل عام)' : 'No account link (General Log)'}
+                  </SelectItem>
                   {accounts.map(acc => (
                     <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
-                      {acc.name} ({acc.type === 'cash' ? 'كاش' : 'بنك'})
+                      {getTranslatedBankName(acc.name, lang)} ({acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank')})
                     </SelectItem>
                   ))}
                 </SelectContent>

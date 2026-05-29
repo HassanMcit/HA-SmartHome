@@ -69,7 +69,7 @@ export interface Account {
   id: string;
   userId: string;
   name: string;
-  type: 'bank' | 'cash';
+  type: 'bank' | 'cash' | 'wallet';
   iban?: string;
   accountNum?: string;
   balance: number;
@@ -90,7 +90,7 @@ export interface Transaction {
   account?: {
     id: string;
     name: string;
-    type: 'bank' | 'cash';
+    type: 'bank' | 'cash' | 'wallet';
   };
 }
 
@@ -459,7 +459,7 @@ export const accountsApi = {
   getAll: () => request<Account[]>('/accounts'),
   create: (payload: {
     name: string;
-    type: 'bank' | 'cash';
+    type: 'bank' | 'cash' | 'wallet';
     iban?: string;
     accountNum?: string;
     balance?: number;
@@ -470,7 +470,7 @@ export const accountsApi = {
     }),
   onboard: (accounts: Array<{
     name: string;
-    type: 'bank' | 'cash';
+    type: 'bank' | 'cash' | 'wallet';
     iban?: string;
     accountNum?: string;
     balance?: number;
