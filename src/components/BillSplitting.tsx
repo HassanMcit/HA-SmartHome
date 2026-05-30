@@ -226,6 +226,37 @@ export default function BillSplitting() {
   const [isSharing, setIsSharing] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
+  // ── Decode share URL data on mount ──────────────────────────────────────────
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const dataParam = params.get('data');
+      if (dataParam) {
+        try {
+          const decodedJson = decodeURIComponent(atob(dataParam));
+          const parsed = JSON.parse(decodedJson);
+          if (parsed && typeof parsed === 'object') {
+            if (typeof parsed.title === 'string') setBillTitle(parsed.title);
+            if (typeof parsed.total === 'number') setTotalAmount(parsed.total);
+            if (Array.isArray(parsed.parts)) {
+              setParticipants(
+                parsed.parts.map((p: any, idx: number) => ({
+                  id: String(idx + 1),
+                  name: p.name || '',
+                  amount: typeof p.amount === 'number' ? p.amount : 0,
+                  isManual: !!p.isManual,
+                  color: AVATAR_COLORS[idx % AVATAR_COLORS.length],
+                }))
+              );
+            }
+          }
+        } catch (e) {
+          console.error('Failed to parse split bill data from URL', e);
+        }
+      }
+    }
+  }, []);
+
   // ── Recalculate splits ──────────────────────────────────────────────────────
 
   const recalculate = (list: Participant[], total: number): Participant[] => {
@@ -307,6 +338,26 @@ export default function BillSplitting() {
 
   // ── Sharing ─────────────────────────────────────────────────────────────────
 
+  const buildShareUrl = () => {
+    if (typeof window === 'undefined') return 'https://modabber.app/split';
+    try {
+      const state = {
+        title: billTitle,
+        total: totalAmount,
+        parts: participants.map((p) => ({
+          name: p.name,
+          amount: p.amount,
+          isManual: p.isManual,
+        })),
+      };
+      const base64 = btoa(encodeURIComponent(JSON.stringify(state)));
+      return `${window.location.origin}/split?data=${base64}`;
+    } catch (e) {
+      console.error('Error building share URL', e);
+      return `${window.location.origin}/split`;
+    }
+  };
+
   const buildShareText = () => {
     const title = billTitle.trim() || 'حسبة مشتركة';
     const lines: string[] = [
@@ -324,9 +375,8 @@ export default function BillSplitting() {
     lines.push(`──────────────`);
     lines.push(`💡 احسبها صح مع تطبيق *مدبّر* 🚀`);
     
-    // Add website link
-    const websiteUrl = typeof window !== 'undefined' ? `${window.location.origin}/split` : 'https://modabber.app/split';
-    lines.push(websiteUrl);
+    // Add website link with state encoded!
+    lines.push(buildShareUrl());
     
     return encodeURIComponent(lines.join('\n'));
   };
@@ -350,7 +400,7 @@ export default function BillSplitting() {
       lines.push(`• ${p.name.trim() || `شخص ${i + 1}`}: ${fmt(p.amount)} ج.م`);
     });
     
-    const websiteUrl = typeof window !== 'undefined' ? `${window.location.origin}/split` : 'https://modabber.app/split';
+    const websiteUrl = buildShareUrl();
     lines.push(`\n💡 احسبها صح مع تطبيق مدبّر 🚀\n${websiteUrl}`);
 
     navigator.clipboard.writeText(lines.join('\n'))
