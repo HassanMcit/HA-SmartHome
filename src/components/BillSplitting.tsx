@@ -221,8 +221,6 @@ export default function BillSplitting() {
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [participants, setParticipants] = useState<Participant[]>([
     { id: '1', name: 'أنا', amount: 0, isManual: false, color: AVATAR_COLORS[0] },
-    { id: '2', name: 'أحمد', amount: 0, isManual: false, color: AVATAR_COLORS[1] },
-    { id: '3', name: 'محمد', amount: 0, isManual: false, color: AVATAR_COLORS[2] },
   ]);
   const [copied, setCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
