@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { budgetsApi, adminApi, Budget, User, formatCurrency, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Plus, Target, Trash2, Users, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,6 +13,7 @@ import { cn } from '@/lib/utils';
 
 export default function BudgetsPage() {
   const { user: currentUser } = useAuth();
+  const { lang } = useLanguage();
   const isAdmin = currentUser?.role === 'admin';
 
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -54,7 +56,7 @@ export default function BudgetsPage() {
       setBudgets(data || []);
     } catch (error: any) {
       console.error('Fetch error:', error);
-      const msg = error.message || 'حدث خطأ في تحميل الميزانية';
+      const msg = error.message || (lang === 'ar' ? 'حدث خطأ في تحميل الميزانية' : 'Error loading budget');
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -78,7 +80,7 @@ export default function BudgetsPage() {
     e.preventDefault();
     
     if (!amount || !category) {
-      toast.error('يرجى اختيار الفئة والمبلغ');
+      toast.error(lang === 'ar' ? 'يرجى اختيار الفئة والمبلغ' : 'Please select category and amount');
       return;
     }
     
@@ -93,13 +95,17 @@ export default function BudgetsPage() {
         targetUserId: targetUserId
       } as any); // Casting as any to allow sending extra fields if needed
       
-      toast.success(`تم حفظ ميزانية ${selectedUser?.name || ''} بنجاح`);
+      toast.success(
+        lang === 'ar'
+          ? `تم حفظ ميزانية ${selectedUser?.name || ''} بنجاح`
+          : `Budget for ${selectedUser?.name || ''} saved successfully`
+      );
       setOpen(false);
       setAmount('');
       setCategory('');
       fetchBudgets();
     } catch (error: any) {
-      toast.error(error.message || 'حدث خطأ أثناء حفظ الميزانية');
+      toast.error(error.message || (lang === 'ar' ? 'حدث خطأ أثناء حفظ الميزانية' : 'Error saving budget'));
     } finally {
       setSubmitting(false);
     }
@@ -109,11 +115,11 @@ export default function BudgetsPage() {
     if (!deleteDialog.budgetId) return;
     try {
       await budgetsApi.delete(deleteDialog.budgetId);
-      toast.success('تم حذف الميزانية بنجاح');
+      toast.success(lang === 'ar' ? 'تم حذف الميزانية بنجاح' : 'Budget deleted successfully');
       setDeleteDialog({ isOpen: false, budgetId: '', categoryName: '' });
       fetchBudgets();
     } catch {
-      toast.error('حدث خطأ أثناء الحذف');
+      toast.error(lang === 'ar' ? 'حدث خطأ أثناء الحذف' : 'Error while deleting');
     }
   };
 
@@ -124,12 +130,20 @@ export default function BudgetsPage() {
       <div className="flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white mb-1 flex items-center gap-3">
+            <h2
+              className="text-2xl sm:text-3xl font-black mb-1 flex items-center gap-3"
+              style={{ color: 'var(--foreground)' }}
+            >
               <Target className="w-8 h-8 text-indigo-400" />
-              الميزانية الشهرية
+              {lang === 'ar' ? 'الميزانية الشهرية' : 'Monthly Budget'}
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base font-medium">
-              {isAdmin ? 'إدارة الخطط المالية لأفراد العائلة' : 'راقب إنفاقك وحافظ على ميزانيتك'}
+            <p
+              className="text-sm sm:text-base font-medium"
+              style={{ color: 'var(--muted-foreground)' }}
+            >
+              {isAdmin
+                ? (lang === 'ar' ? 'إدارة الخطط المالية لأفراد العائلة' : 'Manage financial plans for family members')
+                : (lang === 'ar' ? 'راقب إنفاقك وحافظ على ميزانيتك' : 'Monitor your spending and maintain your budget')}
             </p>
           </div>
 
@@ -141,25 +155,35 @@ export default function BudgetsPage() {
             className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
           >
             <Plus className="w-5 h-5 ml-2" />
-            إضافة ميزانية
+            {lang === 'ar' ? 'إضافة ميزانية' : 'Add Budget'}
           </Button>
         </div>
 
         {isAdmin && (
           <div className="w-full sm:w-[300px]">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 block mr-1">تصفية حسب المستخدم</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 block mr-1">
+              {lang === 'ar' ? 'تصفية حسب المستخدم' : 'Filter by user'}
+            </label>
             <Select value={selectedUserId} onValueChange={(val) => setSelectedUserId(val || '')}>
-              <SelectTrigger className="w-full bg-white/5 border-white/10 text-white rounded-xl h-12 shadow-inner">
+              <SelectTrigger
+                className="w-full bg-white/5 border-white/10 rounded-xl h-12 shadow-inner"
+                style={{ color: 'var(--foreground)' }}
+              >
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-indigo-400" />
-                  <SelectValue placeholder="اختر المستخدم" />
+                  <SelectValue placeholder={lang === 'ar' ? 'اختر المستخدم' : 'Select user'} />
                 </div>
               </SelectTrigger>
-                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl">
-                  <SelectItem value="all" className="font-bold text-indigo-400 focus:bg-white/10 rounded-lg">كل العائلة</SelectItem>
+                <SelectContent
+                  className="border-white/10 rounded-xl"
+                  style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}
+                >
+                  <SelectItem value="all" className="font-bold text-indigo-400 focus:bg-white/10 rounded-lg">
+                    {lang === 'ar' ? 'كل العائلة' : 'Entire Family'}
+                  </SelectItem>
                   {users.map(u => (
                     <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
-                      {u.name} {u.id === currentUser?.id ? '(أنت)' : ''}
+                      {u.name} {u.id === currentUser?.id ? (lang === 'ar' ? '(أنت)' : '(You)') : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -169,22 +193,37 @@ export default function BudgetsPage() {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[32px] p-8 outline-none sm:max-w-[440px]">
+        <DialogContent
+          className="border-white/10 rounded-[32px] p-8 outline-none sm:max-w-[440px]"
+          style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}
+        >
           <DialogHeader className="text-right">
-            <DialogTitle className="text-2xl font-black mb-6">إضافة ميزانية جديدة</DialogTitle>
+            <DialogTitle className="text-2xl font-black mb-6">
+              {lang === 'ar' ? 'إضافة ميزانية جديدة' : 'Add New Budget'}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
             {isAdmin && (
               <div className="space-y-2 text-right">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">
+                  {lang === 'ar' ? 'المستخدم المستهدف' : 'Target User'}
+                </label>
                 <Select value={targetUserId} onValueChange={setTargetUserId}>
-                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
-                    <SelectValue placeholder="اختر المستخدم" />
+                  <SelectTrigger
+                    className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4"
+                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                    dir="rtl"
+                  >
+                    <SelectValue placeholder={lang === 'ar' ? 'اختر المستخدم' : 'Select user'} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                  <SelectContent
+                    className="border-white/10 rounded-xl"
+                    style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}
+                    dir="rtl"
+                  >
                     {users.map(u => (
                       <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
-                        {u.name} {u.id === currentUser?.id ? '(أنت)' : ''}
+                        {u.name} {u.id === currentUser?.id ? (lang === 'ar' ? '(أنت)' : '(You)') : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -194,12 +233,22 @@ export default function BudgetsPage() {
 
 
             <div className="space-y-2 text-right">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">
+                {lang === 'ar' ? 'الفئة' : 'Category'}
+              </label>
               <Select value={category} onValueChange={(val) => setCategory(val || '')}>
-                <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
-                  <SelectValue placeholder="اختر الفئة" />
+                <SelectTrigger
+                  className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4"
+                  style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  dir="rtl"
+                >
+                  <SelectValue placeholder={lang === 'ar' ? 'اختر الفئة' : 'Select category'} />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
+                <SelectContent
+                  className="border-white/10 rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar"
+                  style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}
+                  dir="rtl"
+                >
                   {EXPENSE_CATEGORIES.map(c => {
                     const Item = SelectItem as any;
                     return (
@@ -216,7 +265,9 @@ export default function BudgetsPage() {
             </div>
 
             <div className="space-y-2 text-right">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المبلغ الأقصى</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">
+                {lang === 'ar' ? 'المبلغ الأقصى' : 'Maximum Amount'}
+              </label>
               <div className="relative">
                 <input 
                   type="number" 
@@ -227,7 +278,9 @@ export default function BudgetsPage() {
                   className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
                   placeholder="0.00"
                 />
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ج.م</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">
+                  {lang === 'ar' ? 'ج.م' : 'EGP'}
+                </span>
               </div>
             </div>
 
@@ -236,7 +289,9 @@ export default function BudgetsPage() {
               disabled={submitting || !amount || !category}
               className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
             >
-              {submitting ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 'حفظ الميزانية'}
+              {submitting
+                ? <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                : (lang === 'ar' ? 'حفظ الميزانية' : 'Save Budget')}
             </Button>
           </form>
         </DialogContent>
@@ -246,15 +301,23 @@ export default function BudgetsPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">جاري تحميل الميزانية</p>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">
+            {lang === 'ar' ? 'جاري تحميل الميزانية' : 'Loading budgets'}
+          </p>
         </div>
       ) : budgets.length === 0 ? (
         <div className="glass-card py-24 flex flex-col items-center justify-center text-center px-6">
           <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-6">
             <Target className="w-10 h-10 text-slate-600" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">لا توجد ميزانيات محددة</h3>
-          <p className="text-slate-500 max-w-xs mx-auto">ابدأ بتحديد ميزانياتك الشهرية لمراقبة مصروفاتك بشكل فعال.</p>
+          <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
+            {lang === 'ar' ? 'لا توجد ميزانيات محددة' : 'No budgets set'}
+          </h3>
+          <p className="text-slate-500 max-w-xs mx-auto">
+            {lang === 'ar'
+              ? 'ابدأ بتحديد ميزانياتك الشهرية لمراقبة مصروفاتك بشكل فعال.'
+              : 'Start by setting your monthly budgets to effectively monitor your expenses.'}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -272,9 +335,16 @@ export default function BudgetsPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-bold text-white break-words whitespace-normal">{EXPENSE_CATEGORIES.find(c => c.value === budget.category)?.label || budget.category}</h4>
+                        <h4
+                          className="font-bold break-words whitespace-normal"
+                          style={{ color: 'var(--foreground)' }}
+                        >
+                          {EXPENSE_CATEGORIES.find(c => c.value === budget.category)?.label || budget.category}
+                        </h4>
                       </div>
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">ميزانية شهرية</p>
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                        {lang === 'ar' ? 'ميزانية شهرية' : 'Monthly Budget'}
+                      </p>
                     </div>
                   </div>
                   <button 
@@ -288,7 +358,9 @@ export default function BudgetsPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-end">
                     <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase">المصروف</span>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">
+                        {lang === 'ar' ? 'المصروف' : 'Spent'}
+                      </span>
                       <span className={cn(
                         "text-xl font-black tabular-nums",
                         isOverLimit ? "text-red-500" : isNearLimit ? "text-orange-500" : "text-white"
@@ -297,7 +369,9 @@ export default function BudgetsPage() {
                       </span>
                     </div>
                     <div className="text-right flex flex-col gap-1">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase">الهدف</span>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">
+                        {lang === 'ar' ? 'الهدف' : 'Target'}
+                      </span>
                       <span className="text-sm font-bold text-slate-300">{formatCurrency(budget.amount)}</span>
                     </div>
                   </div>
@@ -313,12 +387,16 @@ export default function BudgetsPage() {
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black text-slate-500">{Math.round(percent)}% تم استهلاكه</span>
+                    <span className="text-[10px] font-black text-slate-500">
+                      {Math.round(percent)}% {lang === 'ar' ? 'تم استهلاكه' : 'consumed'}
+                    </span>
                     <span className={cn(
                       "text-[10px] font-black uppercase px-2 py-0.5 rounded-md",
                       isOverLimit ? "bg-red-500/10 text-red-500" : "bg-white/5 text-slate-400"
                     )}>
-                      {isOverLimit ? 'تجاوزت الحد' : `متبقي: ${formatCurrency(budget.remaining)}`}
+                      {isOverLimit
+                        ? (lang === 'ar' ? 'تجاوزت الحد' : 'Limit Exceeded')
+                        : `${lang === 'ar' ? 'متبقي:' : 'Remaining:'} ${formatCurrency(budget.remaining)}`}
                     </span>
                   </div>
                 </div>
@@ -330,30 +408,40 @@ export default function BudgetsPage() {
 
       {/* Delete Confirmation */}
       <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-8 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none">
+        <DialogContent
+          className="border-white/10 p-8 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none"
+          style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}
+        >
           <div className="text-right">
             <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
               <Trash2 className="w-7 h-7" />
             </div>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-black text-white">حذف الميزانية</DialogTitle>
+              <DialogTitle className="text-2xl font-black" style={{ color: 'var(--foreground)' }}>
+                {lang === 'ar' ? 'حذف الميزانية' : 'Delete Budget'}
+              </DialogTitle>
             </DialogHeader>
             <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
-              هل أنت متأكد من حذف ميزانية <span className="text-white font-bold">"{EXPENSE_CATEGORIES.find(c => c.value === deleteDialog.categoryName)?.label || deleteDialog.categoryName}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
+              {lang === 'ar' ? 'هل أنت متأكد من حذف ميزانية' : 'Are you sure you want to delete the budget for'}{' '}
+              <span className="font-bold" style={{ color: 'var(--foreground)' }}>
+                &quot;{EXPENSE_CATEGORIES.find(c => c.value === deleteDialog.categoryName)?.label || deleteDialog.categoryName}&quot;
+              </span>
+              {lang === 'ar' ? '؟ لا يمكن التراجع عن هذا الإجراء.' : '? This action cannot be undone.'}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
               <Button 
                 className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all" 
                 onClick={handleDelete}
               >
-                حذف نهائي
+                {lang === 'ar' ? 'حذف نهائي' : 'Delete Permanently'}
               </Button>
               <Button 
                 variant="outline" 
-                className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all" 
+                className="flex-1 h-14 font-bold rounded-2xl transition-all"
+                style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
                 onClick={() => setDeleteDialog({ isOpen: false, budgetId: '', categoryName: '' })}
               >
-                إلغاء
+                {lang === 'ar' ? 'إلغاء' : 'Cancel'}
               </Button>
             </div>
           </div>

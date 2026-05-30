@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { authApi } from '@/lib/api';
 import { ShieldCheck, User as UserIcon, Settings, KeyRound, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
-  const { user, login } = useAuth(); // login from auth context is used to update the local user state if needed, or we just rely on reload
+  const { user } = useAuth();
+  const { lang } = useLanguage();
   const [name, setName] = useState(user?.name || '');
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -29,22 +31,15 @@ export default function SettingsPage() {
           let height = img.height;
 
           if (width > height) {
-            if (width > MAX_SIZE) {
-              height *= MAX_SIZE / width;
-              width = MAX_SIZE;
-            }
+            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
           } else {
-            if (height > MAX_SIZE) {
-              width *= MAX_SIZE / height;
-              height = MAX_SIZE;
-            }
+            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
           }
 
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
-          
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
           setAvatar(compressedBase64);
         };
@@ -57,27 +52,19 @@ export default function SettingsPage() {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error('الاسم مطلوب');
+      toast.error(lang === 'ar' ? 'الاسم مطلوب' : 'Name is required');
       return;
     }
-    
     setProfileLoading(true);
     try {
       const updatedUser = await authApi.updateProfile({ name, avatar: avatar.startsWith('RESET:') ? '' : avatar });
-      
-      // Update local storage so the change reflects immediately on reload
       if (typeof window !== 'undefined') {
         localStorage.setItem('ha_user', JSON.stringify(updatedUser));
       }
-
-      toast.success('تم تحديث الملف الشخصي بنجاح');
-      
-      // Short delay to allow the toast to be seen before reload
-      setTimeout(() => {
-        window.location.reload();
-      }, 700);
+      toast.success(lang === 'ar' ? 'تم تحديث الملف الشخصي بنجاح' : 'Profile updated successfully');
+      setTimeout(() => { window.location.reload(); }, 700);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'حدث خطأ أثناء التحديث');
+      toast.error(error instanceof Error ? error.message : (lang === 'ar' ? 'حدث خطأ أثناء التحديث' : 'Error updating profile'));
     } finally {
       setProfileLoading(false);
     }
@@ -86,23 +73,20 @@ export default function SettingsPage() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error('كلمات المرور الجديدة غير متطابقة');
+      toast.error(lang === 'ar' ? 'كلمات المرور الجديدة غير متطابقة' : 'New passwords do not match');
       return;
     }
     if (newPassword.length < 6) {
-      toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      toast.error(lang === 'ar' ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' : 'Password must be at least 6 characters');
       return;
     }
-
     setPasswordLoading(true);
     try {
       await authApi.changePassword(currentPassword, newPassword);
-      toast.success('تم تغيير كلمة المرور بنجاح');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      toast.success(lang === 'ar' ? 'تم تغيير كلمة المرور بنجاح' : 'Password changed successfully');
+      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'كلمة المرور الحالية غير صحيحة');
+      toast.error(error instanceof Error ? error.message : (lang === 'ar' ? 'كلمة المرور الحالية غير صحيحة' : 'Current password is incorrect'));
     } finally {
       setPasswordLoading(false);
     }
@@ -112,124 +96,132 @@ export default function SettingsPage() {
     <div className="flex flex-col gap-[24px] pb-[80px] md:pb-0">
       {/* Header */}
       <div>
-        <h2 className="text-[24px] font-bold text-white flex items-center gap-[8px] mb-[4px]">
+        <h2 className="text-[24px] font-bold flex items-center gap-[8px] mb-[4px]" style={{ color: 'var(--foreground)' }}>
           <Settings className="w-[24px] h-[24px] text-indigo-400" />
-          الإعدادات
+          {lang === 'ar' ? 'الإعدادات' : 'Settings'}
         </h2>
-        <p className="text-slate-400 text-[14px]">تعديل الملف الشخصي وتغيير كلمة المرور</p>
+        <p className="text-[14px]" style={{ color: 'var(--muted-foreground)' }}>
+          {lang === 'ar' ? 'تعديل الملف الشخصي وتغيير كلمة المرور' : 'Edit your profile and change your password'}
+        </p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-[24px]">
         {/* Profile Settings */}
-        <div className="bg-[#1a1a35] border border-[#2d2d5e] rounded-[12px] overflow-hidden">
-          <div className="p-[16px] border-b border-[#2d2d5e] bg-[#242444]/50 flex items-center gap-[8px]">
+        <div className="border rounded-[12px] overflow-hidden" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+          <div className="p-[16px] border-b flex items-center gap-[8px]" style={{ borderColor: 'var(--border)', background: 'var(--secondary)' }}>
             <UserIcon className="w-[20px] h-[20px] text-indigo-400" />
-            <h3 className="font-bold text-white text-[18px]">الملف الشخصي</h3>
+            <h3 className="font-bold text-[18px]" style={{ color: 'var(--foreground)' }}>
+              {lang === 'ar' ? 'الملف الشخصي' : 'Profile'}
+            </h3>
           </div>
           <div className="p-[20px]">
             <form onSubmit={handleUpdateProfile} className="flex flex-col gap-[16px]">
-              
               <div className="flex flex-col items-center gap-[12px] mb-[8px]">
                 <label className="relative group cursor-pointer">
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleImageChange}
-                    className="hidden" 
-                  />
-                  <div className="w-[80px] h-[80px] rounded-full overflow-hidden bg-[#242444] border-2 border-[#2d2d5e] flex items-center justify-center relative">
+                  <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                  <div className="w-[80px] h-[80px] rounded-full overflow-hidden border-2 flex items-center justify-center relative" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
                     {avatar && !avatar.startsWith('RESET:') ? (
                       <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-[28px] font-bold text-indigo-400">{name ? name.charAt(0) : user?.name?.charAt(0)}</span>
                     )}
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="text-white text-[11px] font-semibold">تغيير</span>
+                      <span className="text-white text-[11px] font-semibold">{lang === 'ar' ? 'تغيير' : 'Change'}</span>
                     </div>
                   </div>
                 </label>
-                <p className="text-[12px] text-slate-500">صورة الحساب (اختياري)</p>
+                <p className="text-[12px]" style={{ color: 'var(--muted-foreground)' }}>
+                  {lang === 'ar' ? 'صورة الحساب (اختياري)' : 'Account photo (optional)'}
+                </p>
               </div>
 
               <div className="flex flex-col gap-[8px]">
-                <label className="text-[13px] text-slate-300 font-medium">الاسم</label>
-                <input 
-                  type="text" 
-                  value={name} 
+                <label className="text-[13px] font-medium" style={{ color: 'var(--foreground)' }}>
+                  {lang === 'ar' ? 'الاسم' : 'Full Name'}
+                </label>
+                <input
+                  type="text"
+                  value={name}
                   onChange={e => setName(e.target.value)}
-                  className="bg-[#242444] border border-[#2d2d5e] rounded-[8px] px-[12px] py-[10px] text-white text-[14px] outline-none focus:border-indigo-500 transition-colors text-right" 
+                  className="bills-input"
+                  style={{ textAlign: lang === 'ar' ? 'right' : 'left' }}
                 />
               </div>
               <div className="flex flex-col gap-[8px]">
-                <label className="text-[13px] text-slate-500 font-medium">البريد الإلكتروني (للقراءة فقط)</label>
-                <input 
-                  type="email" 
-                  value={user?.email || ''} 
+                <label className="text-[13px] font-medium" style={{ color: 'var(--muted-foreground)' }}>
+                  {lang === 'ar' ? 'البريد الإلكتروني (للقراءة فقط)' : 'Email (read-only)'}
+                </label>
+                <input
+                  type="email"
+                  value={user?.email || ''}
                   disabled
                   dir="ltr"
-                  className="bg-[#242444]/50 border border-[#2d2d5e]/50 rounded-[8px] px-[12px] py-[10px] text-slate-400 text-[14px] outline-none cursor-not-allowed opacity-70" 
+                  className="bills-input opacity-60 cursor-not-allowed"
                 />
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={profileLoading || !name.trim()}
                 className="mt-[8px] w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white rounded-[8px] py-[12px] text-[15px] font-semibold flex items-center justify-center gap-[8px] transition-colors"
               >
                 <Save className="w-[18px] h-[18px]" />
-                {profileLoading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+                {profileLoading
+                  ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...')
+                  : (lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes')}
               </button>
             </form>
           </div>
         </div>
 
         {/* Security Settings */}
-        <div className="bg-[#1a1a35] border border-[#2d2d5e] rounded-[12px] overflow-hidden">
-          <div className="p-[16px] border-b border-[#2d2d5e] bg-[#242444]/50 flex items-center gap-[8px]">
+        <div className="border rounded-[12px] overflow-hidden" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+          <div className="p-[16px] border-b flex items-center gap-[8px]" style={{ borderColor: 'var(--border)', background: 'var(--secondary)' }}>
             <KeyRound className="w-[20px] h-[20px] text-amber-400" />
-            <h3 className="font-bold text-white text-[18px]">الأمان وكلمة المرور</h3>
+            <h3 className="font-bold text-[18px]" style={{ color: 'var(--foreground)' }}>
+              {lang === 'ar' ? 'الأمان وكلمة المرور' : 'Security & Password'}
+            </h3>
           </div>
           <div className="p-[20px]">
             <form onSubmit={handleChangePassword} className="flex flex-col gap-[16px]">
               <div className="flex flex-col gap-[8px]">
-                <label className="text-[13px] text-slate-300 font-medium">كلمة المرور الحالية</label>
-                <input 
-                  type="password" 
-                  required
-                  value={currentPassword} 
+                <label className="text-[13px] font-medium" style={{ color: 'var(--foreground)' }}>
+                  {lang === 'ar' ? 'كلمة المرور الحالية' : 'Current Password'}
+                </label>
+                <input
+                  type="password" required value={currentPassword}
                   onChange={e => setCurrentPassword(e.target.value)}
-                  dir="ltr"
-                  className="bg-[#242444] border border-[#2d2d5e] rounded-[8px] px-[12px] py-[10px] text-white text-[14px] outline-none focus:border-indigo-500 transition-colors" 
+                  dir="ltr" className="bills-input"
                 />
               </div>
               <div className="flex flex-col gap-[8px]">
-                <label className="text-[13px] text-slate-300 font-medium">كلمة المرور الجديدة</label>
-                <input 
-                  type="password" 
-                  required
-                  value={newPassword} 
+                <label className="text-[13px] font-medium" style={{ color: 'var(--foreground)' }}>
+                  {lang === 'ar' ? 'كلمة المرور الجديدة' : 'New Password'}
+                </label>
+                <input
+                  type="password" required value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
-                  dir="ltr"
-                  className="bg-[#242444] border border-[#2d2d5e] rounded-[8px] px-[12px] py-[10px] text-white text-[14px] outline-none focus:border-indigo-500 transition-colors" 
+                  dir="ltr" className="bills-input"
                 />
               </div>
               <div className="flex flex-col gap-[8px]">
-                <label className="text-[13px] text-slate-300 font-medium">تأكيد كلمة المرور الجديدة</label>
-                <input 
-                  type="password" 
-                  required
-                  value={confirmPassword} 
+                <label className="text-[13px] font-medium" style={{ color: 'var(--foreground)' }}>
+                  {lang === 'ar' ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password'}
+                </label>
+                <input
+                  type="password" required value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
-                  dir="ltr"
-                  className="bg-[#242444] border border-[#2d2d5e] rounded-[8px] px-[12px] py-[10px] text-white text-[14px] outline-none focus:border-indigo-500 transition-colors" 
+                  dir="ltr" className="bills-input"
                 />
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={passwordLoading || !currentPassword || !newPassword || !confirmPassword}
                 className="mt-[8px] w-full bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-white disabled:opacity-50 rounded-[8px] py-[12px] text-[15px] font-semibold flex items-center justify-center gap-[8px] transition-colors"
               >
                 <ShieldCheck className="w-[18px] h-[18px]" />
-                {passwordLoading ? 'جاري التحديث...' : 'تحديث كلمة المرور'}
+                {passwordLoading
+                  ? (lang === 'ar' ? 'جاري التحديث...' : 'Updating...')
+                  : (lang === 'ar' ? 'تحديث كلمة المرور' : 'Update Password')}
               </button>
             </form>
           </div>

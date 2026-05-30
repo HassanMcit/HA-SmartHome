@@ -266,18 +266,18 @@ export default function TransactionsPage() {
                   {lang === 'ar' ? 'تحويل مالي' : 'Transfer'}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar">
+              <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
                 <DialogHeader className="text-right">
-                  <DialogTitle className="text-2xl font-black mb-6">{lang === 'ar' ? 'تحويل مالي بين الحسابات' : 'Transfer Between Accounts'}</DialogTitle>
+                  <DialogTitle className="text-2xl font-black mb-6" style={{ color: 'var(--foreground)' }}>{lang === 'ar' ? 'تحويل مالي بين الحسابات' : 'Transfer Between Accounts'}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleTransferSubmit} className="space-y-6">
                   <div className="space-y-2 text-right">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'من الحساب' : 'From Account'}</label>
                     <Select value={fromAccountId} onValueChange={setFromAccountId}>
-                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
                         <SelectValue placeholder={lang === 'ar' ? 'اختر الحساب المصدر' : 'Select source account'} />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                      <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                         {accounts.map(acc => (
                           <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
                             <div className="flex items-center gap-2">
@@ -295,10 +295,10 @@ export default function TransactionsPage() {
                   <div className="space-y-2 text-right">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'إلى الحساب' : 'To Account'}</label>
                     <Select value={toAccountId} onValueChange={setToAccountId}>
-                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
                         <SelectValue placeholder={lang === 'ar' ? 'اختر الحساب المستهدف' : 'Select target account'} />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                      <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                         {accounts.map(acc => (
                           <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
                             <div className="flex items-center gap-2">
@@ -385,19 +385,19 @@ export default function TransactionsPage() {
                   إضافة معاملة
                 </Button>
               </DialogTrigger>
-            <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
               <DialogHeader className="text-right">
-                <DialogTitle className="text-2xl font-black mb-6">إضافة معاملة جديدة</DialogTitle>
+                <DialogTitle className="text-2xl font-black mb-6" style={{ color: 'var(--foreground)' }}>إضافة معاملة جديدة</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {isAdmin && (
                   <div className="space-y-2 text-right">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
                     <Select value={targetUserId} onValueChange={setTargetUserId}>
-                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
                         <SelectValue placeholder="اختر المستخدم" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                      <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                         {users.map(u => (
                           <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
                             {u.name} {u.id === currentUser?.id ? '(أنت)' : ''}
@@ -448,10 +448,10 @@ export default function TransactionsPage() {
                   <div className="space-y-2 text-right">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
                     <Select value={category} onValueChange={(val) => setCategory(val || '')}>
-                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
                         <SelectValue placeholder="اختر الفئة" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
+                      <SelectContent className="rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                         {cats.map(c => {
                           const Item = SelectItem as any;
                           return (
@@ -471,10 +471,10 @@ export default function TransactionsPage() {
                 <div className="space-y-2 text-right">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الحساب المالي (بنك / كاش)</label>
                   <Select value={accountId} onValueChange={setAccountId}>
-                    <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                    <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
                       <SelectValue placeholder="اختر الحساب المالي (اختياري)" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                    <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                       <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">
                         {lang === 'ar' ? 'بدون ربط (سجل عام)' : 'No account link (General Log)'}
                       </SelectItem>
@@ -540,13 +540,13 @@ export default function TransactionsPage() {
           <div className="w-full sm:w-[300px]">
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 block mr-1">تصفية حسب المستخدم</label>
             <Select value={selectedUserId} onValueChange={(val) => setSelectedUserId(val || '')}>
-              <SelectTrigger className="w-full bg-white/5 border-white/10 text-white rounded-xl h-12 shadow-inner">
+              <SelectTrigger className="w-full bg-white/5 border-white/10 rounded-xl h-12 shadow-inner" style={{ color: 'var(--foreground)' }}>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-indigo-400" />
                   <SelectValue placeholder="الكل" />
                 </div>
               </SelectTrigger>
-                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl">
+                <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
                   <SelectItem value="all" className="font-bold text-indigo-400 focus:bg-white/10 rounded-lg">كل العائلة</SelectItem>
                   {users.map(u => (
                     <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
@@ -653,16 +653,16 @@ export default function TransactionsPage() {
 
       {/* Delete Confirmation */}
       <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-5 sm:p-8 overflow-hidden sm:max-w-[440px] rounded-[24px] sm:rounded-[32px] outline-none">
+        <DialogContent className="p-5 sm:p-8 overflow-hidden sm:max-w-[440px] rounded-[24px] sm:rounded-[32px] outline-none" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
           <div className="text-right">
             <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
               <Trash2 className="w-7 h-7" />
             </div>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-black text-white">حذف المعاملة</DialogTitle>
+              <DialogTitle className="text-2xl font-black" style={{ color: 'var(--foreground)' }}>حذف المعاملة</DialogTitle>
             </DialogHeader>
-            <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
-              هل أنت متأكد من حذف معاملة <span className="text-white font-bold">"{deleteDialog.description}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
+            <p className="text-base font-medium mt-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+              هل أنت متأكد من حذف معاملة <span className="font-bold" style={{ color: 'var(--foreground)' }}>"{deleteDialog.description}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
               <Button 
@@ -673,7 +673,8 @@ export default function TransactionsPage() {
               </Button>
               <Button 
                 variant="outline" 
-                className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all" 
+                className="flex-1 h-14 font-bold rounded-2xl transition-all" 
+                style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
                 onClick={() => setDeleteDialog({ isOpen: false, transactionId: '', description: '' })}
               >
                 إلغاء
@@ -685,19 +686,19 @@ export default function TransactionsPage() {
 
       {/* Edit Transaction Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
           <DialogHeader className="text-right">
-            <DialogTitle className="text-2xl font-black mb-6">تعديل المعاملة</DialogTitle>
+            <DialogTitle className="text-2xl font-black mb-6" style={{ color: 'var(--foreground)' }}>تعديل المعاملة</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-6">
             {isAdmin && (
               <div className="space-y-2 text-right">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
                 <Select value={editTargetUserId} onValueChange={setEditTargetUserId}>
-                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
                     <SelectValue placeholder="اختر المستخدم" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                  <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                     {users.map(u => (
                       <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
                         {u.name} {u.id === currentUser?.id ? '(أنت)' : ''}
@@ -746,10 +747,10 @@ export default function TransactionsPage() {
               <div className="space-y-2 text-right">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
                 <Select value={editCategory} onValueChange={(val) => setEditCategory(val || '')}>
-                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
                     <SelectValue placeholder="اختر الفئة" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" dir="rtl">
+                  <SelectContent className="rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                     {(editType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map(c => {
                       const Item = SelectItem as any;
                       return (
@@ -769,10 +770,10 @@ export default function TransactionsPage() {
             <div className="space-y-2 text-right">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الحساب المالي (بنك / كاش)</label>
               <Select value={editAccountId} onValueChange={setEditAccountId}>
-                <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl">
+                <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
                   <SelectValue placeholder="اختر الحساب المالي (اختياري)" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a35] border-white/10 text-white rounded-xl" dir="rtl">
+                <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                   <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">
                     {lang === 'ar' ? 'بدون ربط (سجل عام)' : 'No account link (General Log)'}
                   </SelectItem>

@@ -781,12 +781,12 @@ export default function DashboardPage() {
 
       {/* --- Onboarding Modal Dialog --- */}
       <Dialog open={showOnboarding} onOpenChange={() => {}}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[500px] max-h-[90vh] overflow-y-auto custom-scrollbar" dir="rtl">
+        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[500px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
           <DialogHeader className="text-right">
-            <DialogTitle className="text-2xl font-black mb-2 flex items-center gap-2">
+            <DialogTitle className="text-2xl font-black mb-2 flex items-center gap-2" style={{ color: 'var(--foreground)' }}>
               {lang === 'ar' ? '💳 تهيئة حساباتك المالية' : '💳 Set Up Financial Accounts'}
             </DialogTitle>
-            <p className="text-xs font-semibold text-slate-400 leading-relaxed">
+            <p className="text-xs font-semibold leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
               {lang === 'ar' 
                 ? 'أهلاً بك في مدبّر! لنقم بإضافة البنوك أو المحافظ الإلكترونية التي تستخدمها ورصيدك الحالي لتسهيل تتبع معاملاتك.' 
                 : 'Welcome to Mudabber! Let\'s add the banks or mobile wallets you use and their balances to easily track transactions.'}
@@ -804,7 +804,8 @@ export default function DashboardPage() {
                 placeholder={lang === 'ar' ? 'أدخل المبلغ النقدي المتوفر معك الآن' : 'Enter the cash amount you have now'}
                 value={onboardCashBalance}
                 onChange={e => setOnboardCashBalance(e.target.value)}
-                className="h-12 bg-[#242444] border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl text-center"
+                className="h-12 text-center rounded-xl focus:border-indigo-500 focus:ring-indigo-500/20"
+                style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
               />
             </div>
 
@@ -838,7 +839,8 @@ export default function DashboardPage() {
                     placeholder={isWalletName(onboardBankName) ? '01xxxxxxxxx' : (lang === 'ar' ? 'مثال: 123456' : 'Example: 123456')}
                     value={onboardAccountNum}
                     onChange={e => setOnboardAccountNum(e.target.value)}
-                    className="h-11 bg-[#242444] border-[#2d2d5e]"
+                    className="h-11"
+                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                   />
                 </div>
                 <div className="space-y-2 text-right">
@@ -850,7 +852,8 @@ export default function DashboardPage() {
                     placeholder="0.00"
                     value={onboardBalance}
                     onChange={e => setOnboardBalance(e.target.value)}
-                    className="h-11 bg-[#242444] border-[#2d2d5e] text-center"
+                    className="h-11 text-center"
+                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                   />
                 </div>
               </div>
@@ -864,7 +867,8 @@ export default function DashboardPage() {
                     placeholder="EG00 0000 0000 0000 0000 0000 0"
                     value={onboardIban}
                     onChange={e => setOnboardIban(e.target.value)}
-                    className="h-11 bg-[#242444] border-[#2d2d5e] text-left uppercase"
+                    className="h-11 text-left uppercase"
+                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                     dir="ltr"
                   />
                 </div>
@@ -938,15 +942,15 @@ export default function DashboardPage() {
 
       {/* --- Add Account Dialog (for existing users) --- */}
       <Dialog open={showAddAccount} onOpenChange={setShowAddAccount}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[460px] max-h-[90vh] overflow-y-auto custom-scrollbar" dir="rtl">
+        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[460px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
           <DialogHeader className="text-right">
-            <DialogTitle className="text-2xl font-black mb-4">
+            <DialogTitle className="text-2xl font-black mb-4" style={{ color: 'var(--foreground)' }}>
               {lang === 'ar' ? 'إضافة حساب مالي جديد' : 'Add New Account'}
             </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleAddAccountSubmit} className="space-y-6">
-            <div className="flex gap-2 p-1.5 bg-black/20 rounded-2xl border border-white/5">
+            <div className="flex gap-2 p-1.5 bg-black/20 rounded-2xl border border-white/5" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
               {(['bank', 'cash', 'wallet'] as const).map(t => (
                 <button
                   key={t}
@@ -988,7 +992,8 @@ export default function DashboardPage() {
                     placeholder={lang === 'ar' ? 'مثال: حساب التوفير، مرتب...' : 'e.g. Savings account...'}
                     value={newAccAlias}
                     onChange={e => setNewAccAlias(e.target.value)}
-                    className="h-11 bg-[#242444] border-[#2d2d5e]"
+                    className="h-11"
+                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                   />
                 </div>
 
@@ -1033,7 +1038,8 @@ export default function DashboardPage() {
                         placeholder="0.00"
                         value={newAccDepositAmount}
                         onChange={e => setNewAccDepositAmount(e.target.value)}
-                        className="h-11 bg-[#242444] border-[#2d2d5e]"
+                        className="h-11"
+                        style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -1045,7 +1051,8 @@ export default function DashboardPage() {
                           placeholder="e.g. 18.5"
                           value={newAccInterestRate}
                           onChange={e => setNewAccInterestRate(e.target.value)}
-                          className="h-11 bg-[#242444] border-[#2d2d5e] text-center"
+                          className="h-11 text-center"
+                          style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                         />
                       </div>
                       <div className="space-y-2 text-right">
@@ -1057,7 +1064,8 @@ export default function DashboardPage() {
                           placeholder="e.g. 25"
                           value={newAccInterestDay}
                           onChange={e => setNewAccInterestDay(e.target.value)}
-                          className="h-11 bg-[#242444] border-[#2d2d5e] text-center"
+                          className="h-11 text-center"
+                          style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                         />
                       </div>
                     </div>
@@ -1071,7 +1079,8 @@ export default function DashboardPage() {
                       placeholder={lang === 'ar' ? 'رقم الحساب' : 'Account number'}
                       value={newAccNo}
                       onChange={e => setNewAccNo(e.target.value)}
-                      className="h-11 bg-[#242444] border-[#2d2d5e]"
+                      className="h-11"
+                      style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                     />
                   </div>
                   <div className="space-y-2 text-right">
@@ -1081,7 +1090,8 @@ export default function DashboardPage() {
                       placeholder="0.00"
                       value={newAccBalance}
                       onChange={e => setNewAccBalance(e.target.value)}
-                      className="h-11 bg-[#242444] border-[#2d2d5e] text-center"
+                      className="h-11 text-center"
+                      style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                     />
                   </div>
                 </div>
@@ -1092,7 +1102,8 @@ export default function DashboardPage() {
                     placeholder="EG00 0000 0000 0000 0000 0000 0"
                     value={newAccIban}
                     onChange={e => setNewAccIban(e.target.value)}
-                    className="h-11 bg-[#242444] border-[#2d2d5e] text-left uppercase"
+                    className="h-11 text-left uppercase"
+                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                     dir="ltr"
                   />
                 </div>
@@ -1116,7 +1127,8 @@ export default function DashboardPage() {
                     placeholder={lang === 'ar' ? 'مثال: محفظتي الأساسية، الكاش...' : 'e.g. My primary wallet...'}
                     value={newAccAlias}
                     onChange={e => setNewAccAlias(e.target.value)}
-                    className="h-11 bg-[#242444] border-[#2d2d5e]"
+                    className="h-11"
+                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                   />
                 </div>
 
@@ -1127,7 +1139,8 @@ export default function DashboardPage() {
                       placeholder="01xxxxxxxxx"
                       value={newAccNo}
                       onChange={e => setNewAccNo(e.target.value)}
-                      className="h-11 bg-[#242444] border-[#2d2d5e]"
+                      className="h-11"
+                      style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                     />
                   </div>
                   <div className="space-y-2 text-right">
@@ -1137,7 +1150,8 @@ export default function DashboardPage() {
                       placeholder="0.00"
                       value={newAccBalance}
                       onChange={e => setNewAccBalance(e.target.value)}
-                      className="h-11 bg-[#242444] border-[#2d2d5e] text-center"
+                      className="h-11 text-center"
+                      style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                     />
                   </div>
                 </div>
@@ -1152,7 +1166,8 @@ export default function DashboardPage() {
                   placeholder="0.00"
                   value={newAccBalance}
                   onChange={e => setNewAccBalance(e.target.value)}
-                  className="h-12 bg-[#242444] border-[#2d2d5e] text-center"
+                  className="h-12 text-center"
+                  style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                 />
               </div>
             )}
@@ -1170,14 +1185,14 @@ export default function DashboardPage() {
 
       {/* --- Detail Log Modal of transactions for selected account --- */}
       <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[550px] max-h-[90vh] overflow-y-auto custom-scrollbar" dir="rtl">
+        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[550px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
           {selectedAccount && (
             <>
               <DialogHeader className="text-right">
                 <div className="flex items-center gap-3 mb-2">
                   <BankLogo name={selectedAccount.name} size="lg" />
                   <div>
-                    <DialogTitle className="text-2xl font-black text-white">{getTranslatedBankName(selectedAccount.name, lang)}</DialogTitle>
+                    <DialogTitle className="text-2xl font-black" style={{ color: 'var(--foreground)' }}>{getTranslatedBankName(selectedAccount.name, lang)}</DialogTitle>
                     <span className="text-xs font-bold text-slate-400">
                       {lang === 'ar' ? 'كشف حركات الحساب المالي والتفاصيل بالوقت' : 'Financial account statement & details with time'}
                     </span>
@@ -1186,16 +1201,16 @@ export default function DashboardPage() {
               </DialogHeader>
 
               {/* Account Quick Stats */}
-              <div className="grid grid-cols-3 gap-3 my-5 p-4 bg-black/20 rounded-2xl border border-white/5">
+              <div className="grid grid-cols-3 gap-3 my-5 p-4 rounded-2xl border" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
                 <div className="text-center">
                   <span className="text-[10px] font-bold text-slate-500 block">{lang === 'ar' ? 'رصيد الحساب' : 'Account Balance'}</span>
-                  <span className="text-sm font-black text-white tabular-nums">{formatCurrency(selectedAccount.balance)}</span>
+                  <span className="text-sm font-black tabular-nums" style={{ color: 'var(--foreground)' }}>{formatCurrency(selectedAccount.balance)}</span>
                 </div>
-                <div className="text-center border-r border-white/5">
+                <div className="text-center border-r animate-fade-in" style={{ borderRightColor: 'var(--border)' }}>
                   <span className="text-[10px] font-bold text-slate-500 block text-emerald-500">{lang === 'ar' ? 'إجمالي الإيداع' : 'Total Deposits'}</span>
                   <span className="text-sm font-black text-emerald-400 tabular-nums">+{formatCurrency(accountStats.income)}</span>
                 </div>
-                <div className="text-center border-r border-white/5">
+                <div className="text-center border-r animate-fade-in" style={{ borderRightColor: 'var(--border)' }}>
                   <span className="text-[10px] font-bold text-slate-500 block text-red-500">{lang === 'ar' ? 'إجمالي السحب' : 'Total Withdrawals'}</span>
                   <span className="text-sm font-black text-red-400 tabular-nums">-{formatCurrency(accountStats.expense)}</span>
                 </div>
@@ -1256,17 +1271,17 @@ export default function DashboardPage() {
 
               {/* Account Numbers (Hidden behind eye toggle for reference inside detail view too) */}
               {(selectedAccount.type === 'bank' || selectedAccount.type === 'wallet') && (selectedAccount.accountNum || selectedAccount.iban) && (
-                <div className="mt-5 pt-4 border-t border-white/5 text-xs text-slate-400 flex flex-col gap-2">
+                <div className="mt-5 pt-4 border-t text-xs text-slate-400 flex flex-col gap-2" style={{ borderTopColor: 'var(--border)' }}>
                   {selectedAccount.accountNum && (
-                    <div className="flex justify-between items-center bg-black/20 p-2.5 rounded-xl border border-white/5">
+                    <div className="flex justify-between items-center p-2.5 rounded-xl border" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
                       <span className="text-[10px] font-bold text-slate-500">
                         {selectedAccount.type === 'wallet' ? (lang === 'ar' ? 'رقم الهاتف للمحفظة:' : 'Wallet Phone Number:') : (lang === 'ar' ? 'رقم الحساب المحلي:' : 'Local Account Number:')}
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-semibold text-[11px] text-slate-300">{selectedAccount.accountNum}</span>
+                        <span className="font-mono font-semibold text-[11px]" style={{ color: 'var(--foreground)' }}>{selectedAccount.accountNum}</span>
                         <button
                           onClick={(e) => handleCopy(selectedAccount.accountNum, selectedAccount.type === 'wallet' ? 'رقم الهاتف' : 'رقم الحساب', e)}
-                          className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                          className="p-1 rounded text-slate-500 hover:text-indigo-400 transition-colors"
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
@@ -1274,13 +1289,13 @@ export default function DashboardPage() {
                     </div>
                   )}
                   {selectedAccount.type === 'bank' && selectedAccount.iban && (
-                    <div className="flex justify-between items-center bg-black/20 p-2.5 rounded-xl border border-white/5">
+                    <div className="flex justify-between items-center p-2.5 rounded-xl border" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
                       <span className="text-[10px] font-bold text-slate-500">{lang === 'ar' ? 'رقم الحساب الدولي (IBAN):' : 'IBAN:'}</span>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-semibold text-[10px] text-slate-300">{selectedAccount.iban}</span>
+                        <span className="font-mono font-semibold text-[10px]" style={{ color: 'var(--foreground)' }}>{selectedAccount.iban}</span>
                         <button
                           onClick={(e) => handleCopy(selectedAccount.iban, 'IBAN', e)}
-                          className="p-1 rounded text-slate-500 hover:text-white transition-colors"
+                          className="p-1 rounded text-slate-500 hover:text-indigo-400 transition-colors"
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
@@ -1296,9 +1311,9 @@ export default function DashboardPage() {
 
       {/* ─── Edit Account Dialog ─── */}
       <Dialog open={editDialog.isOpen} onOpenChange={(open) => setEditDialog(prev => ({ ...prev, isOpen: open }))}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[460px] max-h-[90vh] overflow-y-auto custom-scrollbar" dir="rtl">
+        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[460px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
           <DialogHeader className="text-right">
-            <DialogTitle className="text-2xl font-black mb-4">
+            <DialogTitle className="text-2xl font-black mb-4" style={{ color: 'var(--foreground)' }}>
               {lang === 'ar' ? 'تعديل الحساب المالي ✏️' : 'Edit Financial Account ✏️'}
             </DialogTitle>
           </DialogHeader>
@@ -1317,7 +1332,8 @@ export default function DashboardPage() {
                     placeholder={lang === 'ar' ? 'مثال: حساب التوفير، مرتب...' : 'e.g. Savings account...'}
                     value={editAlias}
                     onChange={e => setEditAlias(e.target.value)}
-                    className="h-11 bg-[#242444] border-[#2d2d5e]"
+                    className="h-11"
+                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                   />
                 </div>
 
@@ -1337,16 +1353,16 @@ export default function DashboardPage() {
                   <div className="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/10 space-y-4 animate-fade-in">
                     <div className="space-y-2 text-right">
                       <Label className="text-xs font-bold text-indigo-300">{lang === 'ar' ? 'مبلغ الوديعة الأساسي (ج.م)' : 'Deposit Principal (EGP)'}</Label>
-                      <Input type="number" placeholder="0.00" value={editDepositAmount} onChange={e => setEditDepositAmount(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                      <Input type="number" placeholder="0.00" value={editDepositAmount} onChange={e => setEditDepositAmount(e.target.value)} className="h-11" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2 text-right">
                         <Label className="text-xs font-bold text-indigo-300">{lang === 'ar' ? 'نسبة الفائدة السنوية (%)' : 'Annual Interest Rate (%)'}</Label>
-                        <Input type="number" step="0.01" placeholder="e.g. 18.5" value={editInterestRate} onChange={e => setEditInterestRate(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e] text-center" />
+                        <Input type="number" step="0.01" placeholder="e.g. 18.5" value={editInterestRate} onChange={e => setEditInterestRate(e.target.value)} className="h-11 text-center" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                       </div>
                       <div className="space-y-2 text-right">
                         <Label className="text-xs font-bold text-indigo-300">{lang === 'ar' ? 'يوم صرف الفائدة شهرياً' : 'Payout Day'}</Label>
-                        <Input type="number" min="1" max="31" placeholder="e.g. 25" value={editInterestDay} onChange={e => setEditInterestDay(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e] text-center" />
+                        <Input type="number" min="1" max="31" placeholder="e.g. 25" value={editInterestDay} onChange={e => setEditInterestDay(e.target.value)} className="h-11 text-center" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                       </div>
                     </div>
                   </div>
@@ -1355,17 +1371,17 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2 text-right">
                     <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رقم الحساب المحلي' : 'Local Account No'}</Label>
-                    <Input placeholder={lang === 'ar' ? 'رقم الحساب' : 'Account number'} value={editAccountNum} onChange={e => setEditAccountNum(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                    <Input placeholder={lang === 'ar' ? 'رقم الحساب' : 'Account number'} value={editAccountNum} onChange={e => setEditAccountNum(e.target.value)} className="h-11" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                   </div>
                   <div className="space-y-2 text-right">
                     <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'الرصيد' : 'Balance'}</Label>
-                    <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e] text-center" />
+                    <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11 text-center" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                   </div>
                 </div>
 
                 <div className="space-y-2 text-right">
                   <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رقم الحساب الدولي (IBAN)' : 'IBAN'}</Label>
-                  <Input placeholder="EG00 0000 0000 0000 0000 0000 0" value={editIban} onChange={e => setEditIban(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e] text-left uppercase" dir="ltr" />
+                  <Input placeholder="EG00 0000 0000 0000 0000 0000 0" value={editIban} onChange={e => setEditIban(e.target.value)} className="h-11 text-left uppercase" dir="ltr" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                 </div>
               </>
             )}
@@ -1378,16 +1394,16 @@ export default function DashboardPage() {
                 </div>
                 <div className="space-y-2 text-right">
                   <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم المحفظة المخصص (اختياري)' : 'Wallet Alias (Optional)'}</Label>
-                  <Input placeholder={lang === 'ar' ? 'مثال: محفظتي الأساسية...' : 'e.g. My primary wallet...'} value={editAlias} onChange={e => setEditAlias(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                  <Input placeholder={lang === 'ar' ? 'مثال: محفظتي الأساسية...' : 'e.g. My primary wallet...'} value={editAlias} onChange={e => setEditAlias(e.target.value)} className="h-11" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2 text-right">
                     <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رقم الهاتف للمحفظة' : 'Wallet Phone No'}</Label>
-                    <Input placeholder="01xxxxxxxxx" value={editAccountNum} onChange={e => setEditAccountNum(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                    <Input placeholder="01xxxxxxxxx" value={editAccountNum} onChange={e => setEditAccountNum(e.target.value)} className="h-11" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                   </div>
                   <div className="space-y-2 text-right">
                     <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'الرصيد' : 'Balance'}</Label>
-                    <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e] text-center" />
+                    <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11 text-center" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                   </div>
                 </div>
               </>
@@ -1397,11 +1413,11 @@ export default function DashboardPage() {
               <>
                 <div className="space-y-2 text-right">
                   <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'اسم الحساب المخصص' : 'Account Alias'}</Label>
-                  <Input placeholder={lang === 'ar' ? 'كاش' : 'Cash'} value={editAlias} onChange={e => setEditAlias(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                  <Input placeholder={lang === 'ar' ? 'كاش' : 'Cash'} value={editAlias} onChange={e => setEditAlias(e.target.value)} className="h-11" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                 </div>
                 <div className="space-y-2 text-right">
                   <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'الرصيد النقدي الحالي' : 'Current Cash Balance'}</Label>
-                  <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11 bg-[#242444] border-[#2d2d5e]" />
+                  <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                 </div>
               </>
             )}
@@ -1420,24 +1436,24 @@ export default function DashboardPage() {
 
       {/* Custom Delete Dialog for Bank/Wallet Account */}
       <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-slate-700 text-white p-8 sm:max-w-[400px] rounded-[32px] outline-none" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+        <DialogContent className="p-8 sm:max-w-[400px] rounded-[32px] outline-none" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
           <div className={cn("text-right", lang === 'en' && "text-left")}>
             <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
               <Trash2 className="w-7 h-7" />
             </div>
             <DialogHeader className={cn("text-right", lang === 'en' && "text-left")}>
-              <DialogTitle className="text-2xl font-black text-white">
+              <DialogTitle className="text-2xl font-black" style={{ color: 'var(--foreground)' }}>
                 {lang === 'ar' ? 'حذف الحساب المالي' : 'Delete Financial Account'}
               </DialogTitle>
             </DialogHeader>
-            <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
+            <p className="text-base font-medium mt-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
               {lang === 'ar' ? (
                 <>
-                  هل أنت متأكد من حذف حساب <span className="text-white font-bold">"{deleteDialog.accountName}"</span>؟ لا يمكن التراجع عن هذا الإجراء وسيتم حذف الحساب بالكامل.
+                  هل أنت متأكد من حذف حساب <span className="font-bold" style={{ color: 'var(--foreground)' }}>"{deleteDialog.accountName}"</span>؟ لا يمكن التراجع عن هذا الإجراء وسيتم حذف الحساب بالكامل.
                 </>
               ) : (
                 <>
-                  Are you sure you want to delete the account <span className="text-white font-bold">"{deleteDialog.accountName}"</span>? This action cannot be undone.
+                  Are you sure you want to delete the account <span className="font-bold" style={{ color: 'var(--foreground)' }}>"{deleteDialog.accountName}"</span>? This action cannot be undone.
                 </>
               )}
             </p>
@@ -1450,7 +1466,8 @@ export default function DashboardPage() {
               </Button>
               <Button 
                 variant="outline" 
-                className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all"
+                className="flex-1 h-14 font-bold rounded-2xl transition-all"
+                style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
                 onClick={() => setDeleteDialog({ isOpen: false, accountId: '', accountName: '' })}
               >
                 {lang === 'ar' ? 'إلغاء' : 'Cancel'}

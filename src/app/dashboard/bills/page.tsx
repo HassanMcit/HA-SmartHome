@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { billsApi, adminApi, accountsApi, Bill, User, Account, formatCurrency, EXPENSE_CATEGORIES, getCategoryInfo } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Plus, Trash2, CheckCircle2, Circle, AlertCircle, Pencil, Users, FileText, Loader2, Tag } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import BankLogo, { getTranslatedBankName } from '@/components/BankLogo';
 
 export default function BillsPage() {
   const { user: currentUser } = useAuth();
+  const { lang } = useLanguage();
   const isAdmin = currentUser?.role === 'admin';
 
   const [bills, setBills] = useState<Bill[]>([]);
@@ -67,7 +69,7 @@ export default function BillsPage() {
       const data = await billsApi.getAll(undefined, userFilter);
       setBills(data || []);
     } catch {
-      toast.error('حدث خطأ في تحميل الفواتير');
+      toast.error(lang === 'ar' ? 'حدث خطأ في تحميل الفواتير' : 'Error loading bills');
     } finally {
       setLoading(false);
     }
@@ -109,14 +111,14 @@ export default function BillsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !amount || !dueDate) { toast.error('جميع الحقول مطلوبة'); return; }
+    if (!name || !amount || !dueDate) { toast.error(lang === 'ar' ? 'جميع الحقول مطلوبة' : 'All fields are required'); return; }
     setSubmitting(true);
     try {
       await billsApi.create({ name, amount: parseFloat(amount), dueDate, isRecurring, category });
-      toast.success('تم إضافة الفاتورة بنجاح');
+      toast.success(lang === 'ar' ? 'تم إضافة الفاتورة بنجاح' : 'Bill added successfully');
       setOpen(false); setName(''); setAmount(''); setDueDate(''); setIsRecurring(false); setCategory('general_bills');
       fetchBills();
-    } catch { toast.error('حدث خطأ'); }
+    } catch { toast.error(lang === 'ar' ? 'حدث خطأ' : 'An error occurred'); }
     finally { setSubmitting(false); }
   };
 
@@ -124,10 +126,10 @@ export default function BillsPage() {
     if (!deleteDialog.billId) return;
     try {
       await billsApi.delete(deleteDialog.billId);
-      toast.success('تم حذف الفاتورة بنجاح');
+      toast.success(lang === 'ar' ? 'تم حذف الفاتورة بنجاح' : 'Bill deleted successfully');
       setDeleteDialog({ isOpen: false, billId: '', billName: '' });
       fetchBills();
-    } catch { toast.error('حدث خطأ أثناء الحذف'); }
+    } catch { toast.error(lang === 'ar' ? 'حدث خطأ أثناء الحذف' : 'Error while deleting'); }
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -136,10 +138,10 @@ export default function BillsPage() {
     setSubmitting(true);
     try {
       await billsApi.update(editDialog.bill.id, { name: editName, amount: parseFloat(editAmount), category: editCategory });
-      toast.success('تم تحديث الفاتورة بنجاح');
+      toast.success(lang === 'ar' ? 'تم تحديث الفاتورة بنجاح' : 'Bill updated successfully');
       setEditDialog({ isOpen: false, bill: null });
       fetchBills();
-    } catch { toast.error('حدث خطأ أثناء التحديث'); }
+    } catch { toast.error(lang === 'ar' ? 'حدث خطأ أثناء التحديث' : 'Error while updating'); }
     finally { setSubmitting(false); }
   };
 
@@ -149,11 +151,11 @@ export default function BillsPage() {
       setTogglingId(id);
       try {
         await billsApi.toggle(id);
-        toast.success('تم إلغاء سداد الفاتورة');
+        toast.success(lang === 'ar' ? 'تم إلغاء سداد الفاتورة' : 'Bill payment cancelled');
         fetchBills();
         fetchAccounts();
       } catch {
-        toast.error('حدث خطأ');
+        toast.error(lang === 'ar' ? 'حدث خطأ' : 'An error occurred');
       } finally {
         setTogglingId(null);
       }
@@ -173,12 +175,12 @@ export default function BillsPage() {
     setTogglingId(payDialog.billId);
     try {
       await billsApi.toggle(payDialog.billId, selectedAccountId === 'none' ? undefined : selectedAccountId);
-      toast.success('تم سداد الفاتورة بنجاح');
+      toast.success(lang === 'ar' ? 'تم سداد الفاتورة بنجاح' : 'Bill paid successfully');
       setPayDialog({ isOpen: false, billId: '', billAmount: 0, billName: '' });
       fetchBills();
       fetchAccounts();
     } catch {
-      toast.error('حدث خطأ أثناء دفع الفاتورة');
+      toast.error(lang === 'ar' ? 'حدث خطأ أثناء دفع الفاتورة' : 'Error while paying bill');
     } finally {
       setTogglingId(null);
     }
@@ -194,8 +196,8 @@ export default function BillsPage() {
   // inputStyle is now handled via globals.css (.bills-input) for proper light/dark mode support
 
   const selectedUserName = selectedUserId === 'all'
-    ? 'كل الأعضاء'
-    : (users.find(u => u.id === selectedUserId)?.name || 'أنا');
+    ? (lang === 'ar' ? 'كل الأعضاء' : 'All Members')
+    : (users.find(u => u.id === selectedUserId)?.name || (lang === 'ar' ? 'أنا' : 'Me'));
 
   return (
     <div className="flex flex-col gap-6 pb-20 animate-fade-in">
@@ -204,38 +206,38 @@ export default function BillsPage() {
         <div>
           <h2 className="text-2xl sm:text-3xl font-black flex items-center gap-3 mb-1" style={{ color: 'var(--foreground)' }}>
             <FileText className="w-8 h-8 text-amber-400" />
-            الفواتير والالتزامات
+            {lang === 'ar' ? 'الفواتير والالتزامات' : 'Bills & Obligations'}
           </h2>
-          <p className="text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>تتبع فواتيرك ولا تفوت أي موعد استحقاق</p>
+          <p className="text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'تتبع فواتيرك ولا تفوت أي موعد استحقاق' : 'Track your bills and never miss a due date'}</p>
         </div>
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl px-6 h-12 shadow-lg shadow-amber-500/20 active:scale-95 transition-all">
               <Plus className="w-5 h-5 ml-2" />
-              إضافة فاتورة
+              {lang === 'ar' ? 'إضافة فاتورة' : 'Add Bill'}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px] border-slate-700 rounded-[24px] outline-none" style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}>
-            <DialogHeader><DialogTitle className="text-right text-xl font-black">إضافة فاتورة جديدة</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle className="text-right text-xl font-black">{lang === 'ar' ? 'إضافة فاتورة جديدة' : 'Add New Bill'}</DialogTitle></DialogHeader>
             <form onSubmit={handleCreate} className="flex flex-col gap-4 mt-2">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>اسم الفاتورة</label>
-                <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="مثال: كهرباء، إنترنت" className="bills-input" style={{ textAlign: 'right' }} />
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'اسم الفاتورة' : 'Bill Name'}</label>
+                <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder={lang === 'ar' ? 'مثال: كهرباء، إنترنت' : 'Example: Electricity, Internet'} className="bills-input" style={{ textAlign: 'right' }} />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>المبلغ (ج.م)</label>
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'المبلغ (ج.م)' : 'Amount (EGP)'}</label>
                 <input type="number" step="0.01" required value={amount} onChange={e => setAmount(e.target.value)} dir="ltr" className="bills-input" />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>تاريخ الاستحقاق</label>
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'تاريخ الاستحقاق' : 'Due Date'}</label>
                 <input type="date" required value={dueDate} onChange={e => setDueDate(e.target.value)} dir="ltr" className="bills-input" />
               </div>
               <div className="flex flex-col gap-1.5 text-right">
-                <label className="text-xs font-bold uppercase tracking-wider mr-1" style={{ color: 'var(--muted-foreground)' }}>الفئة</label>
+                <label className="text-xs font-bold uppercase tracking-wider mr-1" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'الفئة' : 'Category'}</label>
                 <Select value={category} onValueChange={(val) => setCategory(val || 'general_bills')}>
                   <SelectTrigger className="w-full border text-right h-12 rounded-[8px] px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
-                    <SelectValue placeholder="اختر الفئة" />
+                    <SelectValue placeholder={lang === 'ar' ? 'اختر الفئة' : 'Select category'} />
                   </SelectTrigger>
                   <SelectContent className="border rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
                     {EXPENSE_CATEGORIES.map(c => {
@@ -253,12 +255,12 @@ export default function BillsPage() {
                 </Select>
               </div>
               <div className="flex justify-between items-center p-4 rounded-xl border" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
-                <label className="text-sm font-bold cursor-pointer" style={{ color: 'var(--foreground)' }}>فاتورة متكررة شهرياً؟</label>
+                <label className="text-sm font-bold cursor-pointer" style={{ color: 'var(--foreground)' }}>{lang === 'ar' ? 'فاتورة متكررة شهرياً؟' : 'Monthly recurring bill?'}</label>
                 <input type="checkbox" checked={isRecurring} onChange={e => setIsRecurring(e.target.checked)} style={{ width: 18, height: 18, cursor: 'pointer', accentColor: '#f59e0b' }} />
               </div>
               <button type="submit" disabled={submitting || !name || !amount || !dueDate}
                 className={cn("w-full py-3 rounded-xl font-black text-black transition-all", submitting || !name || !amount || !dueDate ? "bg-amber-500/40 cursor-not-allowed" : "bg-amber-500 hover:bg-amber-400 active:scale-95")}>
-                {submitting ? 'جاري الحفظ...' : 'حفظ الفاتورة'}
+                {submitting ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الفاتورة' : 'Save Bill')}
               </button>
             </form>
           </DialogContent>
@@ -268,7 +270,7 @@ export default function BillsPage() {
       {/* Admin User Filter */}
       {isAdmin && (
         <div className="glass-card p-4">
-          <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 block">عرض فواتير</label>
+          <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 block">{lang === 'ar' ? 'عرض فواتير' : 'Show bills for'}</label>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedUserId(currentUser!.id)}
@@ -279,7 +281,7 @@ export default function BillsPage() {
                   : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
               )}
             >
-              فواتيري
+              {lang === 'ar' ? 'فواتيري' : 'My Bills'}
             </button>
             <button
               onClick={() => setSelectedUserId('all')}
@@ -291,7 +293,7 @@ export default function BillsPage() {
               )}
             >
               <Users className="w-4 h-4" />
-              كل الأعضاء
+              {lang === 'ar' ? 'كل الأعضاء' : 'All Members'}
             </button>
             {users.filter(u => u.id !== currentUser?.id).map(u => (
               <button
@@ -315,15 +317,15 @@ export default function BillsPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 className="w-10 h-10 text-amber-400 animate-spin" />
-          <p className="font-bold uppercase tracking-widest text-xs" style={{ color: 'var(--muted-foreground)' }}>جاري التحميل</p>
+          <p className="font-bold uppercase tracking-widest text-xs" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'جاري التحميل' : 'Loading'}</p>
         </div>
       ) : bills.length === 0 ? (
         <div className="glass-card py-20 flex flex-col items-center text-center px-6">
           <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-4">
             <FileText className="w-8 h-8 text-amber-400/50" />
           </div>
-          <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--foreground)' }}>لا توجد فواتير</h3>
-          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{isAdmin && selectedUserId === 'all' ? 'لا توجد فواتير لأي عضو' : 'لا توجد فواتير مسجلة حالياً'}</p>
+          <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--foreground)' }}>{lang === 'ar' ? 'لا توجد فواتير' : 'No bills'}</h3>
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{isAdmin && selectedUserId === 'all' ? (lang === 'ar' ? 'لا توجد فواتير لأي عضو' : 'No bills for any member') : (lang === 'ar' ? 'لا توجد فواتير مسجلة حالياً' : 'No bills registered yet')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -365,15 +367,15 @@ export default function BillsPage() {
                       <span className={cn("font-bold text-sm sm:text-base break-words whitespace-normal", bill.isPaid ? "text-emerald-500 line-through" : "")} style={bill.isPaid ? {} : { color: 'var(--foreground)' }}>
                         {bill.name}
                       </span>
-                      {bill.isRecurring && <span className="text-[9px] font-black uppercase tracking-wider bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20 shrink-0">متكررة</span>}
-                      {bill.isPaid && <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-500 px-2 py-0.5 rounded-md border border-emerald-500/20 shrink-0">مدفوعة</span>}
+                      {bill.isRecurring && <span className="text-[9px] font-black uppercase tracking-wider bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20 shrink-0">{lang === 'ar' ? 'متكررة' : 'Recurring'}</span>}
+                      {bill.isPaid && <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-500 px-2 py-0.5 rounded-md border border-emerald-500/20 shrink-0">{lang === 'ar' ? 'مدفوعة' : 'Paid'}</span>}
                     </div>
                     <div className="flex items-center gap-3 text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
                       {ownerName && <span className="text-purple-500 font-bold">👤 {ownerName}</span>}
                       <span className={cn("flex items-center gap-1", late && "text-red-500 font-bold")}>
                         {late && <AlertCircle className="w-3 h-3" />}
                         {new Date(bill.dueDate).toLocaleDateString('ar-EG-u-nu-latn')}
-                        {late && ' (متأخرة)'}
+                        {late && (lang === 'ar' ? ' (متأخرة)' : ' (Late)')}
                       </span>
                       <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px]" style={{ background: 'var(--secondary)', color: 'var(--muted-foreground)' }}>
                         <span>{getCategoryInfo(bill.category, 'expense').icon}</span>
@@ -403,21 +405,21 @@ export default function BillsPage() {
       {/* Edit Modal */}
       <Dialog open={editDialog.isOpen} onOpenChange={(isOpen) => setEditDialog(prev => ({ ...prev, isOpen }))}>
         <DialogContent className="sm:max-w-[425px] border-slate-700 rounded-[24px] outline-none" style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}>
-          <DialogHeader><DialogTitle className="text-right text-xl font-black">تعديل الفاتورة</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-right text-xl font-black">{lang === 'ar' ? 'تعديل الفاتورة' : 'Edit Bill'}</DialogTitle></DialogHeader>
           <form onSubmit={handleUpdate} className="flex flex-col gap-4 mt-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>اسم الفاتورة</label>
+              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'اسم الفاتورة' : 'Bill Name'}</label>
               <input type="text" required value={editName} onChange={e => setEditName(e.target.value)} className="bills-input" style={{ textAlign: 'right' }} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>المبلغ (ج.م)</label>
+              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'المبلغ (ج.م)' : 'Amount (EGP)'}</label>
               <input type="number" step="0.01" required value={editAmount} onChange={e => setEditAmount(e.target.value)} dir="ltr" className="bills-input" />
             </div>
             <div className="flex flex-col gap-1.5 text-right">
-              <label className="text-xs font-bold uppercase tracking-wider mr-1" style={{ color: 'var(--muted-foreground)' }}>الفئة</label>
+              <label className="text-xs font-bold uppercase tracking-wider mr-1" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'الفئة' : 'Category'}</label>
               <Select value={editCategory} onValueChange={(val) => setEditCategory(val || 'general_bills')}>
                 <SelectTrigger className="w-full border text-right h-12 rounded-[8px] px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
-                  <SelectValue placeholder="اختر الفئة" />
+                  <SelectValue placeholder={lang === 'ar' ? 'اختر الفئة' : 'Select category'} />
                 </SelectTrigger>
                 <SelectContent className="border rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
                   {EXPENSE_CATEGORIES.map(c => {
@@ -436,7 +438,7 @@ export default function BillsPage() {
             </div>
             <button type="submit" disabled={submitting || !editName || !editAmount}
               className={cn("w-full py-3 rounded-xl font-black text-black transition-all", submitting || !editName || !editAmount ? "bg-amber-500/40 cursor-not-allowed" : "bg-amber-500 hover:bg-amber-400 active:scale-95")}>
-              {submitting ? 'جاري التحديث...' : 'حفظ التعديلات'}
+              {submitting ? (lang === 'ar' ? 'جاري التحديث...' : 'Updating...') : (lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes')}
             </button>
           </form>
         </DialogContent>
@@ -450,18 +452,18 @@ export default function BillsPage() {
               <Trash2 className="w-7 h-7" />
             </div>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-black">حذف الفاتورة</DialogTitle>
+              <DialogTitle className="text-2xl font-black">{lang === 'ar' ? 'حذف الفاتورة' : 'Delete Bill'}</DialogTitle>
             </DialogHeader>
             <p className="text-base font-medium mt-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-              هل أنت متأكد من حذف فاتورة <span className="font-bold" style={{ color: 'var(--foreground)' }}>"{deleteDialog.billName}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
+              {lang === 'ar' ? 'هل أنت متأكد من حذف فاتورة' : 'Are you sure you want to delete'} <span className="font-bold" style={{ color: 'var(--foreground)' }}>"{deleteDialog.billName}"</span>{lang === 'ar' ? '؟ لا يمكن التراجع عن هذا الإجراء.' : '? This action cannot be undone.'}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
               <Button className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl active:scale-[0.98] transition-all" onClick={handleDelete}>
-                حذف نهائي
+                {lang === 'ar' ? 'حذف نهائي' : 'Delete Permanently'}
               </Button>
               <Button variant="outline" className="flex-1 h-14 font-bold rounded-2xl transition-all" style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
                 onClick={() => setDeleteDialog({ isOpen: false, billId: '', billName: '' })}>
-                إلغاء
+                {lang === 'ar' ? 'إلغاء' : 'Cancel'}
               </Button>
             </div>
           </div>
@@ -476,30 +478,30 @@ export default function BillsPage() {
               <CheckCircle2 className="w-7 h-7" />
             </div>
             <DialogHeader className="text-right">
-              <DialogTitle className="text-2xl font-black">سداد الفاتورة</DialogTitle>
+              <DialogTitle className="text-2xl font-black">{lang === 'ar' ? 'سداد الفاتورة' : 'Pay Bill'}</DialogTitle>
             </DialogHeader>
             <p className="text-sm font-medium mt-3 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-              أنت على وشك تحديد فاتورة <span className="text-amber-500 font-bold">"{payDialog.billName}"</span> بقيمة <span className="font-bold" style={{ color: 'var(--foreground)' }}>{formatCurrency(payDialog.billAmount)}</span> كمدفوعة.
+              {lang === 'ar' ? 'أنت على وشك تحديد فاتورة' : 'You are about to mark'} <span className="text-amber-500 font-bold">"{payDialog.billName}"</span> {lang === 'ar' ? 'بقيمة' : 'worth'} <span className="font-bold" style={{ color: 'var(--foreground)' }}>{formatCurrency(payDialog.billAmount)}</span> {lang === 'ar' ? 'كمدفوعة.' : 'as paid.'}
               <br />
-              يرجى اختيار الحساب المالي الذي تم السداد منه لخصم القيمة وتسجيل معاملة مصروف:
+              {lang === 'ar' ? 'يرجى اختيار الحساب المالي الذي تم السداد منه لخصم القيمة وتسجيل معاملة مصروف:' : 'Please select the account to deduct from and record an expense:'}
             </p>
 
             <div className="mt-5 space-y-2 text-right">
-              <label className="text-xs font-bold uppercase tracking-widest mr-1" style={{ color: 'var(--muted-foreground)' }}>الحساب المالي</label>
+              <label className="text-xs font-bold uppercase tracking-widest mr-1" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'الحساب المالي' : 'Financial Account'}</label>
               <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
                 <SelectTrigger className="w-full border text-right h-12 rounded-xl px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
-                  <SelectValue placeholder="اختر حساب الخصم" />
+                  <SelectValue placeholder={lang === 'ar' ? 'اختر حساب الخصم' : 'Select deduction account'} />
                 </SelectTrigger>
                 <SelectContent className="border rounded-xl max-h-[300px] custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
                   <SelectItem value="none" className="focus:bg-white/10 rounded-lg" style={{ color: 'var(--muted-foreground)' }}>
-                    بدون ربط (سجل عام بدون خصم)
+                    {lang === 'ar' ? 'بدون ربط (سجل عام بدون خصم)' : 'No link (general record, no deduction)'}
                   </SelectItem>
                   {accounts.map(acc => (
                     <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
                       <div className="flex items-center gap-2">
                         <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
                         <span className="font-bold text-sm">
-                          {getTranslatedBankName(acc.name, 'ar')} {acc.alias ? `(${acc.alias})` : ''} - {formatCurrency(acc.balance)}
+                          {getTranslatedBankName(acc.name, lang)} {acc.alias ? `(${acc.alias})` : ''} - {formatCurrency(acc.balance)}
                         </span>
                       </div>
                     </SelectItem>
@@ -514,7 +516,7 @@ export default function BillsPage() {
                 onClick={confirmPayment}
                 disabled={togglingId !== null}
               >
-                {togglingId ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'تأكيد السداد والخصم'}
+                {togglingId ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (lang === 'ar' ? 'تأكيد السداد والخصم' : 'Confirm Payment & Deduct')}
               </Button>
               <Button 
                 variant="outline" 
@@ -523,7 +525,7 @@ export default function BillsPage() {
                 onClick={() => setPayDialog({ isOpen: false, billId: '', billAmount: 0, billName: '' })}
                 disabled={togglingId !== null}
               >
-                إلغاء
+                {lang === 'ar' ? 'إلغاء' : 'Cancel'}
               </Button>
             </div>
           </div>

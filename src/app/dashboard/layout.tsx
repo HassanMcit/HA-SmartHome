@@ -75,12 +75,16 @@ export default function DashboardLayout({
               className="theme-toggle-btn"
               title={theme === 'dark' ? t('theme_light') : t('theme_dark')}
             >
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-[#7650FF]" />
+              )}
             </button>
             {/* Language toggle */}
             <button
               onClick={toggleLang}
-              className="theme-toggle-btn"
+              className="theme-toggle-btn text-slate-400 hover:text-emerald-400"
               title={t('lang_switch_to_en')}
             >
               <Languages className="w-4 h-4" />

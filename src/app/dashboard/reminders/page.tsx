@@ -2,6 +2,7 @@
 
 import { useState, useEffect, FormEvent } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { remindersApi, Reminder } from '@/lib/api';
 import { Bell, Plus, CheckCircle, Circle, Trash2, Clock, Edit2, Loader2, CalendarHeart, AlertCircle, X, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -9,6 +10,7 @@ import { toast } from 'sonner';
 
 export default function RemindersPage() {
   const { user } = useAuth();
+  const { lang } = useLanguage();
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,7 +28,7 @@ export default function RemindersPage() {
       const data = await remindersApi.getAll();
       setReminders(data);
     } catch (error: any) {
-      toast.error('حدث خطأ في جلب التذكيرات', { description: error.message });
+      toast.error(lang === 'ar' ? 'حدث خطأ في جلب التذكيرات' : 'Error fetching reminders', { description: error.message });
     } finally {
       setLoading(false);
     }
@@ -66,7 +68,7 @@ export default function RemindersPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error('عنوان التذكير مطلوب');
+      toast.error(lang === 'ar' ? 'عنوان التذكير مطلوب' : 'Reminder title is required');
       return;
     }
     setIsSubmitting(true);
@@ -80,15 +82,20 @@ export default function RemindersPage() {
 
       if (editingId) {
         await remindersApi.update(editingId, payload);
-        toast.success('تم تحديث التذكير بنجاح');
+        toast.success(lang === 'ar' ? 'تم تحديث التذكير بنجاح' : 'Reminder updated successfully');
       } else {
         await remindersApi.create(payload);
-        toast.success('تمت إضافة التذكير بنجاح');
+        toast.success(lang === 'ar' ? 'تمت إضافة التذكير بنجاح' : 'Reminder added successfully');
       }
       setIsModalOpen(false);
       fetchReminders();
     } catch (error: any) {
-      toast.error(editingId ? 'حدث خطأ في التحديث' : 'حدث خطأ في الإضافة', { description: error.message });
+      toast.error(
+        editingId
+          ? (lang === 'ar' ? 'حدث خطأ في التحديث' : 'Error updating reminder')
+          : (lang === 'ar' ? 'حدث خطأ في الإضافة' : 'Error adding reminder'),
+        { description: error.message }
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -100,24 +107,24 @@ export default function RemindersPage() {
     try {
       await remindersApi.toggle(id);
       if (!currentStatus) {
-        toast.success('تم إنجاز المهمة! 🎉');
+        toast.success(lang === 'ar' ? 'تم إنجاز المهمة! 🎉' : 'Task completed! 🎉');
       }
       fetchReminders(); // resync
     } catch (error: any) {
       // Revert on error
       setReminders(prev => prev.map(r => r.id === id ? { ...r, isCompleted: currentStatus } : r));
-      toast.error('حدث خطأ', { description: error.message });
+      toast.error(lang === 'ar' ? 'حدث خطأ' : 'An error occurred', { description: error.message });
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا التذكير؟')) return;
+    if (!confirm(lang === 'ar' ? 'هل أنت متأكد من حذف هذا التذكير؟' : 'Are you sure you want to delete this reminder?')) return;
     try {
       await remindersApi.delete(id);
-      toast.success('تم الحذف بنجاح');
+      toast.success(lang === 'ar' ? 'تم الحذف بنجاح' : 'Deleted successfully');
       fetchReminders();
     } catch (error: any) {
-      toast.error('حدث خطأ في الحذف', { description: error.message });
+      toast.error(lang === 'ar' ? 'حدث خطأ في الحذف' : 'Error deleting reminder', { description: error.message });
     }
   };
 
@@ -128,16 +135,18 @@ export default function RemindersPage() {
   };
 
   const priorityLabels = {
-    high: 'عالية',
-    medium: 'متوسطة',
-    low: 'منخفضة',
+    high: lang === 'ar' ? 'عالية' : 'High',
+    medium: lang === 'ar' ? 'متوسطة' : 'Medium',
+    low: lang === 'ar' ? 'منخفضة' : 'Low',
   };
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-        <p className="text-slate-400 font-bold animate-pulse">جاري جلب التذكيرات...</p>
+        <p className="text-slate-400 font-bold animate-pulse">
+          {lang === 'ar' ? 'جاري جلب التذكيرات...' : 'Loading reminders...'}
+        </p>
       </div>
     );
   }
@@ -155,10 +164,16 @@ export default function RemindersPage() {
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-right">
             <h1 className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">
-              ذكّرني <span className="text-indigo-400">والمهام</span>
+              {lang === 'ar' ? (
+                <>ذكّرني <span className="text-indigo-400">والمهام</span></>
+              ) : (
+                <>Reminders <span className="text-indigo-400">& Tasks</span></>
+              )}
             </h1>
             <p className="text-slate-300 font-medium">
-              نظم مهامك واحصل على تذكيرات عبر البريد الإلكتروني في الوقت المناسب.
+              {lang === 'ar'
+                ? 'نظم مهامك واحصل على تذكيرات عبر البريد الإلكتروني في الوقت المناسب.'
+                : 'Organize your tasks and get timely email reminders.'}
             </p>
           </div>
           <button
@@ -166,7 +181,7 @@ export default function RemindersPage() {
             className="w-full md:w-auto px-8 py-4 bg-indigo-500 hover:bg-indigo-600 active:scale-95 transition-all rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-lg shadow-indigo-500/30 group"
           >
             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-            <span>إضافة تذكير جديد</span>
+            <span>{lang === 'ar' ? 'إضافة تذكير جديد' : 'Add New Reminder'}</span>
           </button>
         </div>
       </div>
@@ -178,7 +193,9 @@ export default function RemindersPage() {
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-2 h-8 rounded-full bg-indigo-500"></div>
-            <h2 className="text-xl font-black text-white">المهام الحالية ({pendingReminders.length})</h2>
+            <h2 className="text-xl font-black text-white">
+              {lang === 'ar' ? `المهام الحالية (${pendingReminders.length})` : `Current Tasks (${pendingReminders.length})`}
+            </h2>
           </div>
 
           {pendingReminders.length === 0 ? (
@@ -186,8 +203,14 @@ export default function RemindersPage() {
               <div className="w-24 h-24 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6">
                 <CalendarHeart className="w-12 h-12 text-indigo-400" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">لا توجد مهام حالية</h3>
-              <p className="text-slate-400">أنت على دراية بكل شيء! أضف مهمة جديدة للبدء.</p>
+              <h3 className="text-xl font-bold text-white mb-2">
+                {lang === 'ar' ? 'لا توجد مهام حالية' : 'No current tasks'}
+              </h3>
+              <p className="text-slate-400">
+                {lang === 'ar'
+                  ? 'أنت على دراية بكل شيء! أضف مهمة جديدة للبدء.'
+                  : "You're all caught up! Add a new task to get started."}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -251,14 +274,18 @@ export default function RemindersPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-2 h-8 rounded-full bg-emerald-500"></div>
-            <h2 className="text-xl font-black text-white">المنجزة ({completedReminders.length})</h2>
+            <h2 className="text-xl font-black text-white">
+              {lang === 'ar' ? `المنجزة (${completedReminders.length})` : `Completed (${completedReminders.length})`}
+            </h2>
           </div>
 
           <div className="space-y-3">
             {completedReminders.length === 0 ? (
               <div className="bg-white/5 border border-white/5 rounded-2xl p-8 text-center backdrop-blur-sm">
                 <CheckCircle className="w-10 h-10 text-emerald-500/30 mx-auto mb-3" />
-                <p className="text-slate-500 text-sm font-bold">لم تنجز مهام بعد</p>
+                <p className="text-slate-500 text-sm font-bold">
+                  {lang === 'ar' ? 'لم تنجز مهام بعد' : 'No completed tasks yet'}
+                </p>
               </div>
             ) : (
               completedReminders.map(reminder => (
@@ -293,11 +320,16 @@ export default function RemindersPage() {
             onClick={() => !isSubmitting && setIsModalOpen(false)}
           ></div>
           
-          <div className="relative bg-[#15152a] border border-white/10 rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div
+            className="relative border border-white/10 rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            style={{ background: 'var(--card)' }}
+          >
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-white/5">
               <h2 className="text-lg font-black text-white">
-                {editingId ? 'تعديل التذكير' : 'إضافة تذكير جديد'}
+                {editingId
+                  ? (lang === 'ar' ? 'تعديل التذكير' : 'Edit Reminder')
+                  : (lang === 'ar' ? 'إضافة تذكير جديد' : 'Add New Reminder')}
               </h2>
               <button 
                 onClick={() => setIsModalOpen(false)}
@@ -310,51 +342,64 @@ export default function RemindersPage() {
             {/* Modal Body */}
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-300">عنوان التذكير <span className="text-rose-500">*</span></label>
+                <label className="text-sm font-bold text-slate-300">
+                  {lang === 'ar' ? 'عنوان التذكير' : 'Reminder Title'} <span className="text-rose-500">*</span>
+                </label>
                 <input 
                   type="text"
                   required
                   value={title}
                   onChange={e => setTitle(e.target.value)}
-                  placeholder="مثال: دفع فاتورة الكهرباء"
+                  placeholder={lang === 'ar' ? 'مثال: دفع فاتورة الكهرباء' : 'Example: Pay electricity bill'}
                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  style={{ color: 'var(--foreground)' }}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-300">التفاصيل (اختياري)</label>
+                <label className="text-sm font-bold text-slate-300">
+                  {lang === 'ar' ? 'التفاصيل (اختياري)' : 'Details (optional)'}
+                </label>
                 <textarea 
                   value={description}
                   onChange={e => setDescription(e.target.value)}
-                  placeholder="أضف بعض الملاحظات أو التفاصيل..."
+                  placeholder={lang === 'ar' ? 'أضف بعض الملاحظات أو التفاصيل...' : 'Add some notes or details...'}
                   rows={3}
                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none custom-scrollbar"
+                  style={{ color: 'var(--foreground)' }}
                 ></textarea>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-300">وقت التذكير (اختياري)</label>
+                  <label className="text-sm font-bold text-slate-300">
+                    {lang === 'ar' ? 'وقت التذكير (اختياري)' : 'Reminder Time (optional)'}
+                  </label>
                   <input 
                     type="datetime-local"
                     value={reminderAt}
                     onChange={e => setReminderAt(e.target.value)}
                     className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    style={{ color: 'var(--foreground)' }}
                   />
-                  <p className="text-[10px] text-slate-500 mt-1">سيصلك إيميل في هذا الوقت</p>
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    {lang === 'ar' ? 'سيصلك إيميل في هذا الوقت' : 'You will receive an email at this time'}
+                  </p>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-300">الأولوية</label>
+                  <label className="text-sm font-bold text-slate-300">
+                    {lang === 'ar' ? 'الأولوية' : 'Priority'}
+                  </label>
                   <select 
                     value={priority}
                     onChange={e => setPriority(e.target.value as any)}
                     className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all appearance-none"
-                    style={{ direction: 'rtl' }}
+                    style={{ direction: 'rtl', color: 'var(--foreground)' }}
                   >
-                    <option value="high" className="bg-[#1a1a35]">عالية 🔴</option>
-                    <option value="medium" className="bg-[#1a1a35]">متوسطة 🟡</option>
-                    <option value="low" className="bg-[#1a1a35]">منخفضة 🟢</option>
+                    <option value="high" style={{ background: 'var(--card)', color: 'var(--foreground)' }}>{lang === 'ar' ? 'عالية 🔴' : 'High 🔴'}</option>
+                    <option value="medium" style={{ background: 'var(--card)', color: 'var(--foreground)' }}>{lang === 'ar' ? 'متوسطة 🟡' : 'Medium 🟡'}</option>
+                    <option value="low" style={{ background: 'var(--card)', color: 'var(--foreground)' }}>{lang === 'ar' ? 'منخفضة 🟢' : 'Low 🟢'}</option>
                   </select>
                 </div>
               </div>
@@ -367,14 +412,18 @@ export default function RemindersPage() {
                   className="flex-1 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
-                  <span>{editingId ? 'حفظ التعديلات' : 'إضافة التذكير'}</span>
+                  <span>
+                    {editingId
+                      ? (lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes')
+                      : (lang === 'ar' ? 'إضافة التذكير' : 'Add Reminder')}
+                  </span>
                 </button>
                 <button 
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all"
                 >
-                  إلغاء
+                  {lang === 'ar' ? 'إلغاء' : 'Cancel'}
                 </button>
               </div>
             </form>

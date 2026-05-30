@@ -516,7 +516,7 @@ function AdminPage(): React.ReactNode {
 
       {/* Professional Confirmation Modal */}
       <Dialog open={confirmDialog.isOpen} onOpenChange={(isOpen) => setConfirmDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="bg-[#1a1a35] border-white/10 text-white p-0 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none" showCloseButton={false}>
+        <DialogContent className="p-0 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} showCloseButton={false}>
           <div className="p-8">
             <DialogHeader className="text-right">
               <div className={cn(
@@ -525,15 +525,15 @@ function AdminPage(): React.ReactNode {
               )}>
                 {confirmDialog.actionColor.includes('red') ? <Trash2 className="w-7 h-7" /> : <ShieldCheck className="w-7 h-7" />}
               </div>
-              <DialogTitle className="text-2xl font-black text-white mb-2">
+              <DialogTitle className="text-2xl font-black mb-2" style={{ color: 'var(--foreground)' }}>
                 {confirmDialog.title}
               </DialogTitle>
-              <DialogDescription className="text-slate-400 text-base font-medium leading-relaxed">
+              <DialogDescription className="text-base font-medium leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
                 {confirmDialog.description}
               </DialogDescription>
             </DialogHeader>
           </div>
-          <div className="bg-white/5 border-t border-white/5 p-6 flex flex-col sm:flex-row-reverse gap-3">
+          <div className="bg-white/5 border-t border-white/5 p-6 flex flex-col sm:flex-row-reverse gap-3" style={{ borderTopColor: 'var(--border)' }}>
             <Button 
               className={cn(
                 "flex-1 h-14 font-black rounded-2xl text-white border-0 shadow-lg transition-all active:scale-[0.98]",
@@ -548,7 +548,8 @@ function AdminPage(): React.ReactNode {
             </Button>
             <Button 
               variant="outline" 
-              className="flex-1 h-14 border-white/5 bg-transparent text-slate-300 font-bold rounded-2xl hover:bg-white/5 hover:text-white transition-all" 
+              className="flex-1 h-14 font-bold rounded-2xl transition-all"
+              style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
               onClick={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
             >
               إلغاء
