@@ -323,6 +323,11 @@ export default function BillSplitting() {
     });
     lines.push(`──────────────`);
     lines.push(`💡 احسبها صح مع تطبيق *مدبّر* 🚀`);
+    
+    // Add website link
+    const websiteUrl = typeof window !== 'undefined' ? `${window.location.origin}/split` : 'https://modabber.app/split';
+    lines.push(websiteUrl);
+    
     return encodeURIComponent(lines.join('\n'));
   };
 
@@ -344,6 +349,10 @@ export default function BillSplitting() {
     participants.forEach((p, i) => {
       lines.push(`• ${p.name.trim() || `شخص ${i + 1}`}: ${fmt(p.amount)} ج.م`);
     });
+    
+    const websiteUrl = typeof window !== 'undefined' ? `${window.location.origin}/split` : 'https://modabber.app/split';
+    lines.push(`\n💡 احسبها صح مع تطبيق مدبّر 🚀\n${websiteUrl}`);
+
     navigator.clipboard.writeText(lines.join('\n'))
       .then(() => {
         setCopied(true);
