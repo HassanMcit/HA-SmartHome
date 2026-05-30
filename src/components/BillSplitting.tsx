@@ -374,6 +374,7 @@ export default function BillSplitting() {
     });
     lines.push(`──────────────`);
     lines.push(`💡 احسبها صح مع تطبيق *مدبّر* 🚀`);
+    lines.push(`أدر ميزانيتك ومصاريف منزلك بذكاء ووفر أكتر! 🏠💰`);
     
     // Add website link with state encoded!
     lines.push(buildShareUrl());
@@ -401,7 +402,9 @@ export default function BillSplitting() {
     });
     
     const websiteUrl = buildShareUrl();
-    lines.push(`\n💡 احسبها صح مع تطبيق مدبّر 🚀\n${websiteUrl}`);
+    lines.push(`\n💡 احسبها صح مع تطبيق مدبّر 🚀`);
+    lines.push(`أدر ميزانيتك ومصاريف منزلك بذكاء ووفر أكتر! 🏠💰`);
+    lines.push(websiteUrl);
 
     navigator.clipboard.writeText(lines.join('\n'))
       .then(() => {
