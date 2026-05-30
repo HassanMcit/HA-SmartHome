@@ -11,6 +11,7 @@ const translations = {
   nav_savings: { ar: 'الادخار', en: 'Savings' },
   nav_bills: { ar: 'الفواتير', en: 'Bills' },
   nav_reminders: { ar: 'ذكّرني', en: 'Reminders' },
+  nav_split: { ar: 'شيل معايا', en: 'Split Bill' },
   nav_ai: { ar: 'تحليل ذكي', en: 'AI Analysis' },
   nav_admin: { ar: 'لوحة التحكم', en: 'Admin Panel' },
   nav_settings: { ar: 'الإعدادات', en: 'Settings' },

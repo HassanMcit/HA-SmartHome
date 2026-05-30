@@ -20,6 +20,7 @@ import {
   Sun,
   Moon,
   Languages,
+  Receipt,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -37,6 +38,7 @@ export default function Sidebar() {
     { href: '/dashboard/savings', icon: PiggyBank, labelKey: 'nav_savings' as const },
     { href: '/dashboard/bills', icon: FileText, labelKey: 'nav_bills' as const },
     { href: '/dashboard/reminders', icon: Bell, labelKey: 'nav_reminders' as const },
+    { href: '/dashboard/split', icon: Receipt, labelKey: 'nav_split' as const },
     { href: '/dashboard/ai', icon: Sparkles, labelKey: 'nav_ai' as const },
   ];
 

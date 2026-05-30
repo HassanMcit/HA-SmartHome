@@ -23,6 +23,7 @@ import {
   Sun,
   Moon,
   Languages,
+  Receipt,
 } from 'lucide-react';
 import {
   Sheet,
@@ -59,6 +60,7 @@ export default function MobileNav() {
     { href: '/dashboard/savings', icon: PiggyBank, labelKey: 'nav_savings' as const },
     { href: '/dashboard/bills', icon: FileText, labelKey: 'nav_bills' as const },
     { href: '/dashboard/reminders', icon: Bell, labelKey: 'nav_reminders' as const },
+    { href: '/dashboard/split', icon: Receipt, labelKey: 'nav_split' as const },
     { href: '/dashboard/settings', icon: SettingsIcon, labelKey: 'nav_settings' as const },
   ];
 

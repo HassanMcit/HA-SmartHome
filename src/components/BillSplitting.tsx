@@ -74,42 +74,40 @@ function SummaryBar({
   if (total <= 0) return null;
   return (
     <div
-      className="
-        flex items-center justify-between gap-3 px-4 py-3 mb-4
-        rounded-2xl
-        bg-gradient-to-l from-emerald-500/10 to-emerald-500/5
-        border border-emerald-500/20
-        transition-all duration-500
-      "
+      className="flex items-center justify-between gap-3 px-4 py-3 mb-4 rounded-2xl border transition-all duration-500"
+      style={{
+        background: 'rgba(16,185,129,0.06)',
+        borderColor: 'rgba(16,185,129,0.2)',
+      }}
     >
       <div className="flex flex-col items-start">
-        <span className="text-[10px] font-semibold text-emerald-400/80 uppercase tracking-widest">
+        <span className="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest">
           الإجمالي
         </span>
-        <span className="text-lg font-extrabold text-emerald-400 leading-tight tabular-nums">
+        <span className="text-lg font-extrabold text-emerald-500 leading-tight tabular-nums">
           {fmt(total)}
           <span className="text-xs font-bold mr-1 opacity-70">ج.م</span>
         </span>
       </div>
 
-      <div className="w-px h-8 bg-emerald-500/20 self-center" />
+      <div className="w-px h-8 self-center" style={{ background: 'var(--border)' }} />
 
       <div className="flex flex-col items-center">
-        <span className="text-[10px] font-semibold text-emerald-400/80 uppercase tracking-widest">
-          عدد الأشخاص
+        <span className="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest">
+          الأشخاص
         </span>
-        <span className="text-lg font-extrabold text-emerald-400 leading-tight tabular-nums">
+        <span className="text-lg font-extrabold text-emerald-500 leading-tight tabular-nums">
           {count}
         </span>
       </div>
 
-      <div className="w-px h-8 bg-emerald-500/20 self-center" />
+      <div className="w-px h-8 self-center" style={{ background: 'var(--border)' }} />
 
       <div className="flex flex-col items-end">
-        <span className="text-[10px] font-semibold text-emerald-400/80 uppercase tracking-widest">
+        <span className="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest">
           نصيب الفرد
         </span>
-        <span className="text-lg font-extrabold text-emerald-400 leading-tight tabular-nums">
+        <span className="text-lg font-extrabold text-emerald-500 leading-tight tabular-nums">
           {fmt(perPerson)}
           <span className="text-xs font-bold mr-1 opacity-70">ج.م</span>
         </span>
@@ -141,22 +139,15 @@ function ParticipantRow({
 
   return (
     <div
-      className={`
-        group flex items-center gap-2 px-3 py-2.5 rounded-2xl border
-        transition-all duration-300 ease-out
-        ${participant.isManual
-          ? 'border-violet-500/40 bg-violet-500/5 shadow-[0_0_0_1px_rgba(139,92,246,0.15)]'
-          : 'border-transparent bg-white/[0.04] hover:bg-white/[0.07]'
-        }
-      `}
+      className="group flex items-center gap-2 px-3 py-2.5 rounded-2xl border transition-all duration-300 ease-out"
+      style={{
+        borderColor: participant.isManual ? 'rgba(139,92,246,0.4)' : 'var(--border)',
+        background: participant.isManual ? 'rgba(139,92,246,0.05)' : 'var(--secondary)',
+      }}
     >
       {/* Avatar */}
       <div
-        className={`
-          w-8 h-8 rounded-xl flex items-center justify-center
-          text-white text-xs font-extrabold shrink-0 select-none
-          ${participant.color}
-        `}
+        className={`w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-extrabold shrink-0 select-none ${participant.color}`}
       >
         {initials(participant.name, fallback)}
       </div>
@@ -169,12 +160,12 @@ function ParticipantRow({
         placeholder={fallback}
         value={participant.name}
         onChange={(e) => onNameChange(participant.id, e.target.value)}
-        className="
-          flex-1 min-w-0 h-9 px-3 rounded-xl border text-sm font-semibold
-          bg-white/5 border-white/10 text-white placeholder:text-white/30
-          focus:outline-none focus:border-emerald-500/50 focus:bg-white/8
-          transition-all duration-200
-        "
+        className="flex-1 min-w-0 h-9 px-3 rounded-xl border text-sm font-semibold focus:outline-none transition-all duration-200"
+        style={{
+          background: 'var(--background)',
+          borderColor: 'var(--border)',
+          color: 'var(--foreground)',
+        }}
       />
 
       {/* Amount + Lock */}
@@ -186,28 +177,22 @@ function ParticipantRow({
           placeholder="0.00"
           value={participant.amount > 0 ? participant.amount : ''}
           onChange={(e) => onAmountChange(participant.id, e.target.value)}
-          className={`
-            w-full h-9 pl-7 pr-2 rounded-xl border text-xs font-extrabold
-            focus:outline-none transition-all duration-200 tabular-nums text-left
-            ${participant.isManual
-              ? 'bg-violet-500/10 border-violet-500/40 text-violet-300 focus:border-violet-400'
-              : 'bg-white/5 border-white/10 text-white/80 focus:border-emerald-500/50'
-            }
-          `}
+          className="w-full h-9 pl-7 pr-2 rounded-xl border text-xs font-extrabold focus:outline-none transition-all duration-200 tabular-nums text-left"
+          style={{
+            background: participant.isManual ? 'rgba(139,92,246,0.08)' : 'var(--background)',
+            borderColor: participant.isManual ? 'rgba(139,92,246,0.4)' : 'var(--border)',
+            color: participant.isManual ? '#a78bfa' : 'var(--foreground)',
+          }}
         />
         <button
           onClick={() => onToggleLock(participant.id)}
           aria-label={participant.isManual ? 'فك القفل' : 'قفل المبلغ'}
-          className="
-            absolute left-2 top-1/2 -translate-y-1/2
-            transition-all duration-200
-            hover:scale-110 active:scale-95
-          "
+          className="absolute left-2 top-1/2 -translate-y-1/2 transition-all duration-200 hover:scale-110 active:scale-95"
         >
           {participant.isManual ? (
             <Lock className="w-3.5 h-3.5 text-violet-400" />
           ) : (
-            <Unlock className="w-3.5 h-3.5 text-white/30 group-hover:text-white/60" />
+            <Unlock className="w-3.5 h-3.5" style={{ color: 'var(--muted-foreground)' }} />
           )}
         </button>
       </div>
@@ -217,14 +202,11 @@ function ParticipantRow({
         onClick={() => onRemove(participant.id)}
         disabled={!canRemove}
         aria-label="إزالة المشارك"
-        className="
-          w-9 h-9 rounded-xl flex items-center justify-center shrink-0
-          border border-white/10 text-white/30
-          hover:bg-red-500/15 hover:border-red-500/40 hover:text-red-400
-          disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-transparent
-          disabled:hover:border-white/10 disabled:hover:text-white/30
-          transition-all duration-200 active:scale-95
-        "
+        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400 disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
+        style={{
+          borderColor: 'var(--border)',
+          color: 'var(--muted-foreground)',
+        }}
       >
         <Trash2 className="w-3.5 h-3.5" />
       </button>
@@ -250,15 +232,12 @@ export default function BillSplitting() {
 
   const recalculate = (list: Participant[], total: number): Participant[] => {
     if (total <= 0) return list.map((p) => ({ ...p, amount: 0 }));
-
     const locked = list.filter((p) => p.isManual);
     const free = list.filter((p) => !p.isManual);
     const lockedSum = locked.reduce((s, p) => s + p.amount, 0);
     const remaining = total - lockedSum;
-
     if (free.length === 0) return list;
     const share = remaining <= 0 ? 0 : Math.round((remaining / free.length) * 100) / 100;
-
     return list.map((p) => (p.isManual ? p : { ...p, amount: share }));
   };
 
@@ -286,8 +265,6 @@ export default function BillSplitting() {
     };
     const updated = recalculate([...participants, newP], totalAmount);
     setParticipants(updated);
-
-    // Scroll the list to bottom after add
     setTimeout(() => {
       listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
     }, 50);
@@ -298,10 +275,7 @@ export default function BillSplitting() {
       toast.error('يجب أن يبقى مشارك واحد على الأقل.');
       return;
     }
-    const updated = recalculate(
-      participants.filter((p) => p.id !== id),
-      totalAmount
-    );
+    const updated = recalculate(participants.filter((p) => p.id !== id), totalAmount);
     setParticipants(updated);
   };
 
@@ -355,14 +329,8 @@ export default function BillSplitting() {
   };
 
   const handleShareWhatsApp = () => {
-    if (totalAmount <= 0) {
-      toast.error('حدد المبلغ الإجمالي أولاً.');
-      return;
-    }
-    if (isOverallocated) {
-      toast.error('المبالغ اليدوية تتجاوز الإجمالي — راجع التقسيم.');
-      return;
-    }
+    if (totalAmount <= 0) { toast.error('حدد المبلغ الإجمالي أولاً.'); return; }
+    if (isOverallocated) { toast.error('المبالغ اليدوية تتجاوز الإجمالي — راجع التقسيم.'); return; }
     setIsSharing(true);
     setTimeout(() => {
       window.open(`https://api.whatsapp.com/send?text=${buildShareText()}`, '_blank');
@@ -372,18 +340,13 @@ export default function BillSplitting() {
   };
 
   const handleCopy = () => {
-    if (totalAmount <= 0) {
-      toast.error('حدد المبلغ الإجمالي أولاً.');
-      return;
-    }
+    if (totalAmount <= 0) { toast.error('حدد المبلغ الإجمالي أولاً.'); return; }
     const title = billTitle.trim() || 'حسبة مشتركة';
     const lines = [`📋 ${title}\nالإجمالي: ${fmt(totalAmount)} ج.م\n`];
     participants.forEach((p, i) => {
       lines.push(`• ${p.name.trim() || `شخص ${i + 1}`}: ${fmt(p.amount)} ج.م`);
     });
-
-    navigator.clipboard
-      .writeText(lines.join('\n'))
+    navigator.clipboard.writeText(lines.join('\n'))
       .then(() => {
         setCopied(true);
         toast.success('تم نسخ الحسبة! 📋');
@@ -402,36 +365,26 @@ export default function BillSplitting() {
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div
-      dir="rtl"
-      className="w-full max-w-md mx-auto px-3 py-6 font-sans"
-      style={{ fontFamily: "'Cairo', 'IBM Plex Sans Arabic', system-ui, sans-serif" }}
-    >
+    <div dir="rtl" className="w-full max-w-md mx-auto px-3 py-6">
+
       {/* ── Outer Card ── */}
       <div
-        className="
-          relative rounded-[28px] overflow-hidden
-          border border-white/[0.08]
-          shadow-2xl shadow-black/40
-          bg-[#0f1117]
-        "
+        className="relative rounded-[28px] overflow-hidden border shadow-xl transition-all duration-300"
+        style={{
+          background: 'var(--card)',
+          borderColor: 'var(--border)',
+        }}
       >
-        {/* ── Gradient Orbs (decorative) ── */}
+        {/* ── Decorative Orbs ── */}
         <div
           aria-hidden="true"
-          className="
-            pointer-events-none absolute -top-24 -right-24
-            w-64 h-64 rounded-full
-            bg-emerald-500/15 blur-3xl
-          "
+          className="pointer-events-none absolute -top-20 -right-20 w-56 h-56 rounded-full blur-3xl opacity-30"
+          style={{ background: 'rgba(16,185,129,0.25)' }}
         />
         <div
           aria-hidden="true"
-          className="
-            pointer-events-none absolute -bottom-16 -left-16
-            w-48 h-48 rounded-full
-            bg-violet-500/10 blur-3xl
-          "
+          className="pointer-events-none absolute -bottom-16 -left-16 w-48 h-48 rounded-full blur-3xl opacity-20"
+          style={{ background: 'rgba(139,92,246,0.3)' }}
         />
 
         {/* ── Inner Padding ── */}
@@ -440,29 +393,33 @@ export default function BillSplitting() {
           {/* ─── Header ─────────────────────────────────────────────────────── */}
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="
-                w-11 h-11 rounded-2xl shrink-0 flex items-center justify-center
-                bg-emerald-500/15 border border-emerald-500/20
-                shadow-[0_0_16px_rgba(16,185,129,0.15)]
-              "
+              className="w-11 h-11 rounded-2xl shrink-0 flex items-center justify-center border"
+              style={{
+                background: 'rgba(16,185,129,0.1)',
+                borderColor: 'rgba(16,185,129,0.2)',
+              }}
             >
-              <Receipt className="w-5 h-5 text-emerald-400" />
+              <Receipt className="w-5 h-5 text-emerald-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-base font-extrabold text-white leading-tight truncate">
+              <h2
+                className="text-base font-extrabold leading-tight truncate"
+                style={{ color: 'var(--foreground)' }}
+              >
                 قسّم الفاتورة
-                <span className="mr-1.5 text-emerald-400">شيل معايا</span>
+                <span className="mr-1.5 text-emerald-500">شيل معايا</span>
               </h2>
-              <p className="text-[11px] text-white/40 leading-snug mt-0.5 truncate">
+              <p className="text-[11px] leading-snug mt-0.5 truncate" style={{ color: 'var(--muted-foreground)' }}>
                 احسبها صح وابعت اللينك لصحابك على الواتساب
               </p>
             </div>
             <div
-              className="
-                px-2.5 py-1 rounded-full text-[10px] font-bold
-                bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
-                whitespace-nowrap
-              "
+              className="px-2.5 py-1 rounded-full text-[10px] font-bold border whitespace-nowrap"
+              style={{
+                background: 'rgba(16,185,129,0.1)',
+                borderColor: 'rgba(16,185,129,0.2)',
+                color: '#10b981',
+              }}
             >
               {participants.length} أشخاص
             </div>
@@ -470,7 +427,7 @@ export default function BillSplitting() {
 
           {/* ─── Bill Title ──────────────────────────────────────────────────── */}
           <div className="mb-3">
-            <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">
+            <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--muted-foreground)' }}>
               اسم الفاتورة
             </label>
             <div className="relative">
@@ -480,24 +437,24 @@ export default function BillSplitting() {
                 placeholder="مثال: خروجة القهوة، إيجار الشقة..."
                 value={billTitle}
                 onChange={(e) => setBillTitle(e.target.value)}
-                className="
-                  w-full h-12 pr-4 pl-10 rounded-2xl
-                  bg-white/[0.05] border border-white/[0.09]
-                  text-white text-sm font-semibold placeholder:text-white/25
-                  focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.07]
-                  transition-all duration-200
-                "
+                className="w-full h-12 pr-4 pl-10 rounded-2xl border text-sm font-semibold focus:outline-none transition-all duration-200"
+                style={{
+                  background: 'var(--secondary)',
+                  borderColor: 'var(--border)',
+                  color: 'var(--foreground)',
+                }}
               />
               <FileText
                 aria-hidden="true"
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                style={{ color: 'var(--muted-foreground)' }}
               />
             </div>
           </div>
 
           {/* ─── Total Amount ─────────────────────────────────────────────────── */}
           <div className="mb-5">
-            <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">
+            <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--muted-foreground)' }}>
               المبلغ الإجمالي
             </label>
             <div className="relative">
@@ -507,22 +464,20 @@ export default function BillSplitting() {
                 placeholder="0.00"
                 value={totalAmount > 0 ? totalAmount : ''}
                 onChange={(e) => handleTotalChange(e.target.value)}
-                className="
-                  w-full h-16 pl-20 pr-4 rounded-2xl
-                  bg-white/[0.05] border border-white/[0.09]
-                  text-white text-3xl font-extrabold placeholder:text-white/20 placeholder:text-xl
-                  focus:outline-none focus:border-emerald-500/60 focus:bg-white/[0.07]
-                  focus:shadow-[0_0_0_3px_rgba(16,185,129,0.1)]
-                  transition-all duration-200 tabular-nums text-right
-                "
+                className="w-full h-16 pl-20 pr-4 rounded-2xl border text-3xl font-extrabold focus:outline-none transition-all duration-200 tabular-nums text-right"
+                style={{
+                  background: 'var(--secondary)',
+                  borderColor: 'var(--border)',
+                  color: 'var(--foreground)',
+                }}
               />
               <div
-                className="
-                  absolute left-3 top-1/2 -translate-y-1/2
-                  px-2.5 py-1 rounded-xl
-                  bg-white/[0.08] border border-white/[0.12]
-                  text-white/70 text-xs font-black tracking-tight whitespace-nowrap
-                "
+                className="absolute left-3 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-xl border text-xs font-black tracking-tight whitespace-nowrap"
+                style={{
+                  background: 'var(--card)',
+                  borderColor: 'var(--border)',
+                  color: 'var(--foreground)',
+                }}
               >
                 ج.م
               </div>
@@ -530,25 +485,20 @@ export default function BillSplitting() {
           </div>
 
           {/* ─── Summary Bar ──────────────────────────────────────────────────── */}
-          <SummaryBar
-            total={totalAmount}
-            count={participants.length}
-            perPerson={perPerson}
-          />
+          <SummaryBar total={totalAmount} count={participants.length} perPerson={perPerson} />
 
           {/* ─── Participants Section ─────────────────────────────────────────── */}
           <div className="mb-4">
+
             {/* Section header */}
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-white/70">المشاركون</span>
+              <span className="text-xs font-bold" style={{ color: 'var(--foreground)' }}>
+                👥 المشاركون
+              </span>
               {hasManual && (
                 <button
                   onClick={handleResetSplits}
-                  className="
-                    flex items-center gap-1.5 text-[11px] font-bold
-                    text-violet-400 hover:text-violet-300
-                    transition-colors duration-150
-                  "
+                  className="flex items-center gap-1.5 text-[11px] font-bold text-violet-500 hover:text-violet-400 transition-colors duration-150"
                 >
                   <RefreshCw className="w-3 h-3" />
                   إعادة تقسيم بالتساوي
@@ -558,13 +508,7 @@ export default function BillSplitting() {
 
             {/* Over-allocation warning */}
             {isOverallocated && (
-              <div
-                className="
-                  flex items-start gap-2.5 p-3 mb-3 rounded-xl
-                  bg-red-500/10 border border-red-500/25
-                  text-red-400 text-xs font-semibold leading-relaxed
-                "
-              >
+              <div className="flex items-start gap-2.5 p-3 mb-3 rounded-xl border bg-red-500/10 border-red-500/25 text-red-500 text-xs font-semibold leading-relaxed">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>المبالغ اليدوية ({fmt(lockedSum)} ج.م) تتجاوز الإجمالي!</span>
               </div>
@@ -573,7 +517,7 @@ export default function BillSplitting() {
             {/* Participant rows */}
             <div
               ref={listRef}
-              className="space-y-2 max-h-[260px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent pl-0.5"
+              className="space-y-2 max-h-[260px] overflow-y-auto pl-0.5"
             >
               {participants.map((p, idx) => (
                 <ParticipantRow
@@ -592,15 +536,11 @@ export default function BillSplitting() {
             {/* Add Person Button */}
             <button
               onClick={handleAddParticipant}
-              className="
-                w-full mt-2.5 h-11 rounded-2xl
-                border border-dashed border-white/15
-                flex items-center justify-center gap-2
-                text-sm font-bold text-white/50
-                hover:border-emerald-500/40 hover:text-emerald-400 hover:bg-emerald-500/5
-                active:scale-[0.98]
-                transition-all duration-200
-              "
+              className="w-full mt-2.5 h-11 rounded-2xl border border-dashed flex items-center justify-center gap-2 text-sm font-bold hover:border-emerald-500/40 hover:text-emerald-500 active:scale-[0.98] transition-all duration-200"
+              style={{
+                borderColor: 'var(--border)',
+                color: 'var(--muted-foreground)',
+              }}
             >
               <UserPlus className="w-4 h-4" />
               + أضف شخص
@@ -608,103 +548,78 @@ export default function BillSplitting() {
           </div>
 
           {/* ─── Divider ──────────────────────────────────────────────────────── */}
-          <div className="h-px bg-white/[0.06] my-4" />
+          <div className="h-px my-4" style={{ background: 'var(--border)' }} />
 
           {/* ─── CTA Buttons ──────────────────────────────────────────────────── */}
           <div className="space-y-3">
 
-            {/* WhatsApp Share — Primary CTA */}
+            {/* WhatsApp Share */}
             <button
               id="btn-share-whatsapp"
               onClick={handleShareWhatsApp}
               disabled={totalAmount <= 0 || isOverallocated || isSharing}
               className={`
-                relative w-full h-14 rounded-2xl
-                flex items-center justify-center gap-2.5
-                text-sm font-extrabold text-white
-                overflow-hidden
-                transition-all duration-300
+                relative w-full h-14 rounded-2xl flex items-center justify-center gap-2.5
+                text-sm font-extrabold text-white overflow-hidden transition-all duration-300
                 ${totalAmount <= 0 || isOverallocated
-                  ? 'bg-white/10 opacity-40 cursor-not-allowed'
-                  : `
-                    bg-[#25D366] hover:bg-[#1fb855]
-                    shadow-[0_4px_24px_rgba(37,211,102,0.30)]
-                    hover:shadow-[0_4px_32px_rgba(37,211,102,0.45)]
-                    active:scale-[0.98]
-                    cursor-pointer
-                  `
+                  ? 'opacity-40 cursor-not-allowed'
+                  : 'hover:brightness-110 active:scale-[0.98] cursor-pointer shadow-lg'
                 }
               `}
+              style={{
+                background: totalAmount <= 0 || isOverallocated
+                  ? 'var(--muted)'
+                  : 'linear-gradient(135deg, #25D366, #1fb855)',
+                boxShadow: totalAmount > 0 && !isOverallocated
+                  ? '0 4px 20px rgba(37,211,102,0.3)'
+                  : 'none',
+              }}
             >
-              {/* Shimmer layer */}
+              {/* Shimmer */}
               {!isSharing && totalAmount > 0 && !isOverallocated && (
                 <span
                   aria-hidden="true"
-                  className="
-                    absolute inset-0
-                    bg-gradient-to-l from-white/0 via-white/10 to-white/0
-                    translate-x-[-100%]
-                    animate-[shimmer_2.5s_infinite]
-                    pointer-events-none
-                  "
+                  className="absolute inset-0 bg-gradient-to-l from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2.5s_infinite] pointer-events-none"
                 />
               )}
-              {isSharing ? (
-                <RefreshCw className="w-5 h-5 animate-spin" />
-              ) : (
-                WHATSAPP_SVG
-              )}
+              {isSharing ? <RefreshCw className="w-5 h-5 animate-spin" /> : WHATSAPP_SVG}
               <span>{isSharing ? 'جاري الإرسال...' : 'شارك الحسبة على واتساب'}</span>
-              {!isSharing && totalAmount > 0 && (
-                <Sparkles className="w-4 h-4 text-white/60" />
-              )}
+              {!isSharing && totalAmount > 0 && <Sparkles className="w-4 h-4 text-white/60" />}
             </button>
 
-            {/* Copy Text — Secondary CTA */}
+            {/* Copy Text */}
             <button
               id="btn-copy-summary"
               onClick={handleCopy}
               disabled={totalAmount <= 0}
-              className="
-                w-full h-12 rounded-2xl
-                flex items-center justify-center gap-2
-                text-sm font-bold
-                bg-white/[0.05] border border-white/[0.1]
-                text-white/70 hover:text-white hover:bg-white/[0.09] hover:border-white/20
-                disabled:opacity-30 disabled:cursor-not-allowed
-                active:scale-[0.98]
-                transition-all duration-200
-              "
+              className="w-full h-12 rounded-2xl flex items-center justify-center gap-2 text-sm font-bold border hover:brightness-105 disabled:opacity-30 disabled:cursor-not-allowed active:scale-[0.98] transition-all duration-200"
+              style={{
+                background: 'var(--secondary)',
+                borderColor: 'var(--border)',
+                color: 'var(--foreground)',
+              }}
             >
-              {copied ? (
-                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-              ) : (
-                <Copy className="w-4 h-4 shrink-0" />
-              )}
+              {copied
+                ? <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                : <Copy className="w-4 h-4 shrink-0" />
+              }
               <span>{copied ? 'تم النسخ بنجاح ✓' : 'نسخ الحسبة كنص'}</span>
             </button>
           </div>
 
           {/* ─── Footer Note ──────────────────────────────────────────────────── */}
-          <p className="mt-4 text-center text-[10px] text-white/25 leading-relaxed">
+          <p className="mt-4 text-center text-[10px] leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
             المبالغ تُحسب تلقائياً بالتساوي • اضغط 🔒 لتثبيت مبلغ يدوياً
           </p>
         </div>
       </div>
 
-      {/* ── Shimmer keyframe (injected inline for portability) ── */}
       <style>{`
         @keyframes shimmer {
           0%   { transform: translateX(-100%); }
           60%  { transform: translateX(200%); }
           100% { transform: translateX(200%); }
         }
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-        input[type="number"] { -moz-appearance: textfield; }
       `}</style>
     </div>
   );
