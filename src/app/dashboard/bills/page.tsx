@@ -501,7 +501,7 @@ export default function BillsPage() {
                       <div className="flex items-center gap-2">
                         <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
                         <span className="font-bold text-sm">
-                          {getTranslatedBankName(acc.name, lang)} {acc.alias ? `(${acc.alias})` : ''} - {formatCurrency(acc.balance)}
+                          {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}){acc.accountNum ? ` - ${acc.accountNum}` : ''} - {formatCurrency(acc.balance)}
                         </span>
                       </div>
                     </SelectItem>

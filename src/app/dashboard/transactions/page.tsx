@@ -283,7 +283,7 @@ export default function TransactionsPage() {
                             <div className="flex items-center gap-2">
                               <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
                               <span>
-                                {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}) - {formatCurrency(acc.balance)}
+                                {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}){acc.accountNum ? ` - ${acc.accountNum}` : ''} - {formatCurrency(acc.balance)}
                               </span>
                             </div>
                           </SelectItem>
@@ -304,7 +304,7 @@ export default function TransactionsPage() {
                             <div className="flex items-center gap-2">
                               <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
                               <span>
-                                {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}) - {formatCurrency(acc.balance)}
+                                {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}){acc.accountNum ? ` - ${acc.accountNum}` : ''} - {formatCurrency(acc.balance)}
                               </span>
                             </div>
                           </SelectItem>
@@ -483,7 +483,7 @@ export default function TransactionsPage() {
                           <div className="flex items-center gap-2">
                             <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
                             <span>
-                              {getTranslatedBankName(acc.name, lang)} ({acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank')})
+                              {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}){acc.accountNum ? ` - ${acc.accountNum}` : ''} - {formatCurrency(acc.balance)}
                             </span>
                           </div>
                         </SelectItem>
@@ -782,7 +782,7 @@ export default function TransactionsPage() {
                       <div className="flex items-center gap-2">
                         <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
                         <span>
-                          {getTranslatedBankName(acc.name, lang)} ({acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank')})
+                          {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}){acc.accountNum ? ` - ${acc.accountNum}` : ''} - {formatCurrency(acc.balance)}
                         </span>
                       </div>
                     </SelectItem>
