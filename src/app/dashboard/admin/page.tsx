@@ -72,8 +72,14 @@ function AdminPage(): React.ReactNode {
     setProcessingId(id);
     
     try {
-      await adminApi.approveRequest(id);
-      toast.success('تمت الموافقة على الطلب بنجاح وإرسال بريد ترحيبي');
+      const response = await adminApi.approveRequest(id);
+      if (response && response.emailSent) {
+        toast.success('تمت الموافقة على الطلب بنجاح وإرسال بريد ترحيبي');
+      } else {
+        toast.warning('تم قبول الطلب بنجاح، ولكن فشل إرسال البريد الترحيبي التلقائي. يرجى إرساله يدوياً باستخدام أيقونة الرسالة بجانب اسم المستخدم.', {
+          duration: 6000,
+        });
+      }
       
       // Refresh all data to update users list and requests
       await fetchData();

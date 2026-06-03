@@ -544,7 +544,7 @@ export const adminApi = {
   getResetCodes: () => request<any[]>('/admin/reset-codes'),
 
   approveRequest: (id: string) =>
-    request(`/admin/requests/${id}/approve`, { method: 'POST' }),
+    request<{ message: string; emailSent: boolean }>(`/admin/requests/${id}/approve`, { method: 'POST' }),
 
   rejectRequest: (id: string) =>
     request(`/admin/requests/${id}/reject`, { method: 'POST' }),
