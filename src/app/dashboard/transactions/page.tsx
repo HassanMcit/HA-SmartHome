@@ -249,7 +249,7 @@ export default function TransactionsPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-black text-white mb-1 flex items-center gap-3">
-              <Activity className="w-8 h-8 text-sky-400" />
+              <Activity className="w-8 h-8 text-green-400" />
               المعاملات المالية
             </h2>
             <p className="text-slate-400 text-sm sm:text-base font-medium">سجل وراقب كافة تحركاتك المالية</p>
@@ -323,7 +323,7 @@ export default function TransactionsPage() {
                           required 
                           value={transferAmount} 
                           onChange={e => setTransferAmount(e.target.value)} 
-                          className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-sky-500/50 outline-none transition-all text-center"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-lime-500/50 outline-none transition-all text-center"
                           placeholder="0.00"
                           dir="ltr"
                         />
@@ -341,10 +341,10 @@ export default function TransactionsPage() {
                           type="date" 
                           value={transferDate} 
                           onChange={e => setTransferDate(e.target.value)} 
-                          className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-sky-500/50 outline-none transition-all cursor-pointer"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-lime-500/50 outline-none transition-all cursor-pointer"
                           dir="ltr"
                         />
-                        <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors pointer-events-none" />
+                        <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-green-400 transition-colors pointer-events-none" />
                       </div>
                     </div>
                   </div>
@@ -355,7 +355,7 @@ export default function TransactionsPage() {
                       type="text" 
                       value={transferDesc} 
                       onChange={e => setTransferDesc(e.target.value)} 
-                      className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-sky-500/50 outline-none transition-all text-right"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-lime-500/50 outline-none transition-all text-right"
                       placeholder={lang === 'ar' ? 'مثال: تحويل مصروف، سداد حصة...' : 'e.g. Allowance, split pay...'}
                     />
                   </div>
@@ -379,7 +379,7 @@ export default function TransactionsPage() {
                     setTargetUserId(currentUser?.id || '');
                     setOpen(true);
                   }}
-                  className="w-full sm:w-auto bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-sky-600/20 active:scale-95 transition-all"
+                  className="w-full sm:w-auto bg-lime-600 hover:bg-lime-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-lime-600/20 active:scale-95 transition-all"
                 >
                   <Plus className="w-5 h-5 ml-2" />
                   إضافة معاملة
@@ -437,7 +437,7 @@ export default function TransactionsPage() {
                         required 
                         value={amount} 
                         onChange={e => setAmount(e.target.value)} 
-                        className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-sky-500/50 outline-none transition-all text-center"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-lime-500/50 outline-none transition-all text-center"
                         placeholder="0.00"
                         dir="ltr"
                       />
@@ -498,7 +498,7 @@ export default function TransactionsPage() {
                     type="text" 
                     value={description} 
                     onChange={e => setDescription(e.target.value)} 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-sky-500/50 outline-none transition-all text-right"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-lime-500/50 outline-none transition-all text-right"
                     placeholder="مثال: شراء بقالة، راتب شهري..."
                   />
                 </div>
@@ -513,10 +513,10 @@ export default function TransactionsPage() {
                       type="date" 
                       value={date} 
                       onChange={e => setDate(e.target.value)} 
-                      className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-sky-500/50 outline-none transition-all cursor-pointer"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-lime-500/50 outline-none transition-all cursor-pointer"
                       dir="ltr"
                     />
-                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors pointer-events-none" />
+                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-green-400 transition-colors pointer-events-none" />
                   </div>
                 </div>
 
@@ -542,12 +542,12 @@ export default function TransactionsPage() {
             <Select value={selectedUserId} onValueChange={(val) => setSelectedUserId(val || '')}>
               <SelectTrigger className="w-full bg-white/5 border-white/10 rounded-xl h-12 shadow-inner" style={{ color: 'var(--foreground)' }}>
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-sky-400" />
+                  <Users className="w-4 h-4 text-green-400" />
                   <SelectValue placeholder="الكل" />
                 </div>
               </SelectTrigger>
                 <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
-                  <SelectItem value="all" className="font-bold text-sky-400 focus:bg-white/10 rounded-lg">كل العائلة</SelectItem>
+                  <SelectItem value="all" className="font-bold text-green-400 focus:bg-white/10 rounded-lg">كل العائلة</SelectItem>
                   {users.map(u => (
                     <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
                       {u.name} {u.id === currentUser?.id ? '(أنت)' : ''}
@@ -562,7 +562,7 @@ export default function TransactionsPage() {
       {/* Transactions List */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <Loader2 className="w-10 h-10 text-sky-500 animate-spin" />
+          <Loader2 className="w-10 h-10 text-green-500 animate-spin" />
           <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">جاري تحميل المعاملات</p>
         </div>
       ) : transactions.length === 0 ? (
@@ -631,7 +631,7 @@ export default function TransactionsPage() {
                   <div className="flex gap-2">
                     <button 
                       onClick={() => handleOpenEdit(tx)}
-                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-sky-500/10 hover:text-sky-400 transition-all active:scale-90"
+                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-lime-500/10 hover:text-green-400 transition-all active:scale-90"
                       title="تعديل"
                     >
                       <Pencil className="w-4 h-4" />
@@ -736,7 +736,7 @@ export default function TransactionsPage() {
                     required 
                     value={editAmount} 
                     onChange={e => setEditAmount(e.target.value)} 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-sky-500/50 outline-none transition-all text-center"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-lime-500/50 outline-none transition-all text-center"
                     placeholder="0.00"
                     dir="ltr"
                   />
@@ -797,7 +797,7 @@ export default function TransactionsPage() {
                 type="text" 
                 value={editDescription} 
                 onChange={e => setEditDescription(e.target.value)} 
-                className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-sky-500/50 outline-none transition-all text-right"
+                className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-lime-500/50 outline-none transition-all text-right"
                 placeholder="مثال: شراء بقالة، راتب شهري..."
               />
             </div>
@@ -812,10 +812,10 @@ export default function TransactionsPage() {
                   type="date" 
                   value={editDate} 
                   onChange={e => setEditDate(e.target.value)} 
-                  className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-sky-500/50 outline-none transition-all cursor-pointer"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-lime-500/50 outline-none transition-all cursor-pointer"
                   dir="ltr"
                 />
-                <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors pointer-events-none" />
+                <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-green-400 transition-colors pointer-events-none" />
               </div>
             </div>
 

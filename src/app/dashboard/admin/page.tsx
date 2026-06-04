@@ -197,7 +197,7 @@ function AdminPage(): React.ReactNode {
       title: actionText,
       description,
       actionText: actionText,
-      actionColor: currentRole === 'admin' ? 'bg-orange-500 hover:bg-orange-600' : 'bg-sky-500 hover:bg-sky-600',
+      actionColor: currentRole === 'admin' ? 'bg-orange-500 hover:bg-orange-600' : 'bg-lime-500 hover:bg-lime-600',
       onConfirm: async () => {
         try {
           await adminApi.updateUser(id, { role: newRole });
@@ -213,7 +213,7 @@ function AdminPage(): React.ReactNode {
   if (authLoading || loading) {
     return (
       <div className="flex justify-center items-center h-[50vh]">
-        <Loader2 className="w-10 h-10 text-sky-500 animate-spin" />
+        <Loader2 className="w-10 h-10 text-green-500 animate-spin" />
       </div>
     );
   }
@@ -236,7 +236,7 @@ function AdminPage(): React.ReactNode {
       {/* Header */}
       <div>
         <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3 mb-1">
-          <ShieldCheck className="w-8 h-8 text-sky-400" />
+          <ShieldCheck className="w-8 h-8 text-green-400" />
           {t('admin_title')}
         </h2>
         <p className="text-slate-400 text-sm sm:text-base font-medium">{t('admin_subtitle')}</p>
@@ -244,8 +244,8 @@ function AdminPage(): React.ReactNode {
 
       {/* Stats - Responsive Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="glass-card p-6 flex flex-col items-center text-center group hover:border-sky-500/30 transition-all">
-          <div className="w-12 h-12 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400 mb-4 group-hover:scale-110 transition-transform">
+        <div className="glass-card p-6 flex flex-col items-center text-center group hover:border-lime-500/30 transition-all">
+          <div className="w-12 h-12 rounded-2xl bg-lime-500/10 flex items-center justify-center text-green-400 mb-4 group-hover:scale-110 transition-transform">
             <Users className="w-6 h-6" />
           </div>
           <p className="text-3xl font-black text-white leading-none">{stats?.totalUsers}</p>
@@ -281,7 +281,7 @@ function AdminPage(): React.ReactNode {
         {/* Users Management */}
         <div className="glass-card overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-white/5 bg-white/5 flex items-center gap-3">
-            <UserCog className="w-5 h-5 text-sky-400" />
+            <UserCog className="w-5 h-5 text-green-400" />
             <h3 className="font-bold text-white">{t('admin_current_users')}</h3>
           </div>
           <div className="p-6">
@@ -292,7 +292,7 @@ function AdminPage(): React.ReactNode {
                 {users.map(u => (
                   <div key={u.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-sky-500/10">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lime-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-lime-500/10">
                         {u.avatar && !u.avatar.startsWith('RESET:') ? (
                           <img src={u.avatar} className="w-full h-full rounded-full object-cover" alt="" />
                         ) : u.name.charAt(0)}
@@ -301,7 +301,7 @@ function AdminPage(): React.ReactNode {
                         <div className="flex items-center gap-2">
                           <h4 className="font-bold text-white text-sm">{u.name}</h4>
                           {u.role === 'admin' && (
-                            <span className="text-[9px] font-black uppercase tracking-wider bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded-md border border-sky-500/20">{t('admin_role_badge')}</span>
+                            <span className="text-[9px] font-black uppercase tracking-wider bg-lime-500/20 text-green-400 px-2 py-0.5 rounded-md border border-lime-500/20">{t('admin_role_badge')}</span>
                           )}
                         </div>
                         <p className="text-xs text-slate-500 font-medium">{u.email}</p>
@@ -313,7 +313,7 @@ function AdminPage(): React.ReactNode {
                         size="icon"
                         onClick={() => handleResendWelcome(u.id, u.name)}
                         disabled={resendingId !== null}
-                        className="h-8 w-8 rounded-lg bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white border-0"
+                        className="h-8 w-8 rounded-lg bg-lime-500/10 text-green-400 hover:bg-lime-500 hover:text-white border-0"
                         title={t('admin_resend_welcome')}
                       >
                         {resendingId === u.id ? (
@@ -347,7 +347,7 @@ function AdminPage(): React.ReactNode {
                             onClick={() => handleToggleRole(u.id, u.name, u.role)}
                             className={cn(
                               "h-8 text-[11px] font-bold px-4 rounded-lg flex-1 sm:flex-none",
-                              u.role === 'admin' ? "bg-slate-800 text-slate-400 hover:bg-slate-700" : "bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white"
+                              u.role === 'admin' ? "bg-slate-800 text-slate-400 hover:bg-slate-700" : "bg-lime-500/10 text-green-400 hover:bg-lime-500 hover:text-white"
                             )}
                           >
                             {u.role === 'admin' ? t('admin_demote') : t('admin_promote')}
@@ -460,20 +460,20 @@ function AdminPage(): React.ReactNode {
 
       {/* Active Reset Codes */}
       {resetCodes.length > 0 && (
-        <div className="glass-card overflow-hidden border-sky-500/20">
-          <div className="px-6 py-5 border-b border-sky-500/20 bg-sky-500/5 flex items-center gap-3">
-            <Key className="w-5 h-5 text-sky-400" />
+        <div className="glass-card overflow-hidden border-lime-500/20">
+          <div className="px-6 py-5 border-b border-lime-500/20 bg-lime-500/5 flex items-center gap-3">
+            <Key className="w-5 h-5 text-green-400" />
             <h3 className="font-bold text-white">{t('admin_reset_codes_title')}</h3>
           </div>
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {resetCodes.map(rc => (
-              <div key={rc.id} className="p-5 bg-white/5 border border-sky-500/10 rounded-2xl flex flex-col gap-4">
+              <div key={rc.id} className="p-5 bg-white/5 border border-lime-500/10 rounded-2xl flex flex-col gap-4">
                 <div>
                   <h4 className="font-bold text-white text-sm">{rc.name}</h4>
                   <p className="text-xs text-slate-500 font-medium">{rc.email}</p>
                 </div>
                 <div className="flex items-center justify-between mt-auto">
-                  <div className="text-2xl font-black text-sky-400 tabular-nums tracking-[0.2em] bg-sky-500/10 px-4 py-2 rounded-xl border border-sky-500/10 shadow-inner">
+                  <div className="text-2xl font-black text-green-400 tabular-nums tracking-[0.2em] bg-lime-500/10 px-4 py-2 rounded-xl border border-lime-500/10 shadow-inner">
                     {rc.code}
                   </div>
                   <div className="text-[10px] font-bold text-slate-500 text-left leading-tight">
@@ -527,7 +527,7 @@ function AdminPage(): React.ReactNode {
             <DialogHeader className="text-right">
               <div className={cn(
                 "w-14 h-14 rounded-2xl flex items-center justify-center mb-6",
-                confirmDialog.actionColor.includes('red') ? "bg-red-500/10 text-red-500" : "bg-sky-500/10 text-sky-400"
+                confirmDialog.actionColor.includes('red') ? "bg-red-500/10 text-red-500" : "bg-lime-500/10 text-green-400"
               )}>
                 {confirmDialog.actionColor.includes('red') ? <Trash2 className="w-7 h-7" /> : <ShieldCheck className="w-7 h-7" />}
               </div>

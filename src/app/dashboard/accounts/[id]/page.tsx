@@ -216,7 +216,7 @@ export default function AccountDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 text-sky-400 animate-spin" />
+        <Loader2 className="w-10 h-10 text-green-400 animate-spin" />
         <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">
           {lang === 'ar' ? 'جاري تحميل تفاصيل الحساب' : 'Loading Account Details'}
         </p>
@@ -250,7 +250,7 @@ export default function AccountDetailPage() {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setEditDialogOpen(true)}
-            className="flex items-center gap-2 bg-sky-500/10 text-sky-400 hover:bg-sky-600 hover:text-white transition-all text-sm font-bold px-4 py-2 rounded-xl border border-sky-500/10 active:scale-95"
+            className="flex items-center gap-2 bg-lime-500/10 text-green-400 hover:bg-lime-600 hover:text-white transition-all text-sm font-bold px-4 py-2 rounded-xl border border-lime-500/10 active:scale-95"
           >
             <Pencil className="w-4 h-4" />
             {lang === 'ar' ? 'تعديل الحساب' : 'Edit Account'}
@@ -273,7 +273,7 @@ export default function AccountDetailPage() {
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-2xl font-black text-white">{translatedName}</h2>
               {account.alias && (
-                <span className="text-xs bg-sky-500/25 text-sky-300 font-extrabold px-3 py-1 rounded-lg">
+                <span className="text-xs bg-lime-500/25 text-green-300 font-extrabold px-3 py-1 rounded-lg">
                   {account.alias}
                 </span>
               )}
@@ -328,8 +328,8 @@ export default function AccountDetailPage() {
 
       {/* Certificate of Deposit details if applicable */}
       {account.subType === 'deposit' && (
-        <div className="glass-card p-6 bg-gradient-to-br from-sky-950/20 via-slate-900/35 to-slate-900/30 border-sky-500/10 flex flex-col gap-4">
-          <h3 className="text-sm font-black text-sky-400 flex items-center gap-2 border-b border-white/5 pb-3">
+        <div className="glass-card p-6 bg-gradient-to-br from-lime-950/20 via-slate-900/35 to-slate-900/30 border-lime-500/10 flex flex-col gap-4">
+          <h3 className="text-sm font-black text-green-400 flex items-center gap-2 border-b border-white/5 pb-3">
             <Info className="w-4 h-4" />
             {lang === 'ar' ? 'تفاصيل وديعة شهادة الادخار' : 'Certificate of Deposit Details'}
           </h3>
@@ -357,7 +357,7 @@ export default function AccountDetailPage() {
             <span className="text-xs font-bold text-slate-500 block mb-1">{lang === 'ar' ? 'الرصيد الحالي' : 'Current Balance'}</span>
             <span className="text-3xl font-black text-white tabular-nums">{formatCurrency(account.balance)}</span>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400">
+          <div className="w-12 h-12 rounded-2xl bg-lime-500/10 flex items-center justify-center text-green-400">
             <DollarSign className="w-6 h-6" />
           </div>
         </div>
@@ -412,7 +412,7 @@ export default function AccountDetailPage() {
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
                     typeFilter === f 
-                      ? "bg-sky-600 text-white shadow" 
+                      ? "bg-lime-600 text-white shadow" 
                       : "text-slate-400 hover:text-white"
                   )}
                 >
@@ -576,7 +576,7 @@ export default function AccountDetailPage() {
                       className={cn(
                         'flex-1 py-2 rounded-lg font-bold text-[11px] transition-all',
                         editSubType === 'current'
-                          ? 'bg-sky-600 text-white shadow'
+                          ? 'bg-lime-600 text-white shadow'
                           : 'text-slate-400 hover:text-white'
                       )}
                     >
@@ -589,7 +589,7 @@ export default function AccountDetailPage() {
                       className={cn(
                         'flex-1 py-2 rounded-lg font-bold text-[11px] transition-all',
                         editSubType === 'deposit'
-                          ? 'bg-sky-600 text-white shadow'
+                          ? 'bg-lime-600 text-white shadow'
                           : 'text-slate-400 hover:text-white'
                       )}
                     >
@@ -599,9 +599,9 @@ export default function AccountDetailPage() {
                 </div>
 
                 {editSubType === 'deposit' && (
-                  <div className="p-4 rounded-2xl bg-sky-950/20 border border-sky-500/10 space-y-4 animate-fade-in">
+                  <div className="p-4 rounded-2xl bg-lime-950/20 border border-lime-500/10 space-y-4 animate-fade-in">
                     <div className="space-y-2 text-right">
-                      <Label className="text-xs font-bold text-sky-300">{lang === 'ar' ? 'مبلغ الوديعة الأساسي (ج.م)' : 'Deposit Principal Amount (EGP)'}</Label>
+                      <Label className="text-xs font-bold text-green-300">{lang === 'ar' ? 'مبلغ الوديعة الأساسي (ج.م)' : 'Deposit Principal Amount (EGP)'}</Label>
                       <Input
                         type="number"
                         placeholder="0.00"
@@ -612,7 +612,7 @@ export default function AccountDetailPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2 text-right">
-                        <Label className="text-xs font-bold text-sky-300">{lang === 'ar' ? 'نسبة الفائدة السنوية (%)' : 'Annual Interest Rate (%)'}</Label>
+                        <Label className="text-xs font-bold text-green-300">{lang === 'ar' ? 'نسبة الفائدة السنوية (%)' : 'Annual Interest Rate (%)'}</Label>
                         <Input
                           type="number"
                           step="0.01"
@@ -623,7 +623,7 @@ export default function AccountDetailPage() {
                         />
                       </div>
                       <div className="space-y-2 text-right">
-                        <Label className="text-xs font-bold text-sky-300">{lang === 'ar' ? 'يوم صرف الفائدة شهرياً' : 'Payout Day of Month'}</Label>
+                        <Label className="text-xs font-bold text-green-300">{lang === 'ar' ? 'يوم صرف الفائدة شهرياً' : 'Payout Day of Month'}</Label>
                         <Input
                           type="number"
                           min="1"
@@ -748,7 +748,7 @@ export default function AccountDetailPage() {
               <Button
                 type="submit"
                 disabled={editSubmitting}
-                className="flex-1 h-12 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm"
+                className="flex-1 h-12 bg-lime-600 hover:bg-lime-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm"
               >
                 {editSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes')}
               </Button>

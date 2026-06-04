@@ -83,11 +83,11 @@ export default function MobileNav() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center gap-1 p-2 rounded-xl transition-all relative flex-1 min-w-0",
-                active ? "text-sky-400" : "text-slate-500 hover:text-slate-300"
+                active ? "text-green-400" : "text-slate-500 hover:text-slate-300"
               )}
             >
               {active && (
-                <div className="absolute inset-0 bg-sky-500/10 blur-md rounded-xl" />
+                <div className="absolute inset-0 bg-lime-500/10 blur-md rounded-xl" />
               )}
               <item.icon className={cn("w-5 h-5 relative z-10", active && "scale-110")} />
               <span className="text-[10px] font-bold relative z-10">{t(item.labelKey)}</span>
@@ -121,13 +121,13 @@ export default function MobileNav() {
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center justify-between p-4 rounded-2xl transition-all",
-                      active ? "bg-sky-500/10 text-sky-400" : "hover:bg-white/5 text-slate-300"
+                      active ? "bg-lime-500/10 text-green-400" : "hover:bg-white/5 text-slate-300"
                     )}
                   >
                     <div className="flex items-center gap-4">
                       <div className={cn(
                         "w-10 h-10 rounded-xl flex items-center justify-center",
-                        active ? "bg-sky-500/20 text-sky-400" : "bg-slate-800/50 text-slate-500"
+                        active ? "bg-lime-500/20 text-green-400" : "bg-slate-800/50 text-slate-500"
                       )}>
                         <item.icon className="w-5 h-5" />
                       </div>

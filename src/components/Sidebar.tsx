@@ -58,7 +58,7 @@ export default function Sidebar() {
             "w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all group-hover:scale-110",
             theme === 'dark'
               ? "bg-[#7650FF] border-2 border-white text-white shadow-purple-500/20"
-              : "bg-white border-2 border-[#7650FF] text-[#7650FF] shadow-sky-500/10"
+              : "bg-white border-2 border-[#7650FF] text-[#7650FF] shadow-lime-500/10"
           )}>
             <Home className="w-6 h-6" />
           </div>
@@ -100,7 +100,7 @@ export default function Sidebar() {
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10 border border-white/10">
               <AvatarImage src={user?.avatar && !user.avatar.startsWith('RESET:') ? user.avatar : undefined} />
-              <AvatarFallback className="bg-gradient-to-br from-sky-500 to-pink-500 text-white font-black">
+              <AvatarFallback className="bg-gradient-to-br from-lime-500 to-pink-500 text-white font-black">
                 {user?.name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
@@ -110,8 +110,8 @@ export default function Sidebar() {
             </div>
           </div>
           {user?.role === 'admin' && (
-            <div className="mt-3 py-1 px-3 bg-sky-500/10 rounded-lg border border-sky-500/20 text-center">
-              <span className="text-[10px] font-black uppercase tracking-widest text-sky-400">{t('app_tagline')}</span>
+            <div className="mt-3 py-1 px-3 bg-lime-500/10 rounded-lg border border-lime-500/20 text-center">
+              <span className="text-[10px] font-black uppercase tracking-widest text-green-400">{t('app_tagline')}</span>
             </div>
           )}
         </div>
@@ -129,12 +129,12 @@ export default function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group relative",
                 active 
-                  ? "bg-sky-500/10 text-sky-400" 
+                  ? "bg-lime-500/10 text-green-400" 
                   : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
               )}
             >
-              {active && <div className="absolute right-0 top-2 bottom-2 w-1 bg-sky-500 rounded-l-full shadow-[0_0_8px_rgba(99,102,241,0.5)]" />}
-              <item.icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", active && "text-sky-400")} />
+              {active && <div className="absolute right-0 top-2 bottom-2 w-1 bg-lime-500 rounded-l-full shadow-[0_0_8px_rgba(99,102,241,0.5)]" />}
+              <item.icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", active && "text-green-400")} />
               <span>{t(item.labelKey)}</span>
             </Link>
           );

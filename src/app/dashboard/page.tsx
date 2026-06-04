@@ -406,7 +406,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[50vh]">
-        <Loader2 className="w-10 h-10 text-sky-500 animate-spin" />
+        <Loader2 className="w-10 h-10 text-green-500 animate-spin" />
       </div>
     );
   }
@@ -469,11 +469,11 @@ export default function DashboardPage() {
 
       {/* Stats Cards - Overall balance */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <div className="glass-card p-6 relative overflow-hidden group hover:border-sky-500/30 transition-all">
-          <div className="absolute -top-6 -right-6 w-24 h-24 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20 transition-all" />
+        <div className="glass-card p-6 relative overflow-hidden group hover:border-lime-500/30 transition-all">
+          <div className="absolute -top-6 -right-6 w-24 h-24 bg-lime-500/10 rounded-full blur-2xl group-hover:bg-lime-500/20 transition-all" />
           <div className="flex justify-between items-start mb-4">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('total_balance')}</p>
-            <div className="w-10 h-10 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400 shadow-lg shadow-sky-500/5">
+            <div className="w-10 h-10 rounded-2xl bg-lime-500/10 flex items-center justify-center text-green-400 shadow-lg shadow-lime-500/5">
               <Wallet className="w-5 h-5" />
             </div>
           </div>
@@ -507,12 +507,12 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-black text-white flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-sky-400" />
+            <CreditCard className="w-5 h-5 text-green-400" />
             حساباتي المالية وأرصدة البنوك
           </h3>
           <Button
             onClick={() => setShowAddAccount(true)}
-            className="bg-sky-600/20 hover:bg-sky-600 text-sky-300 hover:text-white rounded-xl px-4 py-2 text-xs font-bold transition-all border border-sky-500/10 flex items-center gap-1.5 active:scale-95"
+            className="bg-lime-600/20 hover:bg-lime-600 text-green-300 hover:text-white rounded-xl px-4 py-2 text-xs font-bold transition-all border border-lime-500/10 flex items-center gap-1.5 active:scale-95"
           >
             <Plus className="w-4 h-4" />
             إضافة حساب
@@ -545,12 +545,12 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-4">
                     <BankLogo name={acc.name} size="md" />
                     <div className="text-right">
-                      <h4 className="text-sm font-black text-white group-hover:text-sky-400 transition-colors break-words whitespace-normal leading-snug">
+                      <h4 className="text-sm font-black text-white group-hover:text-green-400 transition-colors break-words whitespace-normal leading-snug">
                         {translatedName}
                         {acc.alias && (
                           <span className={cn(
                             "text-[9px] font-bold px-2 py-0.5 rounded-md mr-1.5 inline-block",
-                            isWallet ? "bg-amber-500/20 text-amber-300" : "bg-sky-500/25 text-sky-300"
+                            isWallet ? "bg-amber-500/20 text-amber-300" : "bg-lime-500/25 text-green-300"
                           )}>
                             {acc.alias}
                           </span>
@@ -644,7 +644,7 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-2 self-end sm:self-auto shrink-0" dir="ltr">
                     <button
                       onClick={(e) => handleOpenEditAccount(acc, e)}
-                      className="p-2 rounded-xl bg-sky-500/10 hover:bg-sky-600 text-sky-400 hover:text-white transition-all active:scale-90"
+                      className="p-2 rounded-xl bg-lime-500/10 hover:bg-lime-600 text-green-400 hover:text-white transition-all active:scale-90"
                       title={lang === 'ar' ? 'تعديل الحساب' : 'Edit Account'}
                     >
                       <Pencil className="w-3.5 h-3.5" />
@@ -673,7 +673,7 @@ export default function DashboardPage() {
         {/* Recent Transactions */}
         <div className="glass-card overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-white/5 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center text-sky-400">
+            <div className="w-8 h-8 rounded-lg bg-lime-500/10 flex items-center justify-center text-green-400">
               <Activity className="w-4 h-4" />
             </div>
             <h3 className="font-bold text-white">{t('recent_transactions')}</h3>
@@ -765,7 +765,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="w-full h-2.5 bg-white/5 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-sky-600 to-purple-600 rounded-full transition-all duration-1000 ease-out"
+                            className="h-full bg-gradient-to-r from-lime-600 to-purple-600 rounded-full transition-all duration-1000 ease-out"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -804,7 +804,7 @@ export default function DashboardPage() {
                 placeholder={lang === 'ar' ? 'أدخل المبلغ النقدي المتوفر معك الآن' : 'Enter the cash amount you have now'}
                 value={onboardCashBalance}
                 onChange={e => setOnboardCashBalance(e.target.value)}
-                className="h-12 text-center rounded-xl focus:border-sky-500 focus:ring-sky-500/20"
+                className="h-12 text-center rounded-xl focus:border-lime-500 focus:ring-lime-500/20"
                 style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
               />
             </div>
@@ -813,7 +813,7 @@ export default function DashboardPage() {
 
             {/* Bank account setup */}
             <div className="space-y-4">
-              <h4 className="text-xs font-bold text-sky-400">
+              <h4 className="text-xs font-bold text-green-400">
                 {lang === 'ar' ? '🏦 إضافة حساب بنكي أو محفظة جديدة' : '🏦 Add New Bank or Mobile Wallet'}
               </h4>
               
@@ -877,7 +877,7 @@ export default function DashboardPage() {
               <Button
                 type="button"
                 onClick={addAccountToOnboardList}
-                className="w-full h-11 bg-sky-600/30 hover:bg-sky-600 text-sky-300 hover:text-white font-bold rounded-xl border border-sky-500/20 active:scale-95 transition-all text-xs"
+                className="w-full h-11 bg-lime-600/30 hover:bg-lime-600 text-green-300 hover:text-white font-bold rounded-xl border border-lime-500/20 active:scale-95 transition-all text-xs"
               >
                 {isWalletName(onboardBankName) 
                   ? (lang === 'ar' ? '+ إضافة المحفظة الحالية للقائمة' : '+ Add Current Wallet to List') 
@@ -923,7 +923,7 @@ export default function DashboardPage() {
               <Button
                 onClick={handleOnboardingSubmit}
                 disabled={onboardSubmitting}
-                className="flex-1 h-12 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm"
+                className="flex-1 h-12 bg-lime-600 hover:bg-lime-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm"
               >
                 {onboardSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (lang === 'ar' ? 'حفظ وإعداد الحسابات' : 'Save and Setup Accounts')}
               </Button>
@@ -962,7 +962,7 @@ export default function DashboardPage() {
                   className={cn(
                     'flex-1 py-2.5 rounded-xl font-bold text-xs transition-all',
                     newAccType === t
-                      ? 'bg-sky-600 text-white shadow-lg'
+                      ? 'bg-lime-600 text-white shadow-lg'
                       : 'text-slate-400 hover:text-white hover:bg-white/5'
                   )}
                 >
@@ -1007,7 +1007,7 @@ export default function DashboardPage() {
                       className={cn(
                         'flex-1 py-2 rounded-lg font-bold text-[11px] transition-all',
                         newAccSubType === 'current'
-                          ? 'bg-sky-600 text-white shadow'
+                          ? 'bg-lime-600 text-white shadow'
                           : 'text-slate-400 hover:text-white'
                       )}
                     >
@@ -1020,7 +1020,7 @@ export default function DashboardPage() {
                       className={cn(
                         'flex-1 py-2 rounded-lg font-bold text-[11px] transition-all',
                         newAccSubType === 'deposit'
-                          ? 'bg-sky-600 text-white shadow'
+                          ? 'bg-lime-600 text-white shadow'
                           : 'text-slate-400 hover:text-white'
                       )}
                     >
@@ -1030,9 +1030,9 @@ export default function DashboardPage() {
                 </div>
 
                 {newAccSubType === 'deposit' && (
-                  <div className="p-4 rounded-2xl bg-sky-950/20 border border-sky-500/10 space-y-4 animate-fade-in">
+                  <div className="p-4 rounded-2xl bg-lime-950/20 border border-lime-500/10 space-y-4 animate-fade-in">
                     <div className="space-y-2 text-right">
-                      <Label className="text-xs font-bold text-sky-300">{lang === 'ar' ? 'مبلغ الوديعة الأساسي (ج.م)' : 'Deposit Principal Amount (EGP)'}</Label>
+                      <Label className="text-xs font-bold text-green-300">{lang === 'ar' ? 'مبلغ الوديعة الأساسي (ج.م)' : 'Deposit Principal Amount (EGP)'}</Label>
                       <Input
                         type="number"
                         placeholder="0.00"
@@ -1044,7 +1044,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2 text-right">
-                        <Label className="text-xs font-bold text-sky-300">{lang === 'ar' ? 'نسبة الفائدة السنوية (%)' : 'Annual Interest Rate (%)'}</Label>
+                        <Label className="text-xs font-bold text-green-300">{lang === 'ar' ? 'نسبة الفائدة السنوية (%)' : 'Annual Interest Rate (%)'}</Label>
                         <Input
                           type="number"
                           step="0.01"
@@ -1056,7 +1056,7 @@ export default function DashboardPage() {
                         />
                       </div>
                       <div className="space-y-2 text-right">
-                        <Label className="text-xs font-bold text-sky-300">{lang === 'ar' ? 'يوم صرف الفائدة شهرياً' : 'Payout Day of Month'}</Label>
+                        <Label className="text-xs font-bold text-green-300">{lang === 'ar' ? 'يوم صرف الفائدة شهرياً' : 'Payout Day of Month'}</Label>
                         <Input
                           type="number"
                           min="1"
@@ -1175,7 +1175,7 @@ export default function DashboardPage() {
             <Button
               type="submit"
               disabled={addAccountSubmitting}
-              className="w-full h-12 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm mt-4"
+              className="w-full h-12 bg-lime-600 hover:bg-lime-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm mt-4"
             >
               {addAccountSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (lang === 'ar' ? 'إضافة الحساب المالي' : 'Add Financial Account')}
             </Button>
@@ -1281,7 +1281,7 @@ export default function DashboardPage() {
                         <span className="font-mono font-semibold text-[11px]" style={{ color: 'var(--foreground)' }}>{selectedAccount.accountNum}</span>
                         <button
                           onClick={(e) => handleCopy(selectedAccount.accountNum, selectedAccount.type === 'wallet' ? 'رقم الهاتف' : 'رقم الحساب', e)}
-                          className="p-1 rounded text-slate-500 hover:text-sky-400 transition-colors"
+                          className="p-1 rounded text-slate-500 hover:text-green-400 transition-colors"
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
@@ -1295,7 +1295,7 @@ export default function DashboardPage() {
                         <span className="font-mono font-semibold text-[10px]" style={{ color: 'var(--foreground)' }}>{selectedAccount.iban}</span>
                         <button
                           onClick={(e) => handleCopy(selectedAccount.iban, 'IBAN', e)}
-                          className="p-1 rounded text-slate-500 hover:text-sky-400 transition-colors"
+                          className="p-1 rounded text-slate-500 hover:text-green-400 transition-colors"
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
@@ -1340,28 +1340,28 @@ export default function DashboardPage() {
                 <div className="space-y-2 text-right">
                   <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'نوع الحساب البنكي' : 'Bank Account Type'}</Label>
                   <div className="flex gap-2 p-1 bg-black/10 rounded-xl border border-white/5">
-                    <button type="button" onClick={() => setEditSubType('current')} className={cn('flex-1 py-2 rounded-lg font-bold text-[11px] transition-all', editSubType === 'current' ? 'bg-sky-600 text-white shadow' : 'text-slate-400 hover:text-white')}>
+                    <button type="button" onClick={() => setEditSubType('current')} className={cn('flex-1 py-2 rounded-lg font-bold text-[11px] transition-all', editSubType === 'current' ? 'bg-lime-600 text-white shadow' : 'text-slate-400 hover:text-white')}>
                       {lang === 'ar' ? 'حساب جاري / توفير عادي' : 'Current / Savings'}
                     </button>
-                    <button type="button" onClick={() => setEditSubType('deposit')} className={cn('flex-1 py-2 rounded-lg font-bold text-[11px] transition-all', editSubType === 'deposit' ? 'bg-sky-600 text-white shadow' : 'text-slate-400 hover:text-white')}>
+                    <button type="button" onClick={() => setEditSubType('deposit')} className={cn('flex-1 py-2 rounded-lg font-bold text-[11px] transition-all', editSubType === 'deposit' ? 'bg-lime-600 text-white shadow' : 'text-slate-400 hover:text-white')}>
                       {lang === 'ar' ? 'وديعة / شهادة ادخار' : 'Certificate of Deposit'}
                     </button>
                   </div>
                 </div>
 
                 {editSubType === 'deposit' && (
-                  <div className="p-4 rounded-2xl bg-sky-950/20 border border-sky-500/10 space-y-4 animate-fade-in">
+                  <div className="p-4 rounded-2xl bg-lime-950/20 border border-lime-500/10 space-y-4 animate-fade-in">
                     <div className="space-y-2 text-right">
-                      <Label className="text-xs font-bold text-sky-300">{lang === 'ar' ? 'مبلغ الوديعة الأساسي (ج.م)' : 'Deposit Principal (EGP)'}</Label>
+                      <Label className="text-xs font-bold text-green-300">{lang === 'ar' ? 'مبلغ الوديعة الأساسي (ج.م)' : 'Deposit Principal (EGP)'}</Label>
                       <Input type="number" placeholder="0.00" value={editDepositAmount} onChange={e => setEditDepositAmount(e.target.value)} className="h-11" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2 text-right">
-                        <Label className="text-xs font-bold text-sky-300">{lang === 'ar' ? 'نسبة الفائدة السنوية (%)' : 'Annual Interest Rate (%)'}</Label>
+                        <Label className="text-xs font-bold text-green-300">{lang === 'ar' ? 'نسبة الفائدة السنوية (%)' : 'Annual Interest Rate (%)'}</Label>
                         <Input type="number" step="0.01" placeholder="e.g. 18.5" value={editInterestRate} onChange={e => setEditInterestRate(e.target.value)} className="h-11 text-center" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                       </div>
                       <div className="space-y-2 text-right">
-                        <Label className="text-xs font-bold text-sky-300">{lang === 'ar' ? 'يوم صرف الفائدة شهرياً' : 'Payout Day'}</Label>
+                        <Label className="text-xs font-bold text-green-300">{lang === 'ar' ? 'يوم صرف الفائدة شهرياً' : 'Payout Day'}</Label>
                         <Input type="number" min="1" max="31" placeholder="e.g. 25" value={editInterestDay} onChange={e => setEditInterestDay(e.target.value)} className="h-11 text-center" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                       </div>
                     </div>
@@ -1423,7 +1423,7 @@ export default function DashboardPage() {
             )}
 
             <div className="flex gap-3 pt-4 border-t border-white/5">
-              <Button type="submit" disabled={editSubmitting} className="flex-1 h-12 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm">
+              <Button type="submit" disabled={editSubmitting} className="flex-1 h-12 bg-lime-600 hover:bg-lime-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all text-sm">
                 {editSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes')}
               </Button>
               <Button type="button" onClick={() => setEditDialog({ isOpen: false, account: null })} disabled={editSubmitting} variant="outline" className="flex-1 h-12 border-white/5 bg-transparent text-slate-400 hover:bg-white/5 hover:text-white rounded-xl text-sm">

@@ -207,7 +207,7 @@ export default function AnalyticsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black text-white mb-1 flex items-center gap-3">
-            <BarChart2 className="w-8 h-8 text-sky-400" />
+            <BarChart2 className="w-8 h-8 text-green-400" />
             {lang === 'ar' ? 'التحليلات المالية' : 'Financial Analytics'}
           </h2>
           <p className="text-slate-400 text-sm font-medium">
@@ -245,7 +245,7 @@ export default function AnalyticsPage() {
       {/* ── Loading ─────────────────────────────────────────────── */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-32 gap-4">
-          <div className="w-14 h-14 rounded-full border-4 border-sky-500/20 border-t-sky-500 animate-spin" />
+          <div className="w-14 h-14 rounded-full border-4 border-lime-500/20 border-t-lime-500 animate-spin" />
           <p className="text-slate-400 text-sm font-bold animate-pulse">
             {lang === 'ar' ? 'جاري تحميل البيانات...' : 'Loading data...'}
           </p>
@@ -257,7 +257,7 @@ export default function AnalyticsPage() {
             {lang === 'ar' ? 'تعذّر تحميل البيانات' : 'Failed to load data'}
           </h3>
           <button onClick={() => { fetchStats(); fetchTrend(); }}
-            className="mt-4 px-6 py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl transition-all active:scale-95 flex items-center gap-2">
+            className="mt-4 px-6 py-3 bg-lime-600 hover:bg-lime-500 text-white font-bold rounded-xl transition-all active:scale-95 flex items-center gap-2">
             <RefreshCw className="w-4 h-4" />
             {lang === 'ar' ? 'إعادة المحاولة' : 'Retry'}
           </button>
@@ -365,7 +365,7 @@ export default function AnalyticsPage() {
             {/* Bar Chart */}
             <div className="glass-card p-6">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center text-sky-400">
+                <div className="w-8 h-8 rounded-lg bg-lime-500/10 flex items-center justify-center text-green-400">
                   <BarChart2 className="w-4 h-4" />
                 </div>
                 <h3 className="font-black text-white text-sm">
@@ -423,7 +423,7 @@ export default function AnalyticsPage() {
                 </h3>
               </div>
               {trendLoading && (
-                <div className="w-4 h-4 rounded-full border-2 border-sky-500/30 border-t-sky-400 animate-spin" />
+                <div className="w-4 h-4 rounded-full border-2 border-lime-500/30 border-t-lime-400 animate-spin" />
               )}
             </div>
 
@@ -508,7 +508,7 @@ export default function AnalyticsPage() {
           {/* ── Summary Footer ─────────────────────────────────── */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="glass-card p-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-400">
+              <div className="w-10 h-10 rounded-xl bg-lime-500/10 flex items-center justify-center text-green-400">
                 <Calendar className="w-5 h-5" />
               </div>
               <div>
