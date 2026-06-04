@@ -143,7 +143,7 @@ export default function RemindersPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+        <Loader2 className="w-10 h-10 text-sky-500 animate-spin" />
         <p className="text-slate-400 font-bold animate-pulse">
           {lang === 'ar' ? 'جاري جلب التذكيرات...' : 'Loading reminders...'}
         </p>
@@ -157,17 +157,17 @@ export default function RemindersPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-20">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-white/5 p-8 shadow-2xl backdrop-blur-xl">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-sky-900/40 to-purple-900/40 border border-white/5 p-8 shadow-2xl backdrop-blur-xl">
         <div className="absolute top-0 right-0 p-8 opacity-20 pointer-events-none">
-          <Bell className="w-48 h-48 text-indigo-300 transform rotate-12" />
+          <Bell className="w-48 h-48 text-sky-300 transform rotate-12" />
         </div>
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-right">
             <h1 className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">
               {lang === 'ar' ? (
-                <>ذكّرني <span className="text-indigo-400">والمهام</span></>
+                <>ذكّرني <span className="text-sky-400">والمهام</span></>
               ) : (
-                <>Reminders <span className="text-indigo-400">& Tasks</span></>
+                <>Reminders <span className="text-sky-400">& Tasks</span></>
               )}
             </h1>
             <p className="text-slate-300 font-medium">
@@ -178,7 +178,7 @@ export default function RemindersPage() {
           </div>
           <button
             onClick={openAddModal}
-            className="w-full md:w-auto px-8 py-4 bg-indigo-500 hover:bg-indigo-600 active:scale-95 transition-all rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-lg shadow-indigo-500/30 group"
+            className="w-full md:w-auto px-8 py-4 bg-sky-500 hover:bg-sky-600 active:scale-95 transition-all rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-lg shadow-sky-500/30 group"
           >
             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             <span>{lang === 'ar' ? 'إضافة تذكير جديد' : 'Add New Reminder'}</span>
@@ -192,7 +192,7 @@ export default function RemindersPage() {
         {/* Pending Tasks */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-2 h-8 rounded-full bg-indigo-500"></div>
+            <div className="w-2 h-8 rounded-full bg-sky-500"></div>
             <h2 className="text-xl font-black text-white">
               {lang === 'ar' ? `المهام الحالية (${pendingReminders.length})` : `Current Tasks (${pendingReminders.length})`}
             </h2>
@@ -200,8 +200,8 @@ export default function RemindersPage() {
 
           {pendingReminders.length === 0 ? (
             <div className="bg-white/5 border border-white/5 rounded-[2rem] p-12 flex flex-col items-center justify-center text-center backdrop-blur-sm">
-              <div className="w-24 h-24 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6">
-                <CalendarHeart className="w-12 h-12 text-indigo-400" />
+              <div className="w-24 h-24 bg-sky-500/10 rounded-full flex items-center justify-center mb-6">
+                <CalendarHeart className="w-12 h-12 text-sky-400" />
               </div>
               <h3 className="text-xl font-bold text-white mb-2">
                 {lang === 'ar' ? 'لا توجد مهام حالية' : 'No current tasks'}
@@ -215,8 +215,8 @@ export default function RemindersPage() {
           ) : (
             <div className="space-y-4">
               {pendingReminders.map(reminder => (
-                <div key={reminder.id} className="group relative bg-[#1a1a35]/80 hover:bg-[#1a1a35] border border-white/5 rounded-2xl p-5 transition-all shadow-lg hover:shadow-xl hover:border-indigo-500/30 overflow-hidden">
-                  <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div key={reminder.id} className="group relative bg-[#1a1a35]/80 hover:bg-[#1a1a35] border border-white/5 rounded-2xl p-5 transition-all shadow-lg hover:shadow-xl hover:border-sky-500/30 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-sky-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   
                   <div className="flex items-start gap-4">
                     <button 
@@ -241,7 +241,7 @@ export default function RemindersPage() {
                       )}
                       
                       {reminder.reminderAt && (
-                        <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300 bg-indigo-500/10 w-fit px-3 py-1.5 rounded-lg">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-sky-300 bg-sky-500/10 w-fit px-3 py-1.5 rounded-lg">
                           <Clock className="w-3.5 h-3.5" />
                           <span>{new Date(reminder.reminderAt).toLocaleString('ar-EG-u-nu-latn', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                           {reminder.emailSent && <CheckCircle className="w-3 h-3 text-emerald-400 ml-1" title="تم إرسال الإيميل" />}
@@ -252,7 +252,7 @@ export default function RemindersPage() {
                     <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0">
                       <button 
                         onClick={() => openEditModal(reminder)}
-                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-indigo-500/20 text-slate-400 hover:text-indigo-400 flex items-center justify-center transition-colors"
+                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-sky-500/20 text-slate-400 hover:text-sky-400 flex items-center justify-center transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -351,7 +351,7 @@ export default function RemindersPage() {
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   placeholder={lang === 'ar' ? 'مثال: دفع فاتورة الكهرباء' : 'Example: Pay electricity bill'}
-                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
                   style={{ color: 'var(--foreground)' }}
                 />
               </div>
@@ -365,7 +365,7 @@ export default function RemindersPage() {
                   onChange={e => setDescription(e.target.value)}
                   placeholder={lang === 'ar' ? 'أضف بعض الملاحظات أو التفاصيل...' : 'Add some notes or details...'}
                   rows={3}
-                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none custom-scrollbar"
+                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all resize-none custom-scrollbar"
                   style={{ color: 'var(--foreground)' }}
                 ></textarea>
               </div>
@@ -379,7 +379,7 @@ export default function RemindersPage() {
                     type="datetime-local"
                     value={reminderAt}
                     onChange={e => setReminderAt(e.target.value)}
-                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
                     style={{ color: 'var(--foreground)' }}
                   />
                   <p className="text-[10px] text-slate-500 mt-1">
@@ -394,7 +394,7 @@ export default function RemindersPage() {
                   <select 
                     value={priority}
                     onChange={e => setPriority(e.target.value as any)}
-                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all appearance-none"
+                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all appearance-none"
                     style={{ direction: 'rtl', color: 'var(--foreground)' }}
                   >
                     <option value="high" style={{ background: 'var(--card)', color: 'var(--foreground)' }}>{lang === 'ar' ? 'عالية 🔴' : 'High 🔴'}</option>
@@ -409,7 +409,7 @@ export default function RemindersPage() {
                 <button 
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2"
+                  className="flex-1 bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white font-bold py-3 rounded-xl shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
                   <span>

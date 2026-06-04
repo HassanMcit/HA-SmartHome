@@ -107,7 +107,7 @@ export default function AdvisorPage() {
       {!fetched && !loading && (
         <div className="glass-card relative overflow-hidden">
           {/* top bar */}
-          <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500" />
+          <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-violet-500 via-purple-500 to-sky-500" />
 
           <div className="p-8 flex flex-col items-center text-center gap-6">
             {/* Glowing icon */}
@@ -205,7 +205,7 @@ export default function AdvisorPage() {
                 label:  lang === 'ar' ? 'الرصيد' : 'Balance',
                 value:  formatCurrency(analysis.balance),
                 icon:   <Wallet className="w-4 h-4" />,
-                bg:     'bg-indigo-500/10', text: analysis.balance >= 0 ? 'text-white' : 'text-red-400',
+                bg:     'bg-sky-500/10', text: analysis.balance >= 0 ? 'text-white' : 'text-red-400',
               },
               {
                 label:  lang === 'ar' ? 'المعاملات' : 'Transactions',
@@ -255,7 +255,7 @@ export default function AdvisorPage() {
 
           {/* AI Analysis card */}
           <div className="glass-card overflow-hidden">
-            <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500" />
+            <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-violet-500 via-purple-500 to-sky-500" />
 
             <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-3">

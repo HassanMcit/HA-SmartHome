@@ -178,10 +178,10 @@ export default function WeatherPrayerWidget() {
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">صباحاً</span>
                 <span className="text-xl font-black text-amber-400">{weather.morningTemp}°</span>
               </div>
-              <div className="bg-indigo-500/8 border border-indigo-500/15 rounded-2xl px-4 py-3 flex flex-col items-center gap-0.5 min-w-[72px]">
-                <Moon className="w-4 h-4 text-indigo-400 mb-0.5" />
+              <div className="bg-sky-500/8 border border-sky-500/15 rounded-2xl px-4 py-3 flex flex-col items-center gap-0.5 min-w-[72px]">
+                <Moon className="w-4 h-4 text-sky-400 mb-0.5" />
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">مساءً</span>
-                <span className="text-xl font-black text-indigo-400">{weather.eveningTemp}°</span>
+                <span className="text-xl font-black text-sky-400">{weather.eveningTemp}°</span>
               </div>
             </div>
           </div>

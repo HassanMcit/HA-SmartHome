@@ -97,7 +97,7 @@ export default function SettingsPage() {
       {/* Header */}
       <div>
         <h2 className="text-[24px] font-bold flex items-center gap-[8px] mb-[4px]" style={{ color: 'var(--foreground)' }}>
-          <Settings className="w-[24px] h-[24px] text-indigo-400" />
+          <Settings className="w-[24px] h-[24px] text-sky-400" />
           {lang === 'ar' ? 'الإعدادات' : 'Settings'}
         </h2>
         <p className="text-[14px]" style={{ color: 'var(--muted-foreground)' }}>
@@ -109,7 +109,7 @@ export default function SettingsPage() {
         {/* Profile Settings */}
         <div className="border rounded-[12px] overflow-hidden" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           <div className="p-[16px] border-b flex items-center gap-[8px]" style={{ borderColor: 'var(--border)', background: 'var(--secondary)' }}>
-            <UserIcon className="w-[20px] h-[20px] text-indigo-400" />
+            <UserIcon className="w-[20px] h-[20px] text-sky-400" />
             <h3 className="font-bold text-[18px]" style={{ color: 'var(--foreground)' }}>
               {lang === 'ar' ? 'الملف الشخصي' : 'Profile'}
             </h3>
@@ -123,7 +123,7 @@ export default function SettingsPage() {
                     {avatar && !avatar.startsWith('RESET:') ? (
                       <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-[28px] font-bold text-indigo-400">{name ? name.charAt(0) : user?.name?.charAt(0)}</span>
+                      <span className="text-[28px] font-bold text-sky-400">{name ? name.charAt(0) : user?.name?.charAt(0)}</span>
                     )}
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-white text-[11px] font-semibold">{lang === 'ar' ? 'تغيير' : 'Change'}</span>
@@ -162,7 +162,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={profileLoading || !name.trim()}
-                className="mt-[8px] w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white rounded-[8px] py-[12px] text-[15px] font-semibold flex items-center justify-center gap-[8px] transition-colors"
+                className="mt-[8px] w-full bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white rounded-[8px] py-[12px] text-[15px] font-semibold flex items-center justify-center gap-[8px] transition-colors"
               >
                 <Save className="w-[18px] h-[18px]" />
                 {profileLoading

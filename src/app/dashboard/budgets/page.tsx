@@ -134,7 +134,7 @@ export default function BudgetsPage() {
               className="text-2xl sm:text-3xl font-black mb-1 flex items-center gap-3"
               style={{ color: 'var(--foreground)' }}
             >
-              <Target className="w-8 h-8 text-indigo-400" />
+              <Target className="w-8 h-8 text-sky-400" />
               {lang === 'ar' ? 'الميزانية الشهرية' : 'Monthly Budget'}
             </h2>
             <p
@@ -152,7 +152,7 @@ export default function BudgetsPage() {
               setTargetUserId(currentUser?.id || '');
               setOpen(true);
             }}
-            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+            className="w-full sm:w-auto bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-sky-600/20 active:scale-95 transition-all"
           >
             <Plus className="w-5 h-5 ml-2" />
             {lang === 'ar' ? 'إضافة ميزانية' : 'Add Budget'}
@@ -170,7 +170,7 @@ export default function BudgetsPage() {
                 style={{ color: 'var(--foreground)' }}
               >
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-indigo-400" />
+                  <Users className="w-4 h-4 text-sky-400" />
                   <SelectValue placeholder={lang === 'ar' ? 'اختر المستخدم' : 'Select user'} />
                 </div>
               </SelectTrigger>
@@ -178,7 +178,7 @@ export default function BudgetsPage() {
                   className="border-white/10 rounded-xl"
                   style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}
                 >
-                  <SelectItem value="all" className="font-bold text-indigo-400 focus:bg-white/10 rounded-lg">
+                  <SelectItem value="all" className="font-bold text-sky-400 focus:bg-white/10 rounded-lg">
                     {lang === 'ar' ? 'كل العائلة' : 'Entire Family'}
                   </SelectItem>
                   {users.map(u => (
@@ -275,7 +275,7 @@ export default function BudgetsPage() {
                   required 
                   value={amount} 
                   onChange={e => setAmount(e.target.value)} 
-                  className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-sky-500/50 outline-none transition-all text-center"
                   placeholder="0.00"
                 />
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">
@@ -287,7 +287,7 @@ export default function BudgetsPage() {
             <Button 
               type="submit" 
               disabled={submitting || !amount || !category}
-              className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
+              className="w-full h-14 bg-sky-600 hover:bg-sky-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-sky-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
             >
               {submitting
                 ? <Loader2 className="w-6 h-6 animate-spin mx-auto" />
@@ -300,7 +300,7 @@ export default function BudgetsPage() {
       {/* Main Content */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+          <Loader2 className="w-10 h-10 text-sky-500 animate-spin" />
           <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">
             {lang === 'ar' ? 'جاري تحميل الميزانية' : 'Loading budgets'}
           </p>
@@ -380,7 +380,7 @@ export default function BudgetsPage() {
                     <div 
                       className={cn(
                         "h-full rounded-full transition-all duration-1000 ease-out",
-                        isOverLimit ? "bg-red-500" : isNearLimit ? "bg-orange-500" : "bg-indigo-500"
+                        isOverLimit ? "bg-red-500" : isNearLimit ? "bg-orange-500" : "bg-sky-500"
                       )}
                       style={{ width: `${percent}%` }}
                     />

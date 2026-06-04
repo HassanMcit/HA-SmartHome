@@ -32,8 +32,8 @@ export default function PublicSplitPage() {
 
           {/* Header */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-              <Sparkles className="w-5 h-5 text-indigo-400" />
+            <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center border border-sky-500/20">
+              <Sparkles className="w-5 h-5 text-sky-400" />
             </div>
             <div>
               <h3 className="text-sm font-extrabold text-white">أدر أموالك بذكاء مع تطبيق مدبّر 🏠💰</h3>
@@ -70,7 +70,7 @@ export default function PublicSplitPage() {
           <div className="flex flex-col gap-2.5">
             <Link 
               href="/register" 
-              className="w-full h-11 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center gap-2 text-xs font-extrabold text-white hover:brightness-110 active:scale-[0.98] transition-all duration-200 shadow-md shadow-indigo-500/10"
+              className="w-full h-11 rounded-xl bg-gradient-to-r from-sky-500 to-purple-600 flex items-center justify-center gap-2 text-xs font-extrabold text-white hover:brightness-110 active:scale-[0.98] transition-all duration-200 shadow-md shadow-sky-500/10"
             >
               <span>أنشئ حسابك مجاناً الآن</span>
               <ArrowRight className="w-4 h-4 rotate-180" />
