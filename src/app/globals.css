@@ -4,51 +4,51 @@
 @theme {
   --font-cairo: 'Cairo', sans-serif;
   
-  --color-primary: #6366f1;
-  --color-primary-dark: #4f46e5;
-  --color-primary-light: #818cf8;
+  --color-primary: #0ea5e9;
+  --color-primary-dark: #0284c7;
+  --color-primary-light: #38bdf8;
   
   --color-success: #10b981;
   --color-danger: #ef4444;
   --color-warning: #f59e0b;
-  --color-info: #3b82f6;
+  --color-info: #0ea5e9;
   
-  --color-bg: #0f0f23;
-  --color-surface: #1a1a35;
-  --color-surface-2: #242444;
-  --color-border: #2d2d5e;
+  --color-bg: #0a0f1a;
+  --color-surface: #0f1b2d;
+  --color-surface-2: #162236;
+  --color-border: #1e3450;
   
   --color-text: #e2e8f0;
   --color-text-muted: #94a3b8;
 }
 
 :root {
-  --background: #0f0f23;
+  --background: #0a0f1a;
   --foreground: #e2e8f0;
-  --card: #1a1a35;
+  --card: #0f1b2d;
   --card-foreground: #e2e8f0;
-  --popover: #1a1a35;
+  --popover: #0f1b2d;
   --popover-foreground: #e2e8f0;
-  --primary: #6366f1;
+  --primary: #0ea5e9;
   --primary-foreground: #ffffff;
-  --secondary: #242444;
+  --secondary: #162236;
   --secondary-foreground: #e2e8f0;
-  --muted: #242444;
+  --muted: #162236;
   --muted-foreground: #94a3b8;
-  --accent: #242444;
+  --accent: #162236;
   --accent-foreground: #e2e8f0;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #2d2d5e;
-  --input: #2d2d5e;
-  --ring: #6366f1;
+  --border: #1e3450;
+  --input: #1e3450;
+  --ring: #0ea5e9;
   --radius: 0.75rem;
-  --chart-1: #6366f1;
+  --chart-1: #0ea5e9;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
   --chart-4: #ef4444;
-  --chart-5: #3b82f6;
-  --logo-bg: #242444;
+  --chart-5: #38bdf8;
+  --logo-bg: #162236;
   --logo-border: rgba(255, 255, 255, 0.1);
 }
 
@@ -56,27 +56,27 @@
    LIGHT MODE VARIABLES
 ────────────────────────────────────────────── */
 html.light {
-  --background: #f1f5f9;
-  --foreground: #1e293b;
+  --background: #f0f7ff;
+  --foreground: #0f2744;
   --card: #ffffff;
-  --card-foreground: #1e293b;
+  --card-foreground: #0f2744;
   --popover: #ffffff;
-  --popover-foreground: #1e293b;
-  --primary: #6366f1;
+  --popover-foreground: #0f2744;
+  --primary: #0ea5e9;
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #334155;
-  --muted: #f1f5f9;
+  --secondary: #e0f2fe;
+  --secondary-foreground: #0369a1;
+  --muted: #e0f2fe;
   --muted-foreground: #64748b;
-  --accent: #e0e7ff;
-  --accent-foreground: #4f46e5;
+  --accent: #bae6fd;
+  --accent-foreground: #0284c7;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #6366f1;
+  --border: #bae6fd;
+  --input: #bae6fd;
+  --ring: #0ea5e9;
   --logo-bg: #ffffff;
-  --logo-border: #cbd5e1;
+  --logo-border: #7dd3fc;
 }
 
 
@@ -127,7 +127,7 @@ input, textarea, [contenteditable] {
 ────────────────────────────────────────────── */
 html.dark body,
 body {
-  background: #0f0f23;
+  background: #0a0f1a;
   color: #e2e8f0;
 }
 
@@ -135,45 +135,50 @@ body {
    LIGHT MODE: base element overrides
 ────────────────────────────────────────────── */
 html.light body {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: #f0f7ff;
+  color: #0f2744;
 }
 
 /* ─── Layout backgrounds ─── */
+html.light .bg-\[\#0a0f1a\],
 html.light .bg-\[\#0f0f23\],
-html.light .min-h-screen.bg-\[\#0f0f23\] {
-  background: #f1f5f9 !important;
+html.light .min-h-screen.bg-\[\#0f0f23\],
+html.light .min-h-screen.bg-\[\#0a0f1a\] {
+  background: #f0f7ff !important;
 }
 
+html.light .bg-\[\#0f1b2d\],
 html.light .bg-\[\#1a1a35\],
-html.light [class*="bg-[#1a1a35]"] {
+html.light [class*="bg-[#1a1a35]"],
+html.light [class*="bg-[#0f1b2d]"] {
   background: #ffffff !important;
 }
 
+html.light .bg-\[\#0f1b2d\]\/80,
 html.light .bg-\[\#1a1a35\]\/80 {
   background: rgba(255,255,255,0.9) !important;
 }
 
 html.light [class*="direction-rtl"],
 html.light .flex.min-h-screen {
-  background: #f1f5f9;
+  background: #f0f7ff;
 }
 
 /* ─── Sidebar in light mode ─── */
 html.light aside,
 html.light .w-64.h-full {
   background: #ffffff !important;
-  border-color: #e2e8f0 !important;
+  border-color: #bae6fd !important;
 }
 
 html.light .border-white\/5,
 html.light [class*="border-white/5"] {
-  border-color: #e2e8f0 !important;
+  border-color: #e0f2fe !important;
 }
 
 html.light .border-white\/10,
 html.light [class*="border-white/10"] {
-  border-color: #cbd5e1 !important;
+  border-color: #bae6fd !important;
 }
 
 /* ─── Text colors ─── */
@@ -226,8 +231,12 @@ html.light [class*="divide-white/10"] > * + * {
 html.light .text-indigo-300,
 html.light [class*="text-indigo-300"],
 html.light .text-indigo-400,
-html.light [class*="text-indigo-400"] {
-  color: #4f46e5 !important; /* Indigo 600 */
+html.light [class*="text-indigo-400"],
+html.light .text-sky-300,
+html.light [class*="text-sky-300"],
+html.light .text-sky-400,
+html.light [class*="text-sky-400"] {
+  color: #0284c7 !important; /* Sky 600 */
 }
 
 html.light .text-amber-400,
@@ -236,13 +245,21 @@ html.light [class*="text-amber-400"] {
 }
 
 html.light .bg-indigo-600\/20,
-html.light [class*="bg-indigo-600/20"] {
-  background-color: #e0e7ff !important; /* Indigo 100 */
+html.light [class*="bg-indigo-600/20"],
+html.light .bg-sky-600\/20,
+html.light [class*="bg-sky-600/20"] {
+  background-color: #e0f2fe !important; /* Sky 100 */
 }
 
 /* Force white text ONLY on solid dark-colored button/badge backgrounds in light mode */
 /* NOTE: Do NOT use [class*="bg-emerald-500"] or [class*="bg-red-500"] wildcards —
    they would also match bg-emerald-500/10 icon wrappers and make icons invisible! */
+html.light .bg-sky-500,
+html.light .bg-sky-500 *,
+html.light .bg-sky-600,
+html.light .bg-sky-600 *,
+html.light .bg-sky-700,
+html.light .bg-sky-700 *,
 html.light .bg-indigo-600,
 html.light .bg-indigo-600 *,
 html.light .bg-indigo-700,
@@ -255,6 +272,8 @@ html.light .bg-emerald-500,
 html.light .bg-emerald-500 *,
 html.light .bg-gradient-to-r,
 html.light .bg-gradient-to-r *,
+html.light .hover\:bg-sky-600:hover,
+html.light .hover\:bg-sky-600:hover *,
 html.light .hover\:bg-indigo-600:hover,
 html.light .hover\:bg-indigo-600:hover * {
   color: #ffffff !important;
@@ -264,6 +283,8 @@ html.light .hover\:bg-indigo-600:hover * {
 html.light .bg-emerald-500\/10 svg,
 html.light .bg-red-500\/10 svg,
 html.light .bg-red-400\/10 svg,
+html.light .bg-sky-500\/10 svg,
+html.light .bg-sky-400\/10 svg,
 html.light .bg-indigo-500\/10 svg,
 html.light .bg-indigo-400\/10 svg,
 html.light .bg-amber-500\/10 svg,
@@ -278,8 +299,8 @@ html.light .bg-purple-500\/10 svg {
 /* ─── Glass Card ─── */
 html.light .glass-card {
   background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid rgba(99, 102, 241, 0.15) !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
+  border: 1px solid rgba(14, 165, 233, 0.15) !important;
+  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.06) !important;
 }
 
 /* ─── Backgrounds with opacity ─── */
@@ -301,8 +322,8 @@ html.light .bg-\[\#1a1a35\]\/80 {
 
 /* ─── Credentials / account number panels ─── */
 html.light .bg-black\/20 {
-  background: rgba(99, 102, 241, 0.04) !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
+  background: rgba(14, 165, 233, 0.04) !important;
+  border-color: rgba(14, 165, 233, 0.15) !important;
 }
 
 /* ─── Input fields ─── */
@@ -332,7 +353,7 @@ html.light [class*="DialogContent"] {
 /* ─── Header in light mode ─── */
 html.light header {
   background: rgba(255,255,255,0.95) !important;
-  border-color: #e2e8f0 !important;
+  border-color: #bae6fd !important;
 }
 
 /* ─── Hover states ─── */
@@ -343,21 +364,21 @@ html.light .hover\:bg-white\/5:hover {
 /* ─── Scrollbar ─── */
 html.dark ::-webkit-scrollbar-track,
 ::-webkit-scrollbar-track {
-  background: #1a1a35;
+  background: #0f1b2d;
 }
 html.light ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #e0f2fe;
 }
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #6366f1;
+  background: #0ea5e9;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4f46e5;
+  background: #0284c7;
 }
 
 /* ─── Navigation links in light ─── */
@@ -371,15 +392,15 @@ html.light nav a:hover {
 
 /* Glass Card */
 .glass-card {
-  background: rgba(26, 26, 53, 0.8);
+  background: rgba(15, 27, 45, 0.8);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(14, 165, 233, 0.2);
   border-radius: 16px;
 }
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1, #818cf8);
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -462,8 +483,8 @@ dialog input, dialog select, dialog textarea {
 }
 
 .bills-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
 }
 
 .bills-input::placeholder {
@@ -492,8 +513,8 @@ html.light input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(14, 165, 233, 0); }
 }
 
 .animate-fade-in {
@@ -534,7 +555,7 @@ input[type=number] {
   margin: 8px 0; /* Keeps scrollbar away from top/bottom rounded corners */
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.4);
+  background: rgba(14, 165, 233, 0.4);
   border-radius: 10px;
   border: 1px solid transparent;
   background-clip: content-box;
@@ -559,19 +580,19 @@ input[type=number] {
 }
 
 .theme-toggle-btn:hover {
-  background: rgba(99,102,241,0.15);
-  border-color: rgba(99,102,241,0.3);
-  color: #818cf8;
+  background: rgba(14,165,233,0.15);
+  border-color: rgba(14,165,233,0.3);
+  color: #38bdf8;
   transform: scale(1.05);
 }
 
 html.light .theme-toggle-btn {
-  border-color: rgba(0,0,0,0.1);
-  background: rgba(0,0,0,0.04);
-  color: #64748b;
+  border-color: rgba(14,165,233,0.15);
+  background: rgba(14,165,233,0.05);
+  color: #0369a1;
 }
 
 html.light .theme-toggle-btn:hover {
-  background: rgba(99,102,241,0.1);
-  color: #6366f1;
+  background: rgba(14,165,233,0.1);
+  color: #0ea5e9;
 }
