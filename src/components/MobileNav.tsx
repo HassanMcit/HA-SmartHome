@@ -13,6 +13,7 @@ import {
   Target,
   FileText,
   Sparkles,
+  BrainCircuit,
   ShieldCheck,
   Menu,
   LogOut,
@@ -61,6 +62,7 @@ export default function MobileNav() {
     { href: '/dashboard/bills', icon: FileText, labelKey: 'nav_bills' as const },
     { href: '/dashboard/reminders', icon: Bell, labelKey: 'nav_reminders' as const },
     { href: '/dashboard/split', icon: Receipt, labelKey: 'nav_split' as const },
+    { href: '/dashboard/advisor', icon: BrainCircuit, labelKey: 'nav_advisor' as const },
     { href: '/dashboard/settings', icon: SettingsIcon, labelKey: 'nav_settings' as const },
   ];
 

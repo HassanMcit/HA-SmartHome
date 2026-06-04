@@ -13,6 +13,7 @@ const translations = {
   nav_reminders: { ar: 'ذكّرني', en: 'Reminders' },
   nav_split: { ar: 'شيل معايا', en: 'Split Bill' },
   nav_ai: { ar: 'التحليلات', en: 'Analytics' },
+  nav_advisor: { ar: 'مستشارك المالي', en: 'Financial Advisor' },
   nav_admin: { ar: 'لوحة التحكم', en: 'Admin Panel' },
   nav_settings: { ar: 'الإعدادات', en: 'Settings' },
   nav_logout: { ar: 'تسجيل الخروج', en: 'Logout' },

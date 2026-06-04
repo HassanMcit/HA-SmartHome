@@ -12,6 +12,7 @@ import {
   Target,
   FileText,
   Sparkles,
+  BrainCircuit,
   Settings,
   LogOut,
   Home,
@@ -40,6 +41,7 @@ export default function Sidebar() {
     { href: '/dashboard/reminders', icon: Bell, labelKey: 'nav_reminders' as const },
     { href: '/dashboard/split', icon: Receipt, labelKey: 'nav_split' as const },
     { href: '/dashboard/ai', icon: Sparkles, labelKey: 'nav_ai' as const },
+    { href: '/dashboard/advisor', icon: BrainCircuit, labelKey: 'nav_advisor' as const },
   ];
 
   const isActive = (href: string) => {
