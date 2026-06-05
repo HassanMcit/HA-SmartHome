@@ -37,15 +37,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0f0f23] relative overflow-hidden selection:bg-lime-500/30">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0f0f23] relative overflow-hidden selection:bg-indigo-500/30">
       {/* Background blobs */}
-      <div className="absolute top-[-10%] left-[20%] w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-lime-600/10 blur-[80px] sm:blur-[120px] pointer-events-none animate-pulse" />
+      <div className="absolute top-[-10%] left-[20%] w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-indigo-600/10 blur-[80px] sm:blur-[120px] pointer-events-none animate-pulse" />
       <div className="absolute bottom-[-10%] right-[20%] w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-purple-600/10 blur-[80px] sm:blur-[120px] pointer-events-none animate-pulse delay-700" />
 
       <div className="w-full max-w-[440px] relative z-10 animate-fade-in">
         {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-lime-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-lime-500/20 pulse-glow">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20 pulse-glow">
             <Home className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-black gradient-text tracking-tight">
@@ -69,7 +69,7 @@ export default function LoginPage() {
                 placeholder="example@home.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-lime-500 focus:ring-lime-500/20 rounded-xl text-left"
+                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-left"
                 dir="ltr"
                 disabled={loading}
               />
@@ -79,7 +79,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
                 <Label className="text-slate-300 text-sm font-semibold">كلمة المرور</Label>
-                <Link href="/forgot-password" size="sm" className="text-xs text-slate-500 hover:text-green-400 transition-colors">
+                <Link href="/forgot-password" size="sm" className="text-xs text-slate-500 hover:text-indigo-400 transition-colors">
                   نسيت كلمة المرور؟
                 </Link>
               </div>
@@ -89,7 +89,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-lime-500 focus:ring-lime-500/20 rounded-xl pl-12 text-left"
+                  className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl pl-12 text-left"
                   dir="ltr"
                   disabled={loading}
                 />
@@ -107,7 +107,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold rounded-xl text-white bg-gradient-to-r from-lime-600 to-purple-600 hover:from-lime-500 hover:to-purple-500 shadow-lg shadow-lime-500/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100"
+              className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100"
             >
               {loading ? (
                 <div className="flex items-center gap-2">
@@ -127,7 +127,7 @@ export default function LoginPage() {
           <div className="mt-8 pt-8 border-t border-white/5 text-center">
             <p className="text-slate-400 text-sm">
               ليس لديك حساب؟{' '}
-              <Link href="/register" className="text-green-400 font-bold hover:text-green-300 transition-colors underline-offset-4 hover:underline">
+              <Link href="/register" className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors underline-offset-4 hover:underline">
                 طلب تسجيل
               </Link>
             </p>
@@ -135,7 +135,7 @@ export default function LoginPage() {
         </div>
 
         {/* Demo Accounts Hint */}
-        <div className="mt-6 p-4 rounded-2xl bg-lime-500/5 border border-lime-500/10 text-center animate-fade-in [animation-delay:200ms]">
+        <div className="mt-6 p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-center animate-fade-in [animation-delay:200ms]">
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">حسابات تجريبية</p>
           <div className="grid grid-cols-1 gap-1 text-[11px] sm:text-xs text-slate-500 leading-relaxed">
             <p><span className="text-slate-400 font-semibold">مدير:</span> admin@home.com / admin123</p>

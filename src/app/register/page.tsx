@@ -75,15 +75,15 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0f0f23] relative overflow-hidden selection:bg-lime-500/30">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0f0f23] relative overflow-hidden selection:bg-indigo-500/30">
       {/* Background orbs */}
-      <div className="absolute top-[-5%] right-[10%] w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] rounded-full bg-lime-600/10 blur-[70px] sm:blur-[110px] pointer-events-none animate-pulse" />
+      <div className="absolute top-[-5%] right-[10%] w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] rounded-full bg-indigo-600/10 blur-[70px] sm:blur-[110px] pointer-events-none animate-pulse" />
       <div className="absolute bottom-[-5%] left-[10%] w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] rounded-full bg-purple-600/10 blur-[70px] sm:blur-[110px] pointer-events-none animate-pulse delay-1000" />
 
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-lime-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-lime-500/20 pulse-glow">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20 pulse-glow">
             <Home className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-black gradient-text tracking-tight">مدبّر</h1>
@@ -116,7 +116,7 @@ export default function RegisterPage() {
                 placeholder="أدخل اسمك الكامل"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-lime-500 focus:ring-lime-500/20 rounded-xl"
+                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl"
                 disabled={loading}
               />
             </div>
@@ -129,7 +129,7 @@ export default function RegisterPage() {
                 placeholder="example@home.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-lime-500 focus:ring-lime-500/20 rounded-xl text-left"
+                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-left"
                 dir="ltr"
                 disabled={loading}
               />
@@ -144,7 +144,7 @@ export default function RegisterPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-lime-500 focus:ring-lime-500/20 rounded-xl pl-12 text-left"
+                  className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl pl-12 text-left"
                   dir="ltr"
                   disabled={loading}
                 />
@@ -166,7 +166,7 @@ export default function RegisterPage() {
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-lime-500 focus:ring-lime-500/20 rounded-xl text-left"
+                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-left"
                 dir="ltr"
                 disabled={loading}
               />
@@ -175,7 +175,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold rounded-xl text-white bg-gradient-to-r from-lime-600 to-purple-600 hover:from-lime-500 hover:to-purple-500 shadow-lg shadow-lime-500/20 transition-all active:scale-[0.98] mt-4 disabled:opacity-70 disabled:active:scale-100"
+              className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98] mt-4 disabled:opacity-70 disabled:active:scale-100"
             >
               {loading ? (
                 <div className="flex items-center gap-2">
@@ -195,7 +195,7 @@ export default function RegisterPage() {
           <div className="mt-8 pt-8 border-t border-white/5 text-center">
             <p className="text-slate-400 text-sm">
               لديك حساب بالفعل؟{' '}
-              <Link href="/login" className="text-green-400 font-bold hover:text-green-300 transition-colors underline-offset-4 hover:underline">
+              <Link href="/login" className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors underline-offset-4 hover:underline">
                 تسجيل الدخول
               </Link>
             </p>

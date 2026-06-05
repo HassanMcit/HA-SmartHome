@@ -30,11 +30,11 @@ export default function DashboardLayout({
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f0f23] gap-6">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-lime-500 to-purple-600 flex items-center justify-center shadow-lg shadow-lime-500/20 pulse-glow">
+        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 pulse-glow">
           <Home className="w-10 h-10 text-white" />
         </div>
         <div className="flex flex-col items-center gap-2">
-          <Loader2 className="w-6 h-6 text-green-400 animate-spin" />
+          <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
           <p className="text-slate-500 text-sm font-bold tracking-widest uppercase">{t('loading')}</p>
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function DashboardLayout({
         {/* Mobile Header */}
         <header className="md:hidden sticky top-0 z-40 bg-[#1a1a35]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-lime-500 to-purple-600 flex items-center justify-center shadow-lg shadow-lime-500/20 group-hover:scale-110 transition-transform">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
               <Home className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-black gradient-text tracking-tight">{t('app_name')}</span>
@@ -90,9 +90,9 @@ export default function DashboardLayout({
               <Languages className="w-4 h-4" />
             </button>
             <Link href="/dashboard/settings" className="group">
-              <Avatar className="w-10 h-10 border-2 border-white/5 group-hover:border-lime-500/30 transition-all">
+              <Avatar className="w-10 h-10 border-2 border-white/5 group-hover:border-indigo-500/30 transition-all">
                 <AvatarImage src={user?.avatar && !user.avatar.startsWith('RESET:') ? user.avatar : undefined} />
-                <AvatarFallback className="bg-gradient-to-br from-lime-500 to-pink-500 text-white font-black">
+                <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-pink-500 text-white font-black">
                   {user.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>

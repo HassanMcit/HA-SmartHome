@@ -85,7 +85,7 @@ export default function BankSelector({ selectedName, onSelect, type = 'all' }: B
           placeholder={lang === 'ar' ? 'ابحث باسم البنك أو المحفظة...' : 'Search bank or wallet name...'}
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="w-full h-11 bg-[#242444] border border-[#2d2d5e] focus:border-lime-500 focus:ring-lime-500/20 text-white rounded-xl pr-10 pl-4 outline-none text-xs font-semibold placeholder:text-slate-500 transition-all text-right"
+          className="w-full h-11 bg-[#242444] border border-[#2d2d5e] focus:border-indigo-500 focus:ring-indigo-500/20 text-white rounded-xl pr-10 pl-4 outline-none text-xs font-semibold placeholder:text-slate-500 transition-all text-right"
         />
         <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
       </div>

@@ -95,8 +95,8 @@ export default function ForgotPasswordPage() {
           {step === 'email' && (
             <>
               <div className="mb-6 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-lime-500/20 flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-7 h-7 text-green-400" />
+                <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-7 h-7 text-indigo-400" />
                 </div>
                 <h2 className="text-xl font-bold text-white">نسيت كلمة المرور؟</h2>
                 <p className="text-slate-400 text-sm mt-2 leading-relaxed">
@@ -222,7 +222,7 @@ export default function ForgotPasswordPage() {
 
           {step !== 'done' && (
             <div className="mt-6 pt-6 border-t border-slate-700 text-center">
-              <Link href="/login" className="text-green-400 hover:text-green-300 font-medium text-sm flex items-center justify-center gap-2">
+              <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-medium text-sm flex items-center justify-center gap-2">
                 <ArrowRight className="w-4 h-4" />
                 العودة لتسجيل الدخول
               </Link>

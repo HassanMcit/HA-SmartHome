@@ -288,7 +288,7 @@ export default function BillsPage() {
               className={cn(
                 "px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2",
                 selectedUserId === 'all'
-                  ? "bg-lime-500 text-white shadow-lg shadow-lime-500/20"
+                  ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/20"
                   : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
               )}
             >
@@ -367,7 +367,7 @@ export default function BillsPage() {
                       <span className={cn("font-bold text-sm sm:text-base break-words whitespace-normal", bill.isPaid ? "text-emerald-500 line-through" : "")} style={bill.isPaid ? {} : { color: 'var(--foreground)' }}>
                         {bill.name}
                       </span>
-                      {bill.isRecurring && <span className="text-[9px] font-black uppercase tracking-wider bg-lime-500/15 text-green-400 px-2 py-0.5 rounded-md border border-lime-500/20 shrink-0">{lang === 'ar' ? 'متكررة' : 'Recurring'}</span>}
+                      {bill.isRecurring && <span className="text-[9px] font-black uppercase tracking-wider bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20 shrink-0">{lang === 'ar' ? 'متكررة' : 'Recurring'}</span>}
                       {bill.isPaid && <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-500 px-2 py-0.5 rounded-md border border-emerald-500/20 shrink-0">{lang === 'ar' ? 'مدفوعة' : 'Paid'}</span>}
                     </div>
                     <div className="flex items-center gap-3 text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
