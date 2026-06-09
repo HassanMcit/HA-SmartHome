@@ -411,7 +411,36 @@ html.light nav a:hover {
   .panels-grid {
     grid-template-columns: 1fr !important;
   }
+
+  /* Fix: select dropdown portal must appear above dialog overlay on mobile */
+  [data-slot="select-content"],
+  [data-radix-popper-content-wrapper] {
+    z-index: 9999 !important;
+  }
+
+  /* Fix: Dialog overlay should not trap select portal */
+  [role="dialog"] {
+    overflow: visible !important;
+  }
 }
+
+/* Ensure select portals always render on top of modals */
+[data-slot="select-content"] {
+  z-index: 9999 !important;
+}
+
+/* Prevent select popup clipping inside dialog on mobile */
+[data-slot="select-content"] * {
+  touch-action: manipulation;
+}
+
+/* Fix: select positioner always gets a minimum height even if --available-height is 0 */
+[data-slot="select-content"] {
+  max-height: min(320px, 60dvh) !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
 
 /* Page section spacing */
 .page-section {

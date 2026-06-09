@@ -238,29 +238,29 @@ export default function AccountDetailPage() {
   return (
     <div className="flex flex-col gap-6 pb-20 animate-fade-in text-right" dir="rtl">
       {/* Navigation Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <button 
           onClick={() => router.push('/dashboard')}
-          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm font-bold bg-white/5 px-4 py-2 rounded-xl border border-white/5"
+          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm font-bold bg-white/5 px-4 py-2.5 rounded-xl border border-white/5 w-full sm:w-auto justify-center sm:justify-start active:scale-95"
         >
           <ArrowLeft className="w-4 h-4 rotate-180" />
           {lang === 'ar' ? 'العودة للرئيسية' : 'Back to Dashboard'}
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button 
             onClick={() => setEditDialogOpen(true)}
-            className="flex items-center gap-2 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all text-sm font-bold px-4 py-2 rounded-xl border border-indigo-500/10 active:scale-95"
+            className="flex items-center justify-center gap-2 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all text-xs sm:text-sm font-bold px-3 sm:px-4 py-2.5 rounded-xl border border-indigo-500/10 active:scale-95 flex-1 sm:flex-none"
           >
-            <Pencil className="w-4 h-4" />
-            {lang === 'ar' ? 'تعديل الحساب' : 'Edit Account'}
+            <Pencil className="w-4 h-4 shrink-0" />
+            <span>{lang === 'ar' ? 'تعديل الحساب' : 'Edit Account'}</span>
           </button>
           <button 
             onClick={() => setDeleteDialogOpen(true)}
-            className="flex items-center gap-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all text-sm font-bold px-4 py-2 rounded-xl border border-red-500/10 active:scale-95"
+            className="flex items-center justify-center gap-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs sm:text-sm font-bold px-3 sm:px-4 py-2.5 rounded-xl border border-red-500/10 active:scale-95 flex-1 sm:flex-none"
           >
-            <Trash2 className="w-4 h-4" />
-            {lang === 'ar' ? 'حذف الحساب' : 'Delete Account'}
+            <Trash2 className="w-4 h-4 shrink-0" />
+            <span>{lang === 'ar' ? 'حذف الحساب' : 'Delete Account'}</span>
           </button>
         </div>
       </div>
@@ -289,7 +289,7 @@ export default function AccountDetailPage() {
 
         {/* Account credentials */}
         {(account.accountNum || account.iban) && (
-          <div className="flex flex-col gap-3 bg-black/20 p-4 rounded-2xl border border-white/5 min-w-[260px] w-full md:w-auto" dir="rtl">
+          <div className="flex flex-col gap-3 bg-black/20 p-4 rounded-2xl border border-white/5 w-full md:w-auto overflow-x-auto" dir="rtl">
             {account.accountNum && (
               <div className="flex flex-col gap-1 text-right">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">

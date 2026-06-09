@@ -15,6 +15,7 @@ export default function RemindersPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // Form State
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -118,10 +119,15 @@ export default function RemindersPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm(lang === 'ar' ? 'هل أنت متأكد من حذف هذا التذكير؟' : 'Are you sure you want to delete this reminder?')) return;
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
     try {
-      await remindersApi.delete(id);
+      await remindersApi.delete(deleteConfirmId);
       toast.success(lang === 'ar' ? 'تم الحذف بنجاح' : 'Deleted successfully');
+      setDeleteConfirmId(null);
       fetchReminders();
     } catch (error: any) {
       toast.error(lang === 'ar' ? 'حدث خطأ في الحذف' : 'Error deleting reminder', { description: error.message });
@@ -427,6 +433,46 @@ export default function RemindersPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setDeleteConfirmId(null)}
+          />
+          <div
+            className="relative border border-white/10 rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200 sm:slide-in-from-bottom-0"
+            style={{ background: 'var(--card)' }}
+          >
+            <div className="p-6 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-rose-500/10 flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-7 h-7 text-rose-500" />
+              </div>
+              <h3 className="text-xl font-black text-white mb-2">
+                {lang === 'ar' ? 'حذف التذكير' : 'Delete Reminder'}
+              </h3>
+              <p className="text-slate-400 text-sm mb-6">
+                {lang === 'ar' ? 'هل أنت متأكد من حذف هذا التذكير؟ لا يمكن التراجع.' : 'Are you sure you want to delete this reminder? This cannot be undone.'}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl transition-all active:scale-95"
+                >
+                  {lang === 'ar' ? 'حذف نهائي' : 'Delete'}
+                </button>
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all"
+                >
+                  {lang === 'ar' ? 'إلغاء' : 'Cancel'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

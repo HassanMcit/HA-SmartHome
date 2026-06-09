@@ -493,14 +493,15 @@ export default function TransactionsPage() {
                 </div>
 
                 <div className="space-y-2 text-right">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الوصف</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الوصف — ماذا فعلت؟</label>
                   <input 
                     type="text" 
                     value={description} 
                     onChange={e => setDescription(e.target.value)} 
                     className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all text-right"
-                    placeholder="مثال: شراء بقالة، راتب شهري..."
+                    placeholder="مثال: فطور كافيه، بنزين عربية، دفعت إيجار، اشتريت..."
                   />
+                  <p className="text-[10px] text-slate-500 mr-1">💡 اكتب بالتفصيل إيه اللي عملته — المبلغ راح على إيه؟</p>
                 </div>
 
                 <div className="space-y-2 text-right">
@@ -580,68 +581,74 @@ export default function TransactionsPage() {
             const isIncome = tx.type === 'income';
             
             return (
-              <div key={tx.id} className="glass-card p-4 sm:p-5 flex items-center justify-between gap-4 group hover:border-white/10 transition-all active:scale-[0.99]">
-                <div className="flex items-center gap-4 flex-1 min-w-0">
+              <div key={tx.id} className="glass-card p-4 sm:p-5 flex items-start sm:items-center justify-between gap-3 group hover:border-white/10 transition-all active:scale-[0.99]">
+                <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
                   <div className={cn(
-                    "w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-2xl shadow-inner transition-transform group-hover:scale-110 shrink-0",
+                    "w-11 h-11 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xl sm:text-2xl shadow-inner transition-transform group-hover:scale-110 shrink-0 mt-0.5 sm:mt-0",
                     isIncome ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
                   )}>
                     {cat.icon}
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <h4 className="font-bold text-white text-sm sm:text-base break-words whitespace-normal">{tx.description || cat.label}</h4>
+                  <div className="min-w-0 flex-1">
+                    {/* Title row */}
+                    <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                      <h4 className="font-bold text-white text-sm sm:text-base leading-snug break-words whitespace-normal">
+                        {tx.description || cat.label}
+                      </h4>
                       {isAdmin && (
-                        <span className="text-[9px] px-2 py-0.5 bg-white/5 text-slate-400 rounded-full font-bold whitespace-nowrap">
-                          {users.find(u => u.id === tx.userId)?.name || 'مستخدم'}
+                        <span className="text-[9px] px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full font-bold whitespace-nowrap border border-indigo-500/20">
+                          👤 {users.find(u => u.id === tx.userId)?.name || 'مستخدم'}
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-3 text-[10px] sm:text-xs font-bold text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <Tag className="w-3 h-3" />
+
+                    {/* Meta row: category + date + account */}
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-[10px] sm:text-[11px] font-semibold text-slate-500">
+                      <span className="flex items-center gap-1 bg-white/[0.04] px-2 py-0.5 rounded-md">
+                        <Tag className="w-2.5 h-2.5 shrink-0" />
                         {cat.label}
                       </span>
-                      <span>•</span>
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' })}
+                        <Calendar className="w-2.5 h-2.5 shrink-0" />
+                        {new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short', year: '2-digit' })}
                       </span>
-                      {tx.account && (
-                        <>
-                          <span>•</span>
-                          <span className="flex items-center gap-1 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full text-slate-400 font-semibold text-[10px]">
-                            <BankLogo name={tx.account.name} size="sm" className="w-3.5 h-3.5 rounded border-0" />
-                            {getTranslatedBankName(tx.account.name, lang)}
-                          </span>
-                        </>
+                      {tx.account ? (
+                        <span className="flex items-center gap-1 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full text-slate-400 font-semibold">
+                          <BankLogo name={tx.account.name} size="sm" className="w-3 h-3 rounded border-0 shrink-0" />
+                          {getTranslatedBankName(tx.account.name, lang)}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-slate-600 text-[9px] italic">
+                          سجل عام
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
 
+                {/* Right side: amount + actions */}
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <div className={cn(
-                    "text-base sm:text-xl font-black tabular-nums flex items-center gap-1",
+                    "text-sm sm:text-xl font-black tabular-nums flex items-center gap-0.5 sm:gap-1",
                     isIncome ? "text-emerald-500" : "text-red-500"
                   )}>
-                    {isIncome ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
-                    {formatCurrency(tx.amount)}
+                    {isIncome ? <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" /> : <ArrowDownRight className="w-4 h-4 sm:w-5 sm:h-5" />}
+                    <span className="text-sm sm:text-base">{formatCurrency(tx.amount)}</span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <button 
                       onClick={() => handleOpenEdit(tx)}
-                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all active:scale-90"
+                      className="p-1.5 sm:p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all active:scale-90"
                       title="تعديل"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                     <button 
                       onClick={() => setDeleteDialog({ isOpen: true, transactionId: tx.id, description: tx.description || cat.label })}
-                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
+                      className="p-1.5 sm:p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
                       title="حذف"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 </div>
@@ -792,14 +799,15 @@ export default function TransactionsPage() {
             </div>
 
             <div className="space-y-2 text-right">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الوصف</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الوصف — ماذا فعلت؟</label>
               <input 
                 type="text" 
                 value={editDescription} 
                 onChange={e => setEditDescription(e.target.value)} 
                 className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all text-right"
-                placeholder="مثال: شراء بقالة، راتب شهري..."
+                placeholder="مثال: فطور كافيه، بنزين عربية، دفعت إيجار، اشتريت..."
               />
+              <p className="text-[10px] text-slate-500 mr-1">💡 اكتب بالتفصيل إيه اللي عملته — المبلغ راح على إيه؟</p>
             </div>
 
             <div className="space-y-2 text-right">

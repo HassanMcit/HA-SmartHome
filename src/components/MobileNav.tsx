@@ -103,15 +103,19 @@ export default function MobileNav() {
               <span className="text-[10px] font-bold">{t('nav_more')}</span>
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="bg-[#0f0f23] border-white/5 rounded-t-[32px] p-6 pb-12 outline-none">
-            <SheetHeader className="mb-6">
-              <div className="w-12 h-1.5 bg-slate-800 rounded-full mx-auto mb-6" />
-              <SheetTitle className={cn("text-slate-400 text-sm font-bold uppercase tracking-wider", isRtl ? "text-right pr-2" : "text-left pl-2")}>
-                {t('nav_more_menu')}
-              </SheetTitle>
-            </SheetHeader>
-            
-            <div className="space-y-2">
+          <SheetContent side="bottom" className="bg-[#0f0f23] border-white/5 rounded-t-[32px] p-0 outline-none max-h-[85dvh] overflow-hidden flex flex-col">
+            {/* Handle bar + header */}
+            <div className="px-6 pt-5 pb-4 flex-shrink-0">
+              <div className="w-12 h-1.5 bg-slate-800 rounded-full mx-auto mb-5" />
+              <SheetHeader className="p-0">
+                <SheetTitle className={cn("text-slate-400 text-sm font-bold uppercase tracking-wider", isRtl ? "text-right" : "text-left")}>
+                  {t('nav_more_menu')}
+                </SheetTitle>
+              </SheetHeader>
+            </div>
+
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto px-6 pb-8 space-y-1">
               {moreItems.map((item) => {
                 const active = isActive(item.href);
                 return (
@@ -138,7 +142,7 @@ export default function MobileNav() {
                 );
               })}
 
-              <div className="pt-4 mt-4 border-t border-white/5">
+              <div className="pt-3 mt-3 border-t border-white/5">
                 <button
                   onClick={() => {
                     logout();

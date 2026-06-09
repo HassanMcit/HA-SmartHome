@@ -72,20 +72,38 @@ function SelectContent({
   >) {
   return (
     <SelectPrimitive.Portal>
+      {/* Backdrop - closes select on tap (important for mobile) */}
+      <SelectPrimitive.Backdrop
+        className="fixed inset-0 z-[9998]"
+        style={{ zIndex: 9998 }}
+      />
       <SelectPrimitive.Positioner
         side={side}
         sideOffset={sideOffset}
         align={align}
         alignOffset={alignOffset}
         alignItemWithTrigger={alignItemWithTrigger}
-        className="isolate z-50"
+        className="isolate z-[9999]"
+        style={{ zIndex: 9999 }}
       >
         <SelectPrimitive.Popup
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
-          className={cn("relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-[260px] origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
+          className={cn(
+            "relative isolate z-[9999] max-h-[min(var(--available-height,320px),65dvh)] w-[max(var(--anchor-width,240px),240px)] min-w-[220px] origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-xl bg-popover text-popover-foreground shadow-2xl ring-1 ring-foreground/10 duration-100",
+            "data-[align-trigger=true]:animate-none",
+            "data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+            "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            className
+          )}
+          style={{ touchAction: 'pan-y' }}
           {...props}
         >
+          {/* Mobile close hint */}
+          <div className="sticky top-0 z-10 flex items-center justify-between px-3 py-2 border-b border-foreground/5 bg-popover/95 backdrop-blur-sm sm:hidden">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">اختر من القائمة</span>
+            <ChevronDownIcon className="w-4 h-4 text-muted-foreground" />
+          </div>
           <SelectPrimitive.List className="py-1.5 px-1">{children}</SelectPrimitive.List>
         </SelectPrimitive.Popup>
       </SelectPrimitive.Positioner>
