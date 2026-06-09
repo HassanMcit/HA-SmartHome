@@ -439,13 +439,13 @@ export default function RemindersPage() {
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={() => setDeleteConfirmId(null)}
           />
           <div
-            className="relative border border-white/10 rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200 sm:slide-in-from-bottom-0"
+            className="relative border border-white/10 rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             style={{ background: 'var(--card)' }}
           >
             <div className="p-6 text-center">

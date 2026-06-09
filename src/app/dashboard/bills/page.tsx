@@ -339,62 +339,75 @@ export default function BillsPage() {
 
             return (
               <div key={bill.id} className={cn(
-                "glass-card p-4 sm:p-5 flex items-center justify-between gap-4 transition-all",
+                "glass-card p-4 flex gap-3 transition-all",
                 bill.isPaid && "opacity-70"
               )}>
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <button
-                    onClick={() => handleToggle(bill.id, bill.isPaid, bill.amount, bill.name)}
-                    disabled={isToggling}
-                    className={cn(
-                      "w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
-                      bill.isPaid
-                        ? "border-emerald-500 bg-emerald-500/15 text-emerald-500"
-                        : "border-slate-600 bg-transparent text-slate-500 hover:border-amber-400 hover:text-amber-400",
-                      isToggling && "opacity-50 cursor-not-allowed"
-                    )}
-                  >
-                    {isToggling
-                      ? <Loader2 className="w-4 h-4 animate-spin" />
-                      : bill.isPaid
-                        ? <CheckCircle2 className="w-5 h-5" />
-                        : <Circle className="w-5 h-5" />
-                    }
-                  </button>
+                {/* Toggle button */}
+                <button
+                  onClick={() => handleToggle(bill.id, bill.isPaid, bill.amount, bill.name)}
+                  disabled={isToggling}
+                  className={cn(
+                    "w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all",
+                    bill.isPaid
+                      ? "border-emerald-500 bg-emerald-500/15 text-emerald-500"
+                      : "border-slate-600 bg-transparent text-slate-500 hover:border-amber-400 hover:text-amber-400",
+                    isToggling && "opacity-50 cursor-not-allowed"
+                  )}
+                >
+                  {isToggling
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : bill.isPaid
+                      ? <CheckCircle2 className="w-5 h-5" />
+                      : <Circle className="w-5 h-5" />
+                  }
+                </button>
 
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className={cn("font-bold text-sm sm:text-base break-words whitespace-normal", bill.isPaid ? "text-emerald-500 line-through" : "")} style={bill.isPaid ? {} : { color: 'var(--foreground)' }}>
+                {/* Main content */}
+                <div className="flex-1 min-w-0">
+                  {/* Name + badges row */}
+                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        "font-bold text-sm leading-snug break-words",
+                        bill.isPaid ? "text-emerald-500 line-through" : ""
+                      )} style={bill.isPaid ? {} : { color: 'var(--foreground)' }}>
                         {bill.name}
-                      </span>
-                      {bill.isRecurring && <span className="text-[9px] font-black uppercase tracking-wider bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20 shrink-0">{lang === 'ar' ? 'متكررة' : 'Recurring'}</span>}
-                      {bill.isPaid && <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-500 px-2 py-0.5 rounded-md border border-emerald-500/20 shrink-0">{lang === 'ar' ? 'مدفوعة' : 'Paid'}</span>}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {bill.isRecurring && <span className="text-[9px] font-black uppercase tracking-wider bg-indigo-500/15 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20">{lang === 'ar' ? 'متكررة' : 'Recurring'}</span>}
+                        {bill.isPaid && <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-500 px-2 py-0.5 rounded-md border border-emerald-500/20">{lang === 'ar' ? 'مدفوعة' : 'Paid'}</span>}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
-                      {ownerName && <span className="text-purple-500 font-bold">👤 {ownerName}</span>}
-                      <span className={cn("flex items-center gap-1", late && "text-red-500 font-bold")}>
-                        {late && <AlertCircle className="w-3 h-3" />}
-                        {new Date(bill.dueDate).toLocaleDateString('ar-EG-u-nu-latn')}
-                        {late && (lang === 'ar' ? ' (متأخرة)' : ' (Late)')}
+
+                    {/* Amount + actions column */}
+                    <div className="flex flex-col items-end gap-2 shrink-0">
+                      <span className={cn("font-black text-base tabular-nums", bill.isPaid ? "text-slate-400" : "text-amber-400")}>
+                        {formatCurrency(bill.amount)}
                       </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px]" style={{ background: 'var(--secondary)', color: 'var(--muted-foreground)' }}>
-                        <span>{getCategoryInfo(bill.category, 'expense').icon}</span>
-                        <span>{getCategoryInfo(bill.category, 'expense').label}</span>
-                      </span>
+                      <div className="flex gap-1.5">
+                        <button onClick={() => openEdit(bill)} className="p-1.5 rounded-lg hover:bg-white/10 transition-all" style={{ background: 'var(--secondary)', color: 'var(--muted-foreground)' }}>
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => setDeleteDialog({ isOpen: true, billId: bill.id, billName: bill.name })} className="p-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-all" style={{ background: 'var(--secondary)', color: 'var(--muted-foreground)' }}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className={cn("font-black text-base sm:text-lg tabular-nums", bill.isPaid ? "text-slate-400" : "")} style={bill.isPaid ? {} : { color: 'var(--foreground)' }}>
-                    {formatCurrency(bill.amount)}
-                  </span>
-                  <button onClick={() => openEdit(bill)} className="p-2 rounded-lg hover:bg-white/10 transition-all" style={{ background: 'var(--secondary)', color: 'var(--muted-foreground)' }}>
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => setDeleteDialog({ isOpen: true, billId: bill.id, billName: bill.name })} className="p-2 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-all" style={{ background: 'var(--secondary)', color: 'var(--muted-foreground)' }}>
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {/* Meta row: date + category + owner */}
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-medium" style={{ color: 'var(--muted-foreground)' }}>
+                    {ownerName && <span className="text-purple-400 font-bold">👤 {ownerName}</span>}
+                    <span className={cn("flex items-center gap-1", late && "text-red-500 font-bold")}>
+                      {late && <AlertCircle className="w-3 h-3" />}
+                      {new Date(bill.dueDate).toLocaleDateString('ar-EG-u-nu-latn')}
+                      {late && (lang === 'ar' ? ' (متأخرة)' : ' (Late)')}
+                    </span>
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-md" style={{ background: 'var(--secondary)' }}>
+                      <span>{getCategoryInfo(bill.category, 'expense').icon}</span>
+                      <span>{getCategoryInfo(bill.category, 'expense').label}</span>
+                    </span>
+                  </div>
                 </div>
               </div>
             );
