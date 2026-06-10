@@ -29,7 +29,7 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f0f23] gap-6">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0b1e36] gap-6">
         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 pulse-glow">
           <Home className="w-10 h-10 text-white" />
         </div>
@@ -44,7 +44,7 @@ export default function DashboardLayout({
   if (!user) return null;
 
   return (
-    <div className="flex min-h-screen bg-[#0f0f23]">
+    <div className="flex min-h-screen bg-[#0b1e36]">
       {/* Desktop Sidebar - sticky */}
       <aside className={`hidden md:block w-64 flex-shrink-0 ${lang === 'ar' ? 'border-l' : 'border-r'} border-white/5`}>
         <div className="sticky top-0 h-screen overflow-y-auto">

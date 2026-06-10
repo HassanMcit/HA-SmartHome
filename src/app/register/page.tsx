@@ -49,7 +49,7 @@ export default function RegisterPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0f0f23]">
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0b1e36]">
         <div className="w-full max-w-md text-center animate-slide-up">
           <div className="glass-card p-8 sm:p-12 border-emerald-500/10">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/50 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/10">
@@ -75,7 +75,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0f0f23] relative overflow-hidden selection:bg-indigo-500/30">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0b1e36] relative overflow-hidden selection:bg-indigo-500/30">
       {/* Background orbs */}
       <div className="absolute top-[-5%] right-[10%] w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] rounded-full bg-indigo-600/10 blur-[70px] sm:blur-[110px] pointer-events-none animate-pulse" />
       <div className="absolute bottom-[-5%] left-[10%] w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] rounded-full bg-purple-600/10 blur-[70px] sm:blur-[110px] pointer-events-none animate-pulse delay-1000" />

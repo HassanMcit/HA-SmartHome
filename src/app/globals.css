@@ -13,7 +13,7 @@
   --color-warning: #f59e0b;
   --color-info: #3b82f6;
   
-  --color-bg: #0f0f23;
+  --color-bg: #0b1e36;
   --color-surface: #1a1a35;
   --color-surface-2: #242444;
   --color-border: #2d2d5e;
@@ -23,7 +23,7 @@
 }
 
 :root {
-  --background: #0f0f23;
+  --background: #0b1e36;
   --foreground: #e2e8f0;
   --card: #1a1a35;
   --card-foreground: #e2e8f0;
@@ -127,7 +127,7 @@ input, textarea, [contenteditable] {
 ────────────────────────────────────────────── */
 html.dark body,
 body {
-  background: #0f0f23;
+  background: #0b1e36;
   color: #e2e8f0;
 }
 
@@ -140,8 +140,8 @@ html.light body {
 }
 
 /* ─── Layout backgrounds ─── */
-html.light .bg-\[\#0f0f23\],
-html.light .min-h-screen.bg-\[\#0f0f23\] {
+html.light .bg-\[\#0b1e36\],
+html.light .min-h-screen.bg-\[\#0b1e36\] {
   background: #f1f5f9 !important;
 }
 

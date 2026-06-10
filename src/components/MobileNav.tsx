@@ -103,7 +103,7 @@ export default function MobileNav() {
               <span className="text-[10px] font-bold">{t('nav_more')}</span>
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="bg-[#0f0f23] border-white/5 rounded-t-[32px] p-0 outline-none max-h-[85dvh] overflow-hidden flex flex-col">
+          <SheetContent side="bottom" className="bg-[#0b1e36] border-white/5 rounded-t-[32px] p-0 outline-none max-h-[85dvh] overflow-hidden flex flex-col">
             {/* Handle bar + header */}
             <div className="px-6 pt-5 pb-4 flex-shrink-0">
               <div className="w-12 h-1.5 bg-slate-800 rounded-full mx-auto mb-5" />
