@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Sun, Moon, Droplets, Wind, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface WeatherData {
   morningTemp: number;
@@ -22,34 +23,48 @@ interface PrayerTimes {
   Isha: string;
 }
 
-const PRAYERS = [
-  { key: 'Fajr',    label: 'الفجر',   icon: '🌙' },
-  { key: 'Sunrise', label: 'الشروق',  icon: '🌅' },
-  { key: 'Dhuhr',   label: 'الظهر',   icon: '☀️'  },
-  { key: 'Asr',     label: 'العصر',   icon: '🌤️' },
-  { key: 'Maghrib', label: 'المغرب',  icon: '🌆' },
-  { key: 'Isha',    label: 'العشاء',  icon: '🌃' },
-];
-
-const WMO: Record<number, { label: string; icon: string }> = {
-  0:  { label: 'صافٍ',          icon: '☀️'  },
-  1:  { label: 'صافٍ غالباً',   icon: '🌤️' },
-  2:  { label: 'غائم جزئياً',   icon: '⛅'  },
-  3:  { label: 'غائم',          icon: '☁️'  },
-  45: { label: 'ضباب',          icon: '🌫️' },
-  61: { label: 'مطر',           icon: '🌧️' },
-  80: { label: 'زخات مطر',      icon: '🌦️' },
-  95: { label: 'عاصفة رعدية',  icon: '⛈️'  },
+const PRAYER_LABELS: Record<string, { ar: string; en: string }> = {
+  Fajr:    { ar: 'الفجر',   en: 'Fajr' },
+  Sunrise: { ar: 'الشروق',  en: 'Sunrise' },
+  Dhuhr:   { ar: 'الظهر',   en: 'Dhuhr' },
+  Asr:     { ar: 'العصر',   en: 'Asr' },
+  Maghrib: { ar: 'المغرب',  en: 'Maghrib' },
+  Isha:    { ar: 'العشاء',  en: 'Isha' },
 };
 
-function weatherInfo(code?: number) {
+const PRAYERS = [
+  { key: 'Fajr',    icon: '🌙' },
+  { key: 'Sunrise', icon: '🌅' },
+  { key: 'Dhuhr',   icon: '☀️'  },
+  { key: 'Asr',     icon: '🌤️' },
+  { key: 'Maghrib', icon: '🌆' },
+  { key: 'Isha',    icon: '🌃' },
+];
+
+const WMO_LABELS: Record<number, { ar: string; en: string; icon: string }> = {
+  0:  { ar: 'صافٍ',          en: 'Clear',            icon: '☀️'  },
+  1:  { ar: 'صافٍ غالباً',   en: 'Mostly Clear',     icon: '🌤️' },
+  2:  { ar: 'غائم جزئياً',   en: 'Partly Cloudy',    icon: '⛅'  },
+  3:  { ar: 'غائم',          en: 'Cloudy',           icon: '☁️'  },
+  45: { ar: 'ضباب',          en: 'Foggy',            icon: '🌫️' },
+  61: { ar: 'مطر',           en: 'Rainy',            icon: '🌧️' },
+  80: { ar: 'زخات مطر',      en: 'Rain Showers',     icon: '🌦️' },
+  95: { ar: 'عاصفة رعدية',  en: 'Thunderstorm',     icon: '⛈️'  },
+};
+
+function weatherInfo(code?: number, lang: 'ar' | 'en' = 'ar') {
   if (code === undefined) return { label: '—', icon: '🌡️' };
-  return WMO[code] ?? { label: 'متغير', icon: '🌥️' };
+  const match = WMO_LABELS[code];
+  if (!match) return { label: lang === 'ar' ? 'متغير' : 'Variable', icon: '🌥️' };
+  return { label: lang === 'ar' ? match.ar : match.en, icon: match.icon };
 }
 
-function to12hr(t: string) {
+function to12hr(t: string, lang: 'ar' | 'en' = 'ar') {
   const [h, m] = t.split(':').map(Number);
-  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'م' : 'ص'}`;
+  const suffix = h >= 12 
+    ? (lang === 'ar' ? 'م' : 'PM') 
+    : (lang === 'ar' ? 'ص' : 'AM');
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${suffix}`;
 }
 
 function getNextPrayer(times: PrayerTimes) {
@@ -62,6 +77,7 @@ function getNextPrayer(times: PrayerTimes) {
 }
 
 export default function WeatherPrayerWidget() {
+  const { lang } = useLanguage();
   const [now, setNow]       = useState(new Date());
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [prayers, setPrayers] = useState<PrayerTimes | null>(null);
@@ -125,10 +141,16 @@ export default function WeatherPrayerWidget() {
   }, []);
 
   const nextPrayer = prayers ? getNextPrayer(prayers) : null;
-  const wInfo      = weatherInfo(weather?.weatherCode);
+  const wInfo      = weatherInfo(weather?.weatherCode, lang);
 
-  const clockStr = now.toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true });
-  const dateStr  = now.toLocaleDateString('ar-EG-u-nu-latn', { weekday: 'long', day: 'numeric', month: 'long' });
+  const clockStr = now.toLocaleTimeString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const dateStr  = now.toLocaleDateString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  const cityDisplayName = city === 'القاهرة' 
+    ? (lang === 'ar' ? 'القاهرة' : 'Cairo')
+    : city === 'موقعك'
+      ? (lang === 'ar' ? 'موقعك' : 'Your Location')
+      : city;
 
   return (
     <div className="glass-card p-5 sm:p-6 flex flex-col gap-6">
@@ -137,14 +159,14 @@ export default function WeatherPrayerWidget() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
 
         {/* Clock */}
-        <div className="text-center sm:text-right flex-1">
+        <div className={`text-center flex-1 ${lang === 'ar' ? 'sm:text-right' : 'sm:text-left'}`}>
           <div className="text-5xl sm:text-6xl font-black text-white tabular-nums tracking-tight leading-none" dir="ltr">
             {clockStr}
           </div>
           <p className="text-slate-400 text-sm font-medium mt-1.5">{dateStr}</p>
-          <div className="flex items-center justify-center sm:justify-start gap-1 mt-1 text-slate-500 text-xs">
+          <div className={`flex items-center justify-center gap-1 mt-1 text-slate-500 text-xs ${lang === 'ar' ? 'sm:justify-start' : 'sm:justify-end'}`}>
             <MapPin className="w-3 h-3" />
-            <span>{city}</span>
+            <span>{cityDisplayName}</span>
           </div>
         </div>
 
@@ -166,7 +188,7 @@ export default function WeatherPrayerWidget() {
                   <span className="flex items-center gap-0.5"><Droplets className="w-3 h-3 text-blue-400" />{weather.humidity}%</span>
                 )}
                 {weather.windspeed !== undefined && (
-                  <span className="flex items-center gap-0.5"><Wind className="w-3 h-3" />{weather.windspeed}km/h</span>
+                  <span className="flex items-center gap-0.5"><Wind className="w-3 h-3" />{weather.windspeed}{lang === 'ar' ? 'كم/س' : 'km/h'}</span>
                 )}
               </div>
             </div>
@@ -175,18 +197,18 @@ export default function WeatherPrayerWidget() {
             <div className="flex gap-3">
               <div className="bg-amber-500/8 border border-amber-500/15 rounded-2xl px-4 py-3 flex flex-col items-center gap-0.5 min-w-[72px]">
                 <Sun className="w-4 h-4 text-amber-400 mb-0.5" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">صباحاً</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{lang === 'ar' ? 'صباحاً' : 'Morning'}</span>
                 <span className="text-xl font-black text-amber-400">{weather.morningTemp}°</span>
               </div>
               <div className="bg-indigo-500/8 border border-indigo-500/15 rounded-2xl px-4 py-3 flex flex-col items-center gap-0.5 min-w-[72px]">
                 <Moon className="w-4 h-4 text-indigo-400 mb-0.5" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">مساءً</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{lang === 'ar' ? 'مساءً' : 'Evening'}</span>
                 <span className="text-xl font-black text-indigo-400">{weather.eveningTemp}°</span>
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex-1 text-center text-slate-500 text-sm">تعذّر تحميل الطقس</div>
+          <div className="flex-1 text-center text-slate-500 text-sm">{lang === 'ar' ? 'تعذّر تحميل الطقس' : 'Failed to load weather'}</div>
         )}
       </div>
 
@@ -196,10 +218,10 @@ export default function WeatherPrayerWidget() {
       {/* ── Row 2: Prayer Times (grid 3×2) ──────────────────────── */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">مواقيت الصلاة</h3>
+          <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">{lang === 'ar' ? 'مواقيت الصلاة' : 'Prayer Times'}</h3>
           {nextPrayer && (
             <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 px-2.5 py-1 rounded-xl border border-emerald-500/20">
-              القادمة: {PRAYERS.find(p => p.key === nextPrayer)?.label}
+              {lang === 'ar' ? 'القادمة:' : 'Next:'} {PRAYER_LABELS[nextPrayer]?.[lang] || nextPrayer}
             </span>
           )}
         </div>
@@ -210,8 +232,9 @@ export default function WeatherPrayerWidget() {
           </div>
         ) : prayers ? (
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
-            {PRAYERS.map(({ key, label, icon }) => {
+            {PRAYERS.map(({ key, icon }) => {
               const isNext = key === nextPrayer;
+              const label = PRAYER_LABELS[key]?.[lang] || key;
               return (
                 <div
                   key={key}
@@ -225,15 +248,15 @@ export default function WeatherPrayerWidget() {
                   <span className="text-xl leading-none">{icon}</span>
                   <span className={cn('text-[11px] font-bold', isNext ? 'text-emerald-400' : 'text-slate-400')}>{label}</span>
                   <span className={cn('text-xs font-black tabular-nums', isNext ? 'text-white' : 'text-slate-300')} dir="ltr">
-                    {to12hr(prayers[key as keyof PrayerTimes])}
+                    {to12hr(prayers[key as keyof PrayerTimes], lang)}
                   </span>
-                  {isNext && <span className="text-[8px] font-black bg-emerald-500 text-white px-1.5 py-0.5 rounded-md leading-none">التالية</span>}
+                  {isNext && <span className="text-[8px] font-black bg-emerald-500 text-white px-1.5 py-0.5 rounded-md leading-none">{lang === 'ar' ? 'التالية' : 'Next'}</span>}
                 </div>
               );
             })}
           </div>
         ) : (
-          <p className="text-center text-slate-500 text-sm py-4">تعذّر تحميل مواقيت الصلاة</p>
+          <p className="text-center text-slate-500 text-sm py-4">{lang === 'ar' ? 'تعذّر تحميل مواقيت الصلاة' : 'Failed to load prayer times'}</p>
         )}
       </div>
     </div>

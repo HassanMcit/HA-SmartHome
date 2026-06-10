@@ -236,12 +236,64 @@ export const INCOME_CATEGORIES = [
   { value: 'other', label: 'أخرى', icon: '💰' },
 ];
 
+const CATEGORY_TRANSLATIONS: Record<string, string> = {
+  installments: 'Installments',
+  allowance: 'Allowance',
+  services: 'Services',
+  debts: 'Debts',
+  bank_fees: 'Bank Fees',
+  insurance: 'Insurance',
+  haircut: 'Haircut',
+  travel: 'Travel',
+  landline_bill: 'Landline Bill',
+  gas_cylinder: 'Gas Cylinder',
+  nestle_water: 'Nestle Water',
+  money_pool: 'Money Pool',
+  house_wife_allowance: 'House & Wife Allowance',
+  general_bills: 'General Bills',
+  doorman: 'Doorman',
+  internet_bill: 'Internet Bill',
+  apartment_services: 'Apartment Services',
+  child_expenses: 'Child Expenses',
+  emergency: 'Emergency',
+  subscriptions: 'Subscriptions',
+  phone_recharge: 'Phone Recharge',
+  food: 'Food & Drink',
+  housing: 'Housing & Rent',
+  transport: 'Transportation',
+  utilities: 'Utilities',
+  health: 'Health & Medical',
+  education: 'Education',
+  entertainment: 'Entertainment',
+  shopping: 'Shopping & Clothes',
+  savings: 'Savings',
+  investment: 'Investment',
+  charity: 'Charity & Donations',
+  family: 'Family & Kids',
+  personal: 'Personal Expense',
+  outings: 'Outings',
+  other: 'Other',
+  salary: 'Salary',
+  freelance: 'Freelance',
+  rental: 'Rental Income',
+  bonus: 'Bonus',
+  gift: 'Gift',
+};
+
 export const getCategoryInfo = (
   value: string,
-  type: 'income' | 'expense'
+  type: 'income' | 'expense',
+  lang: 'ar' | 'en' = 'ar'
 ): { label: string; icon: string } => {
   const list = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-  return list.find((c) => c.value === value) || { label: value, icon: '💰' };
+  let match = list.find((c) => c.value === value);
+  if (!match) {
+    match = list.find((c) => c.label === value);
+  }
+  if (!match) return { label: value, icon: '💰' };
+  
+  const label = lang === 'ar' ? match.label : (CATEGORY_TRANSLATIONS[match.value] || match.label);
+  return { label, icon: match.icon };
 };
 
 // ─── Auth API ────────────────────────────────────────────────────────────────

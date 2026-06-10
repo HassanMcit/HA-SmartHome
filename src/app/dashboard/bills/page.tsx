@@ -242,11 +242,12 @@ export default function BillsPage() {
                   <SelectContent className="border rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
                     {EXPENSE_CATEGORIES.map(c => {
                       const Item = SelectItem as any;
+                      const translatedLabel = getCategoryInfo(c.value, 'expense', lang).label;
                       return (
-                        <Item key={c.value} value={c.value} textValue={c.label} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
+                        <Item key={c.value} value={c.value} textValue={translatedLabel} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
                           <div className="flex items-center gap-3 w-full">
                             <span className="text-xl shrink-0">{c.icon}</span>
-                            <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
+                            <span className="font-bold text-sm whitespace-nowrap">{translatedLabel}</span>
                           </div>
                         </Item>
                       );
@@ -404,8 +405,8 @@ export default function BillsPage() {
                       {late && (lang === 'ar' ? ' (متأخرة)' : ' (Late)')}
                     </span>
                     <span className="flex items-center gap-1 px-2 py-0.5 rounded-md" style={{ background: 'var(--secondary)' }}>
-                      <span>{getCategoryInfo(bill.category, 'expense').icon}</span>
-                      <span>{getCategoryInfo(bill.category, 'expense').label}</span>
+                      <span>{getCategoryInfo(bill.category, 'expense', lang).icon}</span>
+                      <span>{getCategoryInfo(bill.category, 'expense', lang).label}</span>
                     </span>
                   </div>
                 </div>
@@ -437,11 +438,12 @@ export default function BillsPage() {
                 <SelectContent className="border rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
                   {EXPENSE_CATEGORIES.map(c => {
                     const Item = SelectItem as any;
+                    const translatedLabel = getCategoryInfo(c.value, 'expense', lang).label;
                     return (
-                      <Item key={c.value} value={c.value} textValue={c.label} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
+                      <Item key={c.value} value={c.value} textValue={translatedLabel} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
                         <div className="flex items-center gap-3 w-full">
                           <span className="text-xl shrink-0">{c.icon}</span>
-                          <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
+                          <span className="font-bold text-sm whitespace-nowrap">{translatedLabel}</span>
                         </div>
                       </Item>
                     );

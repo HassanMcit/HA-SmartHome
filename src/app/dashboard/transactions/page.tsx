@@ -244,15 +244,15 @@ export default function TransactionsPage() {
   const cats = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
   return (
-    <div className="flex flex-col gap-8 pb-12 animate-fade-in">
+    <div className="flex flex-col gap-8 pb-12 animate-fade-in" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-          <div>
+          <div className="text-right">
             <h2 className="text-2xl sm:text-3xl font-black text-white mb-1 flex items-center gap-3">
               <Activity className="w-8 h-8 text-indigo-400" />
-              المعاملات المالية
+              {lang === 'ar' ? 'المعاملات المالية' : 'Financial Transactions'}
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base font-medium">سجل وراقب كافة تحركاتك المالية</p>
+            <p className="text-slate-400 text-sm sm:text-base font-medium">{lang === 'ar' ? 'سجل وراقب كافة تحركاتك المالية' : 'Record and monitor all your financial activities'}</p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -387,20 +387,20 @@ export default function TransactionsPage() {
               </DialogTrigger>
             <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
               <DialogHeader className="text-right">
-                <DialogTitle className="text-2xl font-black mb-6" style={{ color: 'var(--foreground)' }}>إضافة معاملة جديدة</DialogTitle>
+                <DialogTitle className="text-2xl font-black mb-6" style={{ color: 'var(--foreground)' }}>{lang === 'ar' ? 'إضافة معاملة جديدة' : 'Add New Transaction'}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {isAdmin && (
                   <div className="space-y-2 text-right">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'المستخدم المستهدف' : 'Target User'}</label>
                     <Select value={targetUserId} onValueChange={setTargetUserId}>
                       <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
-                        <SelectValue placeholder="اختر المستخدم" />
+                        <SelectValue placeholder={lang === 'ar' ? 'اختر المستخدم' : 'Select User'} />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                         {users.map(u => (
                           <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
-                            {u.name} {u.id === currentUser?.id ? '(أنت)' : ''}
+                            {u.name} {u.id === currentUser?.id ? (lang === 'ar' ? '(أنت)' : '(You)') : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -420,7 +420,7 @@ export default function TransactionsPage() {
                           : "text-slate-400 hover:text-white hover:bg-white/5"
                       )}
                     >
-                      {t === 'expense' ? 'مصروف' : 'إيراد'}
+                      {lang === 'ar' ? (t === 'expense' ? 'مصروف' : 'إيراد') : (t === 'expense' ? 'Expense' : 'Income')}
                     </button>
                   ))}
                 </div>
@@ -429,7 +429,7 @@ export default function TransactionsPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2 text-right">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المبلغ</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'المبلغ' : 'Amount'}</label>
                     <div className="relative">
                       <input 
                         type="number" 
@@ -441,24 +441,25 @@ export default function TransactionsPage() {
                         placeholder="0.00"
                         dir="ltr"
                       />
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ج.م</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">{lang === 'ar' ? 'ج.م' : 'EGP'}</span>
                     </div>
                   </div>
 
                   <div className="space-y-2 text-right">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'الفئة' : 'Category'}</label>
                     <Select value={category} onValueChange={(val) => setCategory(val || '')}>
                       <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
-                        <SelectValue placeholder="اختر الفئة" />
+                        <SelectValue placeholder={lang === 'ar' ? 'اختر الفئة' : 'Select Category'} />
                       </SelectTrigger>
                       <SelectContent className="rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                         {cats.map(c => {
                           const Item = SelectItem as any;
+                          const translatedLabel = getCategoryInfo(c.value, type, lang).label;
                           return (
-                            <Item key={c.value} value={c.value} textValue={c.label} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
+                            <Item key={c.value} value={c.value} textValue={translatedLabel} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
                               <div className="flex items-center gap-3 w-full">
                                 <span className="text-xl shrink-0">{c.icon}</span>
-                                <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
+                                <span className="font-bold text-sm whitespace-nowrap">{translatedLabel}</span>
                               </div>
                             </Item>
                           );
@@ -469,10 +470,10 @@ export default function TransactionsPage() {
                 </div>
 
                 <div className="space-y-2 text-right">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الحساب المالي (بنك / كاش)</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'الحساب المالي (بنك / كاش)' : 'Financial Account (Bank / Cash)'}</label>
                   <Select value={accountId} onValueChange={setAccountId}>
                     <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
-                      <SelectValue placeholder="اختر الحساب المالي (اختياري)" />
+                      <SelectValue placeholder={lang === 'ar' ? 'اختر الحساب المالي (اختياري)' : 'Select Financial Account (Optional)'} />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                       <SelectItem value="none" className="focus:bg-white/10 rounded-lg text-slate-400">
@@ -493,19 +494,19 @@ export default function TransactionsPage() {
                 </div>
 
                 <div className="space-y-2 text-right">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الوصف — ماذا فعلت؟</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'الوصف — ماذا فعلت؟' : 'Description — What did you do?'}</label>
                   <input 
                     type="text" 
                     value={description} 
                     onChange={e => setDescription(e.target.value)} 
                     className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-medium focus:border-indigo-500/50 outline-none transition-all text-right"
-                    placeholder="مثال: فطور كافيه، بنزين عربية، دفعت إيجار، اشتريت..."
+                    placeholder={lang === 'ar' ? 'مثال: فطور كافيه، بنزين عربية، دفعت إيجار، اشتريت...' : 'e.g. Cafe breakfast, car gas, paid rent, bought...'}
                   />
-                  <p className="text-[10px] text-slate-500 mr-1">💡 اكتب بالتفصيل إيه اللي عملته — المبلغ راح على إيه؟</p>
+                  <p className="text-[10px] text-slate-500 mr-1">{lang === 'ar' ? '💡 اكتب بالتفصيل إيه اللي عملته — المبلغ راح على إيه؟' : '💡 Write in detail what you did — what was the amount spent on?'}</p>
                 </div>
 
                 <div className="space-y-2 text-right">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">التاريخ</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'التاريخ' : 'Date'}</label>
                   <div className="relative group cursor-pointer" onClick={(e) => {
                     const input = e.currentTarget.querySelector('input');
                     if (input) input.showPicker?.();
@@ -529,7 +530,7 @@ export default function TransactionsPage() {
                     type === 'expense' ? "bg-red-500 hover:bg-red-600 shadow-red-500/20" : "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20"
                   )}
                 >
-                  {submitting ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 'حفظ المعاملة'}
+                  {submitting ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : (lang === 'ar' ? 'حفظ المعاملة' : 'Save Transaction')}
                 </Button>
               </form>
             </DialogContent>
@@ -538,20 +539,20 @@ export default function TransactionsPage() {
       </div>
 
         {isAdmin && (
-          <div className="w-full sm:w-[300px]">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 block mr-1">تصفية حسب المستخدم</label>
+          <div className="w-full sm:w-[300px] text-right">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 block mr-1">{lang === 'ar' ? 'تصفية حسب المستخدم' : 'Filter by User'}</label>
             <Select value={selectedUserId} onValueChange={(val) => setSelectedUserId(val || '')}>
               <SelectTrigger className="w-full bg-white/5 border-white/10 rounded-xl h-12 shadow-inner" style={{ color: 'var(--foreground)' }}>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-indigo-400" />
-                  <SelectValue placeholder="الكل" />
+                  <SelectValue placeholder={lang === 'ar' ? 'الكل' : 'All'} />
                 </div>
               </SelectTrigger>
                 <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
-                  <SelectItem value="all" className="font-bold text-indigo-400 focus:bg-white/10 rounded-lg">كل العائلة</SelectItem>
+                  <SelectItem value="all" className="font-bold text-indigo-400 focus:bg-white/10 rounded-lg">{lang === 'ar' ? 'كل العائلة' : 'All Family'}</SelectItem>
                   {users.map(u => (
                     <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 rounded-lg">
-                      {u.name} {u.id === currentUser?.id ? '(أنت)' : ''}
+                      {u.name} {u.id === currentUser?.id ? (lang === 'ar' ? '(أنت)' : '(You)') : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -564,20 +565,20 @@ export default function TransactionsPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">جاري تحميل المعاملات</p>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">{lang === 'ar' ? 'جاري تحميل المعاملات' : 'Loading Transactions'}</p>
         </div>
       ) : transactions.length === 0 ? (
         <div className="glass-card py-24 flex flex-col items-center justify-center text-center px-6">
           <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-6">
             <AlertCircle className="w-10 h-10 text-slate-600" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">لا توجد معاملات مسجلة</h3>
-          <p className="text-slate-500 max-w-xs mx-auto">ابدأ بتسجيل أولى معاملاتك المالية لتتبع دخلك ومصروفاتك.</p>
+          <h3 className="text-xl font-bold text-white mb-2">{lang === 'ar' ? 'لا توجد معاملات مسجلة' : 'No Transactions Recorded'}</h3>
+          <p className="text-slate-500 max-w-xs mx-auto">{lang === 'ar' ? 'ابدأ بتسجيل أولى معاملاتك المالية لتتبع دخلك ومصروفاتك.' : 'Start recording your first financial transactions to track your income and expenses.'}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {transactions.map((tx) => {
-            const cat = getCategoryInfo(tx.category, tx.type);
+            const cat = getCategoryInfo(tx.category, tx.type, lang);
             const isIncome = tx.type === 'income';
             
             return (
@@ -597,7 +598,7 @@ export default function TransactionsPage() {
                       </h4>
                       {isAdmin && (
                         <span className="text-[9px] px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full font-bold whitespace-nowrap border border-indigo-500/20">
-                          👤 {users.find(u => u.id === tx.userId)?.name || 'مستخدم'}
+                          👤 {users.find(u => u.id === tx.userId)?.name || (lang === 'ar' ? 'مستخدم' : 'User')}
                         </span>
                       )}
                     </div>
@@ -610,7 +611,7 @@ export default function TransactionsPage() {
                       </span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-2.5 h-2.5 shrink-0" />
-                        {new Date(tx.date).toLocaleDateString('ar-EG-u-nu-latn', { day: 'numeric', month: 'short', year: '2-digit' })}
+                        {new Date(tx.date).toLocaleDateString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { day: 'numeric', month: 'short', year: '2-digit' })}
                       </span>
                       {tx.account ? (
                         <span className="flex items-center gap-1 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full text-slate-400 font-semibold">
@@ -619,7 +620,7 @@ export default function TransactionsPage() {
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 text-slate-600 text-[9px] italic">
-                          سجل عام
+                          {lang === 'ar' ? 'سجل عام' : 'General Log'}
                         </span>
                       )}
                     </div>
@@ -639,14 +640,14 @@ export default function TransactionsPage() {
                     <button 
                       onClick={() => handleOpenEdit(tx)}
                       className="p-1.5 sm:p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all active:scale-90"
-                      title="تعديل"
+                      title={lang === 'ar' ? 'تعديل' : 'Edit'}
                     >
                       <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                     <button 
                       onClick={() => setDeleteDialog({ isOpen: true, transactionId: tx.id, description: tx.description || cat.label })}
                       className="p-1.5 sm:p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
-                      title="حذف"
+                      title={lang === 'ar' ? 'حذف' : 'Delete'}
                     >
                       <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
@@ -666,17 +667,19 @@ export default function TransactionsPage() {
               <Trash2 className="w-7 h-7" />
             </div>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-black" style={{ color: 'var(--foreground)' }}>حذف المعاملة</DialogTitle>
+              <DialogTitle className="text-2xl font-black">{lang === 'ar' ? 'حذف المعاملة' : 'Delete Transaction'}</DialogTitle>
             </DialogHeader>
             <p className="text-base font-medium mt-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-              هل أنت متأكد من حذف معاملة <span className="font-bold" style={{ color: 'var(--foreground)' }}>"{deleteDialog.description}"</span>؟ لا يمكن التراجع عن هذا الإجراء.
+              {lang === 'ar' 
+                ? `هل أنت متأكد من حذف معاملة "${deleteDialog.description}"؟ لا يمكن التراجع عن هذا الإجراء.` 
+                : `Are you sure you want to delete the transaction "${deleteDialog.description}"? This action cannot be undone.`}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
               <Button 
                 className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all" 
                 onClick={handleDelete}
               >
-                حذف نهائي
+                {lang === 'ar' ? 'حذف نهائي' : 'Delete'}
               </Button>
               <Button 
                 variant="outline" 
@@ -684,7 +687,7 @@ export default function TransactionsPage() {
                 style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
                 onClick={() => setDeleteDialog({ isOpen: false, transactionId: '', description: '' })}
               >
-                إلغاء
+                {lang === 'ar' ? 'إلغاء' : 'Cancel'}
               </Button>
             </div>
           </div>
@@ -735,7 +738,7 @@ export default function TransactionsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2 text-right">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المبلغ</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'المبلغ' : 'Amount'}</label>
                 <div className="relative">
                   <input 
                     type="number" 
@@ -747,24 +750,25 @@ export default function TransactionsPage() {
                     placeholder="0.00"
                     dir="ltr"
                   />
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ج.م</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">{lang === 'ar' ? 'ج.م' : 'EGP'}</span>
                 </div>
               </div>
 
               <div className="space-y-2 text-right">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">الفئة</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'الفئة' : 'Category'}</label>
                 <Select value={editCategory} onValueChange={(val) => setEditCategory(val || '')}>
                   <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
-                    <SelectValue placeholder="اختر الفئة" />
+                    <SelectValue placeholder={lang === 'ar' ? 'اختر الفئة' : 'Select Category'} />
                   </SelectTrigger>
                   <SelectContent className="rounded-[20px] max-h-[400px] py-2 pr-2 pl-6 custom-scrollbar border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
                     {(editType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map(c => {
                       const Item = SelectItem as any;
+                      const translatedLabel = getCategoryInfo(c.value, editType, lang).label;
                       return (
-                        <Item key={c.value} value={c.value} textValue={c.label} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
+                        <Item key={c.value} value={c.value} textValue={translatedLabel} className="focus:bg-white/10 rounded-xl cursor-pointer py-3 pr-12 pl-4">
                           <div className="flex items-center gap-3 w-full">
                             <span className="text-xl shrink-0">{c.icon}</span>
-                            <span className="font-bold text-sm whitespace-nowrap">{c.label}</span>
+                            <span className="font-bold text-sm whitespace-nowrap">{translatedLabel}</span>
                           </div>
                         </Item>
                       );

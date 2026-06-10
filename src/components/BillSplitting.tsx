@@ -15,6 +15,7 @@ import {
   Receipt,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,8 +53,8 @@ const WHATSAPP_SVG = (
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
 
-const fmt = (n: number) =>
-  n.toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt = (n: number, lang: 'ar' | 'en' = 'ar') =>
+  n.toLocaleString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const initials = (name: string, fallback: string) => {
   const s = name.trim() || fallback;
@@ -71,6 +72,7 @@ function SummaryBar({
   count: number;
   perPerson: number;
 }) {
+  const { lang } = useLanguage();
   if (total <= 0) return null;
   return (
     <div
@@ -82,11 +84,11 @@ function SummaryBar({
     >
       <div className="flex flex-col items-start">
         <span className="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest">
-          الإجمالي
+          {lang === 'ar' ? 'الإجمالي' : 'Total'}
         </span>
         <span className="text-lg font-extrabold text-emerald-500 leading-tight tabular-nums">
-          {fmt(total)}
-          <span className="text-xs font-bold mr-1 opacity-70">ج.م</span>
+          {fmt(total, lang)}
+          <span className="text-xs font-bold mr-1 opacity-70">{lang === 'ar' ? 'ج.م' : 'EGP'}</span>
         </span>
       </div>
 
@@ -94,7 +96,7 @@ function SummaryBar({
 
       <div className="flex flex-col items-center">
         <span className="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest">
-          الأشخاص
+          {lang === 'ar' ? 'الأشخاص' : 'People'}
         </span>
         <span className="text-lg font-extrabold text-emerald-500 leading-tight tabular-nums">
           {count}
@@ -105,11 +107,11 @@ function SummaryBar({
 
       <div className="flex flex-col items-end">
         <span className="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest">
-          نصيب الفرد
+          {lang === 'ar' ? 'نصيب الفرد' : 'Per Person'}
         </span>
         <span className="text-lg font-extrabold text-emerald-500 leading-tight tabular-nums">
-          {fmt(perPerson)}
-          <span className="text-xs font-bold mr-1 opacity-70">ج.م</span>
+          {fmt(perPerson, lang)}
+          <span className="text-xs font-bold mr-1 opacity-70">{lang === 'ar' ? 'ج.م' : 'EGP'}</span>
         </span>
       </div>
     </div>
@@ -133,9 +135,11 @@ function ParticipantRow({
   onRemove: (id: string) => void;
   canRemove: boolean;
 }) {
+  const { lang } = useLanguage();
   const nameInputId = useId();
   const amountInputId = useId();
-  const fallback = `شخص ${index + 1}`;
+  const fallback = lang === 'ar' ? `شخص ${index + 1}` : `Person ${index + 1}`;
+  const displayName = participant.name === 'أنا' && lang === 'en' ? 'Me' : participant.name;
 
   return (
     <div
@@ -149,16 +153,16 @@ function ParticipantRow({
       <div
         className={`w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-extrabold shrink-0 select-none ${participant.color}`}
       >
-        {initials(participant.name, fallback)}
+        {initials(displayName, fallback)}
       </div>
 
       {/* Name Input */}
       <input
         id={nameInputId}
         type="text"
-        dir="rtl"
+        dir={lang === 'ar' ? 'rtl' : 'ltr'}
         placeholder={fallback}
-        value={participant.name}
+        value={displayName}
         onChange={(e) => onNameChange(participant.id, e.target.value)}
         className="flex-1 min-w-0 h-9 px-3 rounded-xl border text-sm font-semibold focus:outline-none transition-all duration-200"
         style={{
@@ -186,7 +190,7 @@ function ParticipantRow({
         />
         <button
           onClick={() => onToggleLock(participant.id)}
-          aria-label={participant.isManual ? 'فك القفل' : 'قفل المبلغ'}
+          aria-label={participant.isManual ? (lang === 'ar' ? 'فك القفل' : 'Unlock amount') : (lang === 'ar' ? 'قفل المبلغ' : 'Lock amount')}
           className="absolute left-2 top-1/2 -translate-y-1/2 transition-all duration-200 hover:scale-110 active:scale-95"
         >
           {participant.isManual ? (
@@ -201,7 +205,7 @@ function ParticipantRow({
       <button
         onClick={() => onRemove(participant.id)}
         disabled={!canRemove}
-        aria-label="إزالة المشارك"
+        aria-label={lang === 'ar' ? 'إزالة المشارك' : 'Remove participant'}
         className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400 disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
         style={{
           borderColor: 'var(--border)',
@@ -217,6 +221,7 @@ function ParticipantRow({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function BillSplitting() {
+  const { lang } = useLanguage();
   const [billTitle, setBillTitle] = useState('');
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [participants, setParticipants] = useState<Participant[]>([
@@ -301,7 +306,7 @@ export default function BillSplitting() {
 
   const handleRemove = (id: string) => {
     if (participants.length <= 1) {
-      toast.error('يجب أن يبقى مشارك واحد على الأقل.');
+      toast.error(lang === 'ar' ? 'يجب أن يبقى مشارك واحد على الأقل.' : 'At least one participant is required.');
       return;
     }
     const updated = recalculate(participants.filter((p) => p.id !== id), totalAmount);
@@ -333,7 +338,7 @@ export default function BillSplitting() {
   const handleResetSplits = () => {
     const reset = participants.map((p) => ({ ...p, isManual: false }));
     setParticipants(recalculate(reset, totalAmount));
-    toast.success('تمت إعادة التقسيم بالتساوي ✓');
+    toast.success(lang === 'ar' ? 'تمت إعادة التقسيم بالتساوي ✓' : 'Reset to even split ✓');
   };
 
   // ── Sharing ─────────────────────────────────────────────────────────────────
@@ -359,22 +364,22 @@ export default function BillSplitting() {
   };
 
   const buildShareText = () => {
-    const title = billTitle.trim() || 'حسبة مشتركة';
+    const title = billTitle.trim() || (lang === 'ar' ? 'حسبة مشتركة' : 'Shared Bill');
     const lines: string[] = [
-      `💸 *شيل معايا — ${title}*`,
+      `💸 *${lang === 'ar' ? 'شيل معايا' : 'Share With Me'} — ${title}*`,
       ``,
-      `💰 الإجمالي: *${fmt(totalAmount)} ج.م*`,
-      `👥 عدد الأشخاص: ${participants.length}`,
+      `💰 ${lang === 'ar' ? 'الإجمالي' : 'Total'}: *${fmt(totalAmount, lang)} ${lang === 'ar' ? 'ج.م' : 'EGP'}*`,
+      `👥 ${lang === 'ar' ? 'عدد الأشخاص' : 'People count'}: ${participants.length}`,
       ``,
       `──────────────`,
     ];
     participants.forEach((p, i) => {
-      const name = p.name.trim() || `شخص ${i + 1}`;
-      lines.push(`👤 ${name}: *${fmt(p.amount)} ج.م*`);
+      const name = p.name.trim() || (lang === 'ar' ? `شخص ${i + 1}` : `Person ${i + 1}`);
+      lines.push(`👤 ${name}: *${fmt(p.amount, lang)} ${lang === 'ar' ? 'ج.م' : 'EGP'}*`);
     });
     lines.push(`──────────────`);
-    lines.push(`💡 احسبها صح مع تطبيق *مدبّر* 🚀`);
-    lines.push(`أدر ميزانيتك ومصاريف منزلك بذكاء ووفر أكتر! 🏠💰`);
+    lines.push(`💡 ${lang === 'ar' ? 'احسبها صح مع تطبيق *مدبّر* 🚀' : 'Calculate it right with *Mudabber* app 🚀'}`);
+    lines.push(lang === 'ar' ? 'أدر ميزانيتك ومصاريف منزلك بذكاء ووفر أكتر! 🏠💰' : 'Manage your budget and home expenses smartly and save more! 🏠💰');
     
     // Add website link with state encoded!
     lines.push(buildShareUrl());
@@ -383,36 +388,36 @@ export default function BillSplitting() {
   };
 
   const handleShareWhatsApp = () => {
-    if (totalAmount <= 0) { toast.error('حدد المبلغ الإجمالي أولاً.'); return; }
-    if (isOverallocated) { toast.error('المبالغ اليدوية تتجاوز الإجمالي — راجع التقسيم.'); return; }
+    if (totalAmount <= 0) { toast.error(lang === 'ar' ? 'حدد المبلغ الإجمالي أولاً.' : 'Please set total amount first.'); return; }
+    if (isOverallocated) { toast.error(lang === 'ar' ? 'المبالغ اليدوية تتجاوز الإجمالي — راجع التقسيم.' : 'Manual amounts exceed total — check split.'); return; }
     setIsSharing(true);
     setTimeout(() => {
       window.open(`https://api.whatsapp.com/send?text=${buildShareText()}`, '_blank');
       setIsSharing(false);
-      toast.success('جاري فتح واتساب... 🟢');
+      toast.success(lang === 'ar' ? 'جاري فتح واتساب... 🟢' : 'Opening WhatsApp... 🟢');
     }, 600);
   };
 
   const handleCopy = () => {
-    if (totalAmount <= 0) { toast.error('حدد المبلغ الإجمالي أولاً.'); return; }
-    const title = billTitle.trim() || 'حسبة مشتركة';
-    const lines = [`📋 ${title}\nالإجمالي: ${fmt(totalAmount)} ج.م\n`];
+    if (totalAmount <= 0) { toast.error(lang === 'ar' ? 'حدد المبلغ الإجمالي أولاً.' : 'Please set total amount first.'); return; }
+    const title = billTitle.trim() || (lang === 'ar' ? 'حسبة مشتركة' : 'Shared Bill');
+    const lines = [`📋 ${title}\n${lang === 'ar' ? 'الإجمالي:' : 'Total:'} ${fmt(totalAmount, lang)} ${lang === 'ar' ? 'ج.م' : 'EGP'}\n`];
     participants.forEach((p, i) => {
-      lines.push(`• ${p.name.trim() || `شخص ${i + 1}`}: ${fmt(p.amount)} ج.م`);
+      lines.push(`• ${p.name.trim() || (lang === 'ar' ? `شخص ${i + 1}` : `Person ${i + 1}`)}: ${fmt(p.amount, lang)} ${lang === 'ar' ? 'ج.م' : 'EGP'}`);
     });
     
     const websiteUrl = buildShareUrl();
-    lines.push(`\n💡 احسبها صح مع تطبيق مدبّر 🚀`);
-    lines.push(`أدر ميزانيتك ومصاريف منزلك بذكاء ووفر أكتر! 🏠💰`);
+    lines.push(`\n💡 ${lang === 'ar' ? 'احسبها صح مع تطبيق مدبّر 🚀' : 'Calculate it right with Mudabber app 🚀'}`);
+    lines.push(lang === 'ar' ? 'أدر ميزانيتك ومصاريف منزلك بذكاء ووفر أكتر! 🏠💰' : 'Manage your budget and home expenses smartly and save more! 🏠💰');
     lines.push(websiteUrl);
 
     navigator.clipboard.writeText(lines.join('\n'))
       .then(() => {
         setCopied(true);
-        toast.success('تم نسخ الحسبة! 📋');
+        toast.success(lang === 'ar' ? 'تم نسخ الحسبة! 📋' : 'Split copied! 📋');
         setTimeout(() => setCopied(false), 2500);
       })
-      .catch(() => toast.error('فشل نسخ الحسبة.'));
+      .catch(() => toast.error(lang === 'ar' ? 'فشل نسخ الحسبة.' : 'Failed to copy split.'));
   };
 
   // ── Derived state ────────────────────────────────────────────────────────────
@@ -425,7 +430,7 @@ export default function BillSplitting() {
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div dir="rtl" className="w-full max-w-md mx-auto px-3 py-6">
+    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className="w-full max-w-md mx-auto px-3 py-6">
 
       {/* ── Outer Card ── */}
       <div
@@ -461,16 +466,16 @@ export default function BillSplitting() {
             >
               <Receipt className="w-5 h-5 text-emerald-500" />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-right">
               <h2
                 className="text-base font-extrabold leading-tight truncate"
                 style={{ color: 'var(--foreground)' }}
               >
-                قسّم الفاتورة
-                <span className="mr-1.5 text-emerald-500">شيل معايا</span>
+                {lang === 'ar' ? 'قسّم الفاتورة' : 'Split Bill'}
+                <span className="mr-1.5 ml-1.5 text-emerald-500">{lang === 'ar' ? 'شيل معايا' : 'Share With Me'}</span>
               </h2>
               <p className="text-[11px] leading-snug mt-0.5 truncate" style={{ color: 'var(--muted-foreground)' }}>
-                احسبها صح وابعت اللينك لصحابك على الواتساب
+                {lang === 'ar' ? 'احسبها صح وابعت اللينك لصحابك على الواتساب' : 'Calculate it right and share the link with your friends on WhatsApp'}
               </p>
             </div>
             <div
@@ -481,23 +486,23 @@ export default function BillSplitting() {
                 color: '#10b981',
               }}
             >
-              {participants.length} أشخاص
+              {lang === 'ar' ? `${participants.length} أشخاص` : `${participants.length} ${participants.length === 1 ? 'person' : 'people'}`}
             </div>
           </div>
 
           {/* ─── Bill Title ──────────────────────────────────────────────────── */}
           <div className="mb-3">
-            <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--muted-foreground)' }}>
-              اسم الفاتورة
+            <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-right" style={{ color: 'var(--muted-foreground)' }}>
+              {lang === 'ar' ? 'اسم الفاتورة' : 'Bill Name'}
             </label>
             <div className="relative">
               <input
                 type="text"
-                dir="rtl"
-                placeholder="مثال: خروجة القهوة، إيجار الشقة..."
+                dir={lang === 'ar' ? 'rtl' : 'ltr'}
+                placeholder={lang === 'ar' ? 'مثال: خروجة القهوة، إيجار الشقة...' : 'e.g., Coffee, Apartment Rent...'}
                 value={billTitle}
                 onChange={(e) => setBillTitle(e.target.value)}
-                className="w-full h-12 pr-4 pl-10 rounded-2xl border text-sm font-semibold focus:outline-none transition-all duration-200"
+                className={`w-full h-12 rounded-2xl border text-sm font-semibold focus:outline-none transition-all duration-200 ${lang === 'ar' ? 'pr-4 pl-10 text-right' : 'pl-4 pr-10 text-left'}`}
                 style={{
                   background: 'var(--secondary)',
                   borderColor: 'var(--border)',
@@ -506,7 +511,7 @@ export default function BillSplitting() {
               />
               <FileText
                 aria-hidden="true"
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${lang === 'ar' ? 'left-3.5' : 'right-3.5'}`}
                 style={{ color: 'var(--muted-foreground)' }}
               />
             </div>
@@ -514,8 +519,8 @@ export default function BillSplitting() {
 
           {/* ─── Total Amount ─────────────────────────────────────────────────── */}
           <div className="mb-5">
-            <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--muted-foreground)' }}>
-              المبلغ الإجمالي
+            <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-right" style={{ color: 'var(--muted-foreground)' }}>
+              {lang === 'ar' ? 'المبلغ الإجمالي' : 'Total Amount'}
             </label>
             <div className="relative">
               <input
@@ -524,7 +529,7 @@ export default function BillSplitting() {
                 placeholder="0.00"
                 value={totalAmount > 0 ? totalAmount : ''}
                 onChange={(e) => handleTotalChange(e.target.value)}
-                className="w-full h-16 pl-20 pr-4 rounded-2xl border text-3xl font-extrabold focus:outline-none transition-all duration-200 tabular-nums text-right"
+                className={`w-full h-16 rounded-2xl border text-3xl font-extrabold focus:outline-none transition-all duration-200 tabular-nums ${lang === 'ar' ? 'pl-20 pr-4 text-right' : 'pr-20 pl-4 text-left'}`}
                 style={{
                   background: 'var(--secondary)',
                   borderColor: 'var(--border)',
@@ -532,14 +537,14 @@ export default function BillSplitting() {
                 }}
               />
               <div
-                className="absolute left-3 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-xl border text-xs font-black tracking-tight whitespace-nowrap"
+                className={`absolute top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-xl border text-xs font-black tracking-tight whitespace-nowrap ${lang === 'ar' ? 'left-3' : 'right-3'}`}
                 style={{
                   background: 'var(--card)',
                   borderColor: 'var(--border)',
                   color: 'var(--foreground)',
                 }}
               >
-                ج.م
+                {lang === 'ar' ? 'ج.م' : 'EGP'}
               </div>
             </div>
           </div>
@@ -553,7 +558,7 @@ export default function BillSplitting() {
             {/* Section header */}
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold" style={{ color: 'var(--foreground)' }}>
-                👥 المشاركون
+                {lang === 'ar' ? '👥 المشاركون' : '👥 Participants'}
               </span>
               {hasManual && (
                 <button
@@ -561,16 +566,16 @@ export default function BillSplitting() {
                   className="flex items-center gap-1.5 text-[11px] font-bold text-violet-500 hover:text-violet-400 transition-colors duration-150"
                 >
                   <RefreshCw className="w-3 h-3" />
-                  إعادة تقسيم بالتساوي
+                  {lang === 'ar' ? 'إعادة تقسيم بالتساوي' : 'Reset Split'}
                 </button>
               )}
             </div>
 
             {/* Over-allocation warning */}
             {isOverallocated && (
-              <div className="flex items-start gap-2.5 p-3 mb-3 rounded-xl border bg-red-500/10 border-red-500/25 text-red-500 text-xs font-semibold leading-relaxed">
+              <div className="flex items-start gap-2.5 p-3 mb-3 rounded-xl border bg-red-500/10 border-red-500/25 text-red-500 text-xs font-semibold leading-relaxed text-right">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>المبالغ اليدوية ({fmt(lockedSum)} ج.م) تتجاوز الإجمالي!</span>
+                <span>{lang === 'ar' ? `المبالغ اليدوية (${fmt(lockedSum, lang)} ج.م) تتجاوز الإجمالي!` : `Manual amounts (${fmt(lockedSum, lang)} EGP) exceed total!`}</span>
               </div>
             )}
 
@@ -603,7 +608,7 @@ export default function BillSplitting() {
               }}
             >
               <UserPlus className="w-4 h-4" />
-              + أضف شخص
+              {lang === 'ar' ? '+ أضف شخص' : '+ Add Person'}
             </button>
           </div>
 
@@ -643,7 +648,7 @@ export default function BillSplitting() {
                 />
               )}
               {isSharing ? <RefreshCw className="w-5 h-5 animate-spin" /> : WHATSAPP_SVG}
-              <span>{isSharing ? 'جاري الإرسال...' : 'شارك الحسبة على واتساب'}</span>
+              <span>{isSharing ? (lang === 'ar' ? 'جاري الإرسال...' : 'Sharing...') : (lang === 'ar' ? 'شارك الحسبة على واتساب' : 'Share Split on WhatsApp')}</span>
               {!isSharing && totalAmount > 0 && <Sparkles className="w-4 h-4 text-white/60" />}
             </button>
 
@@ -663,13 +668,13 @@ export default function BillSplitting() {
                 ? <Check className="w-4 h-4 text-emerald-500 shrink-0" />
                 : <Copy className="w-4 h-4 shrink-0" />
               }
-              <span>{copied ? 'تم النسخ بنجاح ✓' : 'نسخ الحسبة كنص'}</span>
+              <span>{copied ? (lang === 'ar' ? 'تم النسخ بنجاح ✓' : 'Copied successfully ✓') : (lang === 'ar' ? 'نسخ الحسبة كنص' : 'Copy Split as Text')}</span>
             </button>
           </div>
 
           {/* ─── Footer Note ──────────────────────────────────────────────────── */}
           <p className="mt-4 text-center text-[10px] leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-            المبالغ تُحسب تلقائياً بالتساوي • اضغط 🔒 لتثبيت مبلغ يدوياً
+            {lang === 'ar' ? 'المبالغ تُحسب تلقائياً بالتساوي • اضغط 🔒 لتثبيت مبلغ يدوياً' : 'Amounts are split evenly • Click 🔒 to lock manual amount'}
           </p>
         </div>
       </div>

@@ -508,14 +508,14 @@ export default function DashboardPage() {
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-black text-white flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-indigo-400" />
-            حساباتي المالية وأرصدة البنوك
+            {lang === 'ar' ? 'حساباتي المالية وأرصدة البنوك' : 'My Financial Accounts & Bank Balances'}
           </h3>
           <Button
             onClick={() => setShowAddAccount(true)}
             className="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-xl px-4 py-2 text-xs font-bold transition-all border border-indigo-500/10 flex items-center gap-1.5 active:scale-95"
           >
             <Plus className="w-4 h-4" />
-            إضافة حساب
+            {lang === 'ar' ? 'إضافة حساب' : 'Add Account'}
           </Button>
         </div>
 
@@ -686,7 +686,7 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-4">
                 {recentTransactions.map(tx => {
-                  const cat = getCategoryInfo(tx.category, tx.type);
+                  const cat = getCategoryInfo(tx.category, tx.type, lang);
                   return (
                     <div
                       key={tx.id}
@@ -759,7 +759,7 @@ export default function DashboardPage() {
                       <div key={category} className="group">
                         <div className="flex justify-between mb-2">
                           <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">
-                            {category}
+                            {getCategoryInfo(category, 'expense', lang).label}
                           </span>
                           <span className="text-sm font-black text-white tabular-nums">{formatCurrency(amount)}</span>
                         </div>
@@ -1225,7 +1225,7 @@ export default function DashboardPage() {
                   </div>
                 ) : (
                   accountTransactions.map(tx => {
-                    const cat = getCategoryInfo(tx.category, tx.type);
+                    const cat = getCategoryInfo(tx.category, tx.type, lang);
                     const isIncome = tx.type === 'income';
                     const txDate = new Date(tx.date);
                     
