@@ -1,37 +1,37 @@
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-// ─── Token / User helpers ────────────────────────────────────────────────────
+// ─── Token / User helpers (legacy stubs – kept for backward compat) ──────────
 export const getToken = (): string | null => {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
+  // Auth.js stores the token in a secure cookie; we retrieve it from session.
+  // This synchronous helper is kept for code that hasn't migrated yet.
+  return null; // token is now in the Auth.js JWT session
 };
 
-export const setToken = (token: string): void => {
-  localStorage.setItem('token', token);
+export const setToken = (_token: string): void => {
+  // no-op: Auth.js manages the session cookie
 };
 
 export const removeToken = (): void => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  // no-op: Auth.js manages the session cookie
 };
 
-export const getUser = (): User | null => {
-  if (typeof window === 'undefined') return null;
-  const u = localStorage.getItem('user');
-  return u ? JSON.parse(u) : null;
-};
-
-export const setUser = (user: User): void => {
-  localStorage.setItem('user', JSON.stringify(user));
-};
+export const getUser = (): User | null => null; // use useAuth() or useSession() instead
+export const setUser = (_user: User): void => {}; // no-op
 
 // ─── Core fetch wrapper ──────────────────────────────────────────────────────
+// Token is read from the Auth.js session (stored in memory by SessionProvider).
+// Components that need to make API calls should import `apiFetch` which
+// automatically picks up the accessToken from the current session.
 async function request<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  accessToken?: string | null
 ): Promise<T> {
-  const token = getToken();
+  // If no explicit token, try to read from the session via a global accessor.
+  // This is set by AuthSessionProvider when the session loads.
+  const token = accessToken ?? (typeof window !== 'undefined' ? (window as any).__authToken : null);
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),

@@ -58,9 +58,6 @@ export default function SettingsPage() {
     setProfileLoading(true);
     try {
       const updatedUser = await authApi.updateProfile({ name, avatar: avatar.startsWith('RESET:') ? '' : avatar });
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('ha_user', JSON.stringify(updatedUser));
-      }
       toast.success(lang === 'ar' ? 'تم تحديث الملف الشخصي بنجاح' : 'Profile updated successfully');
       setTimeout(() => { window.location.reload(); }, 700);
     } catch (error) {

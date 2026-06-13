@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { signIn } from 'next-auth/react';
 import { toast } from 'sonner';
 import { Eye, EyeOff, LogIn, Home, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,22 +15,31 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) { 
-      toast.error('يرجى إدخال البريد الإلكتروني وكلمة المرور'); 
-      return; 
+    if (!email || !password) {
+      toast.error('يرجى إدخال البريد الإلكتروني وكلمة المرور');
+      return;
     }
     setLoading(true);
     try {
-      await login(email, password);
-      toast.success('تم تسجيل الدخول بنجاح 🎉');
-      router.push('/dashboard');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'حدث خطأ في تسجيل الدخول');
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      } else {
+        toast.success('تم تسجيل الدخول بنجاح 🎉');
+        router.push('/dashboard');
+        router.refresh();
+      }
+    } catch {
+      toast.error('حدث خطأ في تسجيل الدخول');
     } finally {
       setLoading(false);
     }
@@ -79,7 +88,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
                 <Label className="text-slate-300 text-sm font-semibold">كلمة المرور</Label>
-                <Link href="/forgot-password" size="sm" className="text-xs text-slate-500 hover:text-indigo-400 transition-colors">
+                <Link href="/forgot-password" className="text-xs text-slate-500 hover:text-indigo-400 transition-colors">
                   نسيت كلمة المرور؟
                 </Link>
               </div>
@@ -147,4 +156,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

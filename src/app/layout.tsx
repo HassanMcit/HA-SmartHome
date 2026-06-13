@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AuthSessionProvider from "@/components/AuthSessionProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -52,14 +53,16 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className="font-cairo antialiased">
-        <ThemeProvider>
-          <LanguageProvider>
-            <AuthProvider>
-              {children}
-              <Toaster position="top-center" richColors dir="rtl" />
-            </AuthProvider>
-          </LanguageProvider>
-        </ThemeProvider>
+        <AuthSessionProvider>
+          <AuthProvider>
+            <ThemeProvider>
+              <LanguageProvider>
+                {children}
+                <Toaster position="top-center" richColors dir="rtl" />
+              </LanguageProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

@@ -1,12 +1,19 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authApi, getToken, setToken, removeToken, setUser, getUser, User } from '@/lib/api';
+/**
+ * AuthContext – compatibility shim on top of next-auth/react.
+ *
+ * All existing components that call useAuth() continue to work unchanged.
+ * The session is now managed by Auth.js (next-auth) via secure HTTP-only cookies.
+ */
+
+import { createContext, useContext, ReactNode, useCallback } from 'react';
+import { useSession, signOut as nextAuthSignOut } from 'next-auth/react';
+import { authApi, User } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
 }
@@ -14,57 +21,36 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUserState] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: session, status, update } = useSession();
 
-  useEffect(() => {
-    const initAuth = async () => {
-      const token = getToken();
-      const cachedUser = getUser();
+  const loading = status === 'loading';
 
-      if (token && cachedUser) {
-        setUserState(cachedUser);
-        // Verify token is still valid
-        try {
-          const freshUser = await authApi.me();
-          setUserState(freshUser);
-          setUser(freshUser);
-        } catch (error: any) {
-          // Only clear the session if the error is explicitly a 401 Unauthorized
-          if (error?.status === 401) {
-            removeToken();
-            setUserState(null);
-          } else {
-            console.warn('Transient network/server error during auth validation. Keeping cached session.', error);
-          }
-        }
+  // Build a User object from the session
+  const user: User | null = session?.user
+    ? {
+        id: (session.user as any).id ?? '',
+        name: session.user.name ?? '',
+        email: session.user.email ?? '',
+        role: (session.user as any).role ?? 'member',
+        avatar: (session.user as any).avatar,
       }
-      setLoading(false);
-    };
+    : null;
 
-    initAuth();
+  const logout = useCallback(() => {
+    nextAuthSignOut({ callbackUrl: '/login' });
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const { token, user: userData } = await authApi.login(email, password);
-    setToken(token);
-    setUser(userData);
-    setUserState(userData);
-  };
-
-  const logout = () => {
-    removeToken();
-    setUserState(null);
-    window.location.href = '/login';
-  };
-
-  const updateUser = (updatedUser: User) => {
-    setUserState(updatedUser);
-    setUser(updatedUser);
-  };
+  // After updating profile on the backend, refresh the session token
+  const updateUser = useCallback(
+    async (updatedUser: User) => {
+      // Trigger a session re-fetch so useSession() returns fresh data
+      await update({ user: updatedUser });
+    },
+    [update]
+  );
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
