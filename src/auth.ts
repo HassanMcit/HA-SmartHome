@@ -55,7 +55,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
-        token.avatar = (user as any).avatar;
+        // Do not store large base64 avatars in the JWT session cookie to prevent HTTP 494 errors
+        token.avatar = (user as any).avatar && (user as any).avatar.startsWith('data:')
+          ? 'RESET:'
+          : (user as any).avatar ?? null;
         token.accessToken = (user as any).accessToken;
       }
       return token;
