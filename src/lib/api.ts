@@ -81,6 +81,7 @@ export interface Account {
   interestRate?: number;
   interestDay?: number;
   lastInterestPaid?: string;
+  denominations?: Record<string, number> | null;
 }
 
 export interface Transaction {
@@ -542,6 +543,7 @@ export const accountsApi = {
     depositAmount?: number;
     interestRate?: number;
     interestDay?: number;
+    denominations?: Record<string, number> | null;
   }) =>
     request<Account>('/accounts', {
       method: 'POST',
@@ -575,6 +577,7 @@ export const accountsApi = {
       depositAmount: number | null;
       interestRate: number | null;
       interestDay: number | null;
+      denominations: Record<string, number> | null;
     }>
   ) =>
     request<Account>(`/accounts/${id}`, {

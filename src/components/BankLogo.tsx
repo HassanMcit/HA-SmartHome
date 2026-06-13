@@ -272,7 +272,7 @@ export const BANK_WALLET_CATALOG: BankWalletInfo[] = [
     matchKeywords: ['امارات دبي', 'الإمارات دبي', 'enbd', 'emirates nbd'],
     ar: 'بنك الإمارات دبي الوطني',
     en: 'Emirates NBD',
-    gradient: 'from-[#0284c7] to-[#0ea5e9]',
+    gradient: 'from-[#0ea5e9] to-[#38bdf8]',
     textColor: 'text-white',
     shortName: 'ENBD',
     customIcon: (

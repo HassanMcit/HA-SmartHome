@@ -37,6 +37,8 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+const EGYPTIAN_DENOMINATIONS = ['200', '100', '50', '20', '10', '5', '1', '0.5'];
+
 export default function AccountDetailPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
@@ -67,6 +69,22 @@ export default function AccountDetailPage() {
   const [editInterestRate, setEditInterestRate] = useState('');
   const [editInterestDay, setEditInterestDay] = useState('');
   const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editDenominations, setEditDenominations] = useState<Record<string, number>>({});
+
+  const handleDenominationChange = (denom: string, val: string) => {
+    const count = Math.max(0, parseInt(val) || 0);
+    const newDenoms = {
+      ...editDenominations,
+      [denom]: count
+    };
+    setEditDenominations(newDenoms);
+    
+    // Calculate total balance from denominations
+    const total = Object.entries(newDenoms).reduce((sum, [d, c]) => {
+      return sum + parseFloat(d) * c;
+    }, 0);
+    setEditBalance(String(total));
+  };
 
   useEffect(() => {
     if (account) {
@@ -79,6 +97,7 @@ export default function AccountDetailPage() {
       setEditDepositAmount(account.depositAmount !== null && account.depositAmount !== undefined ? String(account.depositAmount) : '');
       setEditInterestRate(account.interestRate !== null && account.interestRate !== undefined ? String(account.interestRate) : '');
       setEditInterestDay(account.interestDay !== null && account.interestDay !== undefined ? String(account.interestDay) : '');
+      setEditDenominations((account.denominations as Record<string, number>) || {});
     }
   }, [account]);
 
@@ -113,6 +132,8 @@ export default function AccountDetailPage() {
         }
       } else if (account.type === 'wallet') {
         payload.accountNum = editAccountNum || null;
+      } else if (account.type === 'cash') {
+        payload.denominations = editDenominations;
       }
 
       await accountsApi.update(account.id, payload);
@@ -382,6 +403,37 @@ export default function AccountDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Cash Denominations Breakdown Panel */}
+      {account.type === 'cash' && (
+        <div className="glass-card p-6 bg-gradient-to-br from-indigo-950/20 via-slate-900/35 to-slate-900/30 border-indigo-500/10 flex flex-col gap-4">
+          <h3 className="text-sm font-black text-indigo-400 flex items-center gap-2 border-b border-white/5 pb-3">
+            <DollarSign className="w-4 h-4" />
+            {lang === 'ar' ? 'توزيع الفئات النقدية (الكاش)' : 'Cash Denominations Breakdown'}
+          </h3>
+          {(!account.denominations || Object.keys(account.denominations).length === 0 || Object.values(account.denominations).every(v => v === 0)) ? (
+            <div className="text-center py-6 text-slate-500 text-xs font-bold">
+              {lang === 'ar' 
+                ? 'لا يوجد توزيع للفئات النقدية حالياً. يمكنك تعديل الحساب لتسجيل عدد الفئات وتحديث الرصيد تلقائياً.' 
+                : 'No cash breakdown registered yet. You can edit the account to log the denominations.'}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
+              {EGYPTIAN_DENOMINATIONS.map(denom => {
+                const count = ((account.denominations as Record<string, number>) || {})[denom] || 0;
+                const value = parseFloat(denom) * count;
+                return (
+                  <div key={denom} className="bg-black/20 p-3 rounded-xl border border-white/5 text-center flex flex-col gap-1.5">
+                    <span className="text-[10px] font-bold text-slate-500">{denom} ج.م</span>
+                    <span className="text-lg font-black text-white">{count}</span>
+                    <span className="text-[9px] font-medium text-emerald-400">{formatCurrency(value)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Statement and Transactions Panel */}
       <div className="glass-card overflow-hidden flex flex-col gap-5 p-6">
@@ -738,8 +790,28 @@ export default function AccountDetailPage() {
                     placeholder="0.00"
                     value={editBalance}
                     onChange={e => setEditBalance(e.target.value)}
-                    className="h-11" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                    className="h-11 font-bold" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                   />
+                </div>
+
+                <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
+                  <Label className="text-xs font-bold text-slate-400 block mb-2">{lang === 'ar' ? 'توزيع الفئات النقدية' : 'Cash Denominations'}</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {EGYPTIAN_DENOMINATIONS.map(denom => (
+                      <div key={denom} className="flex items-center justify-between gap-2 bg-white/5 p-2 rounded-xl border border-white/5">
+                        <span className="text-xs font-bold text-slate-300 w-12 text-left" dir="ltr">{denom} ج.م</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="0"
+                          value={editDenominations[denom] || ''}
+                          onChange={e => handleDenominationChange(denom, e.target.value)}
+                          className="h-9 w-20 text-center text-xs"
+                          style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </>
             )}

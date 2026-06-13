@@ -47,6 +47,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useRouter } from 'next/navigation';
 
 
+const EGYPTIAN_DENOMINATIONS = ['200', '100', '50', '20', '10', '5', '1', '0.5'];
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const { t, lang } = useLanguage();
@@ -84,6 +86,22 @@ export default function DashboardPage() {
   const [newAccDepositAmount, setNewAccDepositAmount] = useState('');
   const [newAccInterestRate, setNewAccInterestRate] = useState('');
   const [newAccInterestDay, setNewAccInterestDay] = useState('');
+  const [newAccDenominations, setNewAccDenominations] = useState<Record<string, number>>({});
+
+  const handleNewDenominationChange = (denom: string, val: string) => {
+    const count = Math.max(0, parseInt(val) || 0);
+    const newDenoms = {
+      ...newAccDenominations,
+      [denom]: count
+    };
+    setNewAccDenominations(newDenoms);
+    
+    // Calculate total balance from denominations
+    const total = Object.entries(newDenoms).reduce((sum, [d, c]) => {
+      return sum + parseFloat(d) * c;
+    }, 0);
+    setNewAccBalance(String(total));
+  };
   const [addAccountSubmitting, setAddAccountSubmitting] = useState(false);
 
   const isWalletName = (name: string) => {
@@ -118,6 +136,22 @@ export default function DashboardPage() {
   const [editInterestRate, setEditInterestRate] = useState('');
   const [editInterestDay, setEditInterestDay] = useState('');
   const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editDenominations, setEditDenominations] = useState<Record<string, number>>({});
+
+  const handleDenominationChange = (denom: string, val: string) => {
+    const count = Math.max(0, parseInt(val) || 0);
+    const newDenoms = {
+      ...editDenominations,
+      [denom]: count
+    };
+    setEditDenominations(newDenoms);
+    
+    // Calculate total balance from denominations
+    const total = Object.entries(newDenoms).reduce((sum, [d, c]) => {
+      return sum + parseFloat(d) * c;
+    }, 0);
+    setEditBalance(String(total));
+  };
 
   const fetchData = async () => {
     if (!user) return;
@@ -279,6 +313,7 @@ export default function DashboardPage() {
         name,
         type: newAccType,
         balance: parseFloat(newAccBalance) || 0,
+        denominations: newAccType === 'cash' ? newAccDenominations : null,
       };
 
       if (newAccType === 'bank') {
@@ -308,6 +343,7 @@ export default function DashboardPage() {
       setNewAccDepositAmount('');
       setNewAccInterestRate('');
       setNewAccInterestDay('');
+      setNewAccDenominations({});
       fetchData();
     } catch (err: any) {
       toast.error(err.message || (lang === 'ar' ? 'حدث خطأ أثناء إضافة الحساب' : 'Error adding account'));
@@ -359,6 +395,7 @@ export default function DashboardPage() {
     setEditDepositAmount(acc.depositAmount != null ? String(acc.depositAmount) : '');
     setEditInterestRate(acc.interestRate != null ? String(acc.interestRate) : '');
     setEditInterestDay(acc.interestDay != null ? String(acc.interestDay) : '');
+    setEditDenominations((acc.denominations as Record<string, number>) || {});
   };
 
   const handleEditAccountSubmit = async (e: React.FormEvent) => {
@@ -389,8 +426,8 @@ export default function DashboardPage() {
           payload.interestRate = null;
           payload.interestDay = null;
         }
-      } else if (acc.type === 'wallet') {
-        payload.accountNum = editAccountNum || null;
+      } else if (acc.type === 'cash') {
+        payload.denominations = editDenominations;
       }
       await accountsApi.update(acc.id, payload);
       toast.success(lang === 'ar' ? 'تم تعديل الحساب بنجاح! ✏️' : 'Account updated successfully! ✏️');
@@ -1159,16 +1196,38 @@ export default function DashboardPage() {
             )}
 
             {newAccType === 'cash' && (
-              <div className="space-y-2 text-right">
-                <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رصيد الكاش الأولي' : 'Initial Cash Balance'}</Label>
-                <Input
-                  type="number"
-                  placeholder="0.00"
-                  value={newAccBalance}
-                  onChange={e => setNewAccBalance(e.target.value)}
-                  className="h-12 text-center"
-                  style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                />
+              <div className="space-y-4">
+                <div className="space-y-2 text-right">
+                  <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'رصيد الكاش الأولي' : 'Initial Cash Balance'}</Label>
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    value={newAccBalance}
+                    onChange={e => setNewAccBalance(e.target.value)}
+                    className="h-12 text-center font-bold"
+                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  />
+                </div>
+
+                <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
+                  <Label className="text-xs font-bold text-slate-400 block mb-2">{lang === 'ar' ? 'توزيع الفئات النقدية (اختياري)' : 'Cash Denominations (Optional)'}</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {EGYPTIAN_DENOMINATIONS.map(denom => (
+                      <div key={denom} className="flex items-center justify-between gap-2 bg-white/5 p-2 rounded-xl border border-white/5">
+                        <span className="text-xs font-bold text-slate-300 w-12 text-left" dir="ltr">{denom} ج.م</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="0"
+                          value={newAccDenominations[denom] || ''}
+                          onChange={e => handleNewDenominationChange(denom, e.target.value)}
+                          className="h-9 w-20 text-center text-xs"
+                          style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1417,7 +1476,27 @@ export default function DashboardPage() {
                 </div>
                 <div className="space-y-2 text-right">
                   <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'الرصيد النقدي الحالي' : 'Current Cash Balance'}</Label>
-                  <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
+                  <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11 font-bold" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
+                </div>
+
+                <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
+                  <Label className="text-xs font-bold text-slate-400 block mb-2">{lang === 'ar' ? 'توزيع الفئات النقدية' : 'Cash Denominations'}</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {EGYPTIAN_DENOMINATIONS.map(denom => (
+                      <div key={denom} className="flex items-center justify-between gap-2 bg-white/5 p-2 rounded-xl border border-white/5">
+                        <span className="text-xs font-bold text-slate-300 w-12 text-left" dir="ltr">{denom} ج.م</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="0"
+                          value={editDenominations[denom] || ''}
+                          onChange={e => handleDenominationChange(denom, e.target.value)}
+                          className="h-9 w-20 text-center text-xs"
+                          style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
