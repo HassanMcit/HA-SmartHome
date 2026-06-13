@@ -19,7 +19,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/:path*',
+        // Proxy all /api/* to backend EXCEPT /api/auth/* which belongs to Auth.js
+        source: '/api/:path((?!auth/).*)',
         destination: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/:path*`,
       },
     ];
