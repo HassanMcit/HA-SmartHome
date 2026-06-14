@@ -69,143 +69,263 @@ export default function TransactionsPage() {
 
   // ─── Voice input parser ──────────────────────────────────────────────────────
   const parseVoiceInput = useCallback((text: string) => {
+    if (!text.trim()) return;
     setVoiceParsing(true);
-    const lower = text.toLowerCase();
+    const lower = text.toLowerCase().trim();
 
-    // ── 1. Detect type: expense or income ────────────────────────────────────
+    // ── 1. Detect type: income or expense ────────────────────────────────────
+    // ايداع / استلمت / حصلت = income
+    // سحب / دفعت / صرفت = expense
     const incomeKeywords = [
-      'دخل', 'راتب', 'مرتب', 'إيراد', 'ايراد', 'استلمت', 'اخذت', 'أخذت', 'حصلت',
-      'income', 'salary', 'received', 'got paid', 'earned', 'bonus', 'مكافأة', 'هدية'
+      'ايداع', 'إيداع', 'ودعت', 'ودعنا', 'استلمت', 'استلم', 'أخذت', 'اخذت',
+      'حصلت', 'دخل', 'راتب', 'مرتب', 'إيراد', 'ايراد', 'مكافأة', 'هدية',
+      'ربحت', 'كسبت', 'تحويل وارد', 'received', 'income', 'deposit', 'salary',
+      'earned', 'bonus', 'got paid',
     ];
     const expenseKeywords = [
-      'دفعت', 'صرفت', 'اشتريت', 'خلصت', 'سحبت', 'مصروف', 'مصاريف',
-      'spent', 'paid', 'bought', 'purchased', 'expense'
+      'سحب', 'سحبت', 'دفعت', 'صرفت', 'اشتريت', 'خلصت', 'بعتلهم',
+      'مصروف', 'مصاريف', 'خرج', 'راح', 'تحويل صادر',
+      'spent', 'paid', 'bought', 'purchased', 'expense', 'withdrawal',
     ];
-    let detectedType: 'income' | 'expense' = 'expense';
+
+    let detectedType: 'income' | 'expense' = 'expense'; // default expense
+    // check income first (more specific)
     if (incomeKeywords.some(k => lower.includes(k))) detectedType = 'income';
     else if (expenseKeywords.some(k => lower.includes(k))) detectedType = 'expense';
 
     // ── 2. Extract amount ────────────────────────────────────────────────────
-    // Matches: "١٢٠", "120", "مية وعشرين", "ألف"
-    const arabicNums: Record<string, number> = {
-      'صفر': 0, 'واحد': 1, 'اتنين': 2, 'تلاتة': 3, 'اربعة': 4, 'خمسة': 5,
-      'ستة': 6, 'سبعة': 7, 'تمانية': 8, 'تسعة': 9, 'عشرة': 10,
-      'عشرين': 20, 'تلاتين': 30, 'اربعين': 40, 'خمسين': 50,
-      'ستين': 60, 'سبعين': 70, 'تمانين': 80, 'تسعين': 90,
-      'مية': 100, 'ميه': 100, 'مئة': 100, 'مئتين': 200, 'ميتين': 200,
-      'تلاتمية': 300, 'اربعمية': 400, 'خمسمية': 500,
-      'الف': 1000, 'ألف': 1000, 'عشرة آلاف': 10000, 'مية الف': 100000,
-    };
+    // Strategy: try western digits first, then eastern Arabic digits, then word numbers
     let detectedAmount = '';
-    // Try to find a western or eastern Arabic numeral
-    const numMatch = lower.match(/[٠-٩\d]+([.,][٠-٩\d]+)?/);
-    if (numMatch) {
-      const normalized = numMatch[0]
-        .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
-        .replace(',', '.');
-      detectedAmount = normalized;
-    } else {
-      // Try Arabic word numbers
-      for (const [word, val] of Object.entries(arabicNums)) {
-        if (lower.includes(word)) {
+
+    // a) Western digits: 1000, 1,500, 1.5
+    const westernMatch = lower.match(/\b(\d[\d,]*(?:\.\d+)?)\b/);
+    if (westernMatch) {
+      detectedAmount = westernMatch[1].replace(/,/g, '');
+    }
+
+    // b) Eastern Arabic digits: ١٠٠٠
+    if (!detectedAmount) {
+      const easternMatch = lower.match(/[٠-٩]+(?:[٫.][٠-٩]+)?/);
+      if (easternMatch) {
+        detectedAmount = easternMatch[0]
+          .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+          .replace('٫', '.');
+      }
+    }
+
+    // c) Arabic word-form numbers (ordered from largest to smallest to avoid partial matches)
+    if (!detectedAmount) {
+      // Multi-word patterns first (order matters!)
+      const wordPatterns: [RegExp, number][] = [
+        [/مية الف/, 100000],
+        [/عشرين الف|عشرين ألف/, 20000],
+        [/خمستاشر الف|خمستعشر الف/, 15000],
+        [/عشر(ة)? (آلاف|الاف)/, 10000],
+        [/خمس(ة)? آلاف|خمس(ة)? الاف/, 5000],
+        [/ألفين|الفين/, 2000],
+        [/الف|ألف/, 1000],
+        [/تسعمية|تسعمائة/, 900],
+        [/تمانمية|ثمانمائة/, 800],
+        [/سبعمية|سبعمائة/, 700],
+        [/ستمية|ستمائة/, 600],
+        [/خمسمية|خمسمائة/, 500],
+        [/اربعمية|أربعمائة/, 400],
+        [/تلاتمية|ثلاثمائة/, 300],
+        [/مئتين|ميتين|مئتان/, 200],
+        [/مية|ميه|مئة|مائة/, 100],
+        [/تسعين/, 90],
+        [/تمانين|ثمانين/, 80],
+        [/سبعين/, 70],
+        [/ستين/, 60],
+        [/خمسين/, 50],
+        [/اربعين|أربعين/, 40],
+        [/تلاتين|ثلاثين/, 30],
+        [/عشرين/, 20],
+        [/تسعة عشر|تسعتعشر/, 19],
+        [/تمنتاشر|ثمانية عشر/, 18],
+        [/سبعتاشر|سبعة عشر/, 17],
+        [/ستاشر|ستة عشر/, 16],
+        [/خمستاشر|خمسة عشر/, 15],
+        [/اربعتاشر|أربعة عشر/, 14],
+        [/تلتاشر|ثلاثة عشر/, 13],
+        [/اتناشر|اثنا عشر/, 12],
+        [/حداشر|أحد عشر/, 11],
+        [/عشرة|عشره/, 10],
+        [/تسعة|تسعه/, 9],
+        [/تمانية|ثمانية/, 8],
+        [/سبعة|سبعه/, 7],
+        [/ستة|سته/, 6],
+        [/خمسة|خمسه/, 5],
+        [/اربعة|أربعة/, 4],
+        [/تلاتة|ثلاثة/, 3],
+        [/اتنين|اثنين/, 2],
+        [/واحد/, 1],
+      ];
+      for (const [pattern, val] of wordPatterns) {
+        if (pattern.test(lower)) {
           detectedAmount = String(val);
           break;
         }
       }
     }
 
-    // ── 3. Detect category ───────────────────────────────────────────────────
-    const categoryMap: Array<{ value: string; keywords: string[] }> = [
-      { value: 'food', keywords: ['اكل', 'طعام', 'فطار', 'غذاء', 'عشاء', 'مطعم', 'كافيه', 'كافيهات', 'فطور', 'food', 'lunch', 'dinner', 'breakfast', 'cafe', 'restaurant'] },
-      { value: 'transport', keywords: ['مواصلات', 'عربية', 'بنزين', 'تاكسي', 'اوبر', 'uber', 'transport', 'gas', 'petrol', 'taxi', 'كريم', 'careem'] },
-      { value: 'shopping', keywords: ['تسوق', 'اشتريت', 'شراء', 'ملابس', 'هدوم', 'shopping', 'clothes', 'mall'] },
-      { value: 'health', keywords: ['دكتور', 'دواء', 'صيدلية', 'مستشفى', 'طب', 'health', 'doctor', 'medicine', 'hospital', 'pharmacy'] },
-      { value: 'education', keywords: ['تعليم', 'كتب', 'دروس', 'مدرسة', 'جامعة', 'education', 'school', 'university', 'books'] },
-      { value: 'utilities', keywords: ['كهرباء', 'مياه', 'غاز', 'فاتورة', 'utilities', 'electricity', 'water', 'bill'] },
-      { value: 'internet_bill', keywords: ['نت', 'انترنت', 'internet', 'wifi'] },
-      { value: 'phone_recharge', keywords: ['شحن', 'رصيد', 'موبايل', 'تليفون', 'recharge', 'mobile'] },
-      { value: 'entertainment', keywords: ['ترفيه', 'سينما', 'لعبة', 'entertainment', 'cinema', 'game', 'netflix'] },
-      { value: 'housing', keywords: ['ايجار', 'إيجار', 'شقة', 'rent', 'housing', 'apartment'] },
-      { value: 'salary', keywords: ['راتب', 'مرتب', 'salary'] },
-      { value: 'food', keywords: ['طعام', 'اكل', 'food'] },
-      { value: 'personal', keywords: ['شخصي', 'نفسي', 'personal'] },
-      { value: 'subscriptions', keywords: ['اشتراك', 'subscription'] },
-      { value: 'allowance', keywords: ['مصروف', 'allowance'] },
-      { value: 'money_pool', keywords: ['جمعية', 'جميعة', 'money pool'] },
-      { value: 'charity', keywords: ['صدقة', 'تبرع', 'charity', 'donation'] },
-      { value: 'savings', keywords: ['توفير', 'ادخار', 'savings'] },
-    ];
-    let detectedCategory = '';
-    for (const { value, keywords } of categoryMap) {
-      if (keywords.some(k => lower.includes(k))) {
-        // only pick categories valid for the detected type
-        const validCats = detectedType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-        if (validCats.find(c => c.value === value)) {
-          detectedCategory = value;
+    // ── 3. Detect account from loaded accounts list ──────────────────────────
+    // Match by name or alias, case-insensitive, partial match
+    let detectedAccountId = '';
+    if (accounts.length > 0) {
+      // Dynamic matching: vodafone cash, cib, nbe, banque misr, instapay, etc.
+      const bankAliasMap: Array<[string, string[]]> = [
+        ['vodafone', ['فودافون', 'vodafone', 'vf cash', 'فودافون كاش']],
+        ['orange', ['اورنج', 'orange']],
+        ['etisalat', ['اتصالات', 'etisalat', 'we']],
+        ['instapay', ['انستاباي', 'instapay']],
+        ['cib', ['سيب', 'cib', 'سي اي بي']],
+        ['nbe', ['الاهلي', 'nbe', 'بنك الاهلي', 'البنك الأهلي']],
+        ['banque_misr', ['مصر', 'بنك مصر', 'banque misr']],
+        ['alexbank', ['الاسكندرية', 'alex bank', 'بنك الاسكندرية']],
+        ['qnb', ['قطر', 'qnb', 'بنك قطر']],
+        ['hsbc', ['hsbc', 'اتش اس بي سي']],
+        ['fawry', ['فوري', 'fawry']],
+        ['wepay', ['وي باي', 'wepay']],
+        ['cash', ['كاش', 'نقدي', 'نقود', 'فلوس', 'cash']],
+      ];
+
+      for (const acc of accounts) {
+        const accLower = (acc.name + ' ' + (acc.alias || '')).toLowerCase();
+        // Direct partial match
+        if (lower.includes(accLower.trim()) || accLower.includes(lower.trim())) {
+          detectedAccountId = acc.id;
           break;
         }
+        // Keyword match
+        for (const [key, kws] of bankAliasMap) {
+          const nameMatches = accLower.includes(key) || kws.some(k => accLower.includes(k));
+          const speechMatches = kws.some(k => lower.includes(k));
+          if (nameMatches && speechMatches) {
+            detectedAccountId = acc.id;
+            break;
+          }
+        }
+        if (detectedAccountId) break;
+      }
+    }
+
+    // ── 4. Detect category ───────────────────────────────────────────────────
+    const categoryMap: Array<{ value: string; type: 'both' | 'income' | 'expense'; keywords: string[] }> = [
+      // Income categories
+      { value: 'salary', type: 'income', keywords: ['راتب', 'مرتب', 'salary', 'paycheck'] },
+      { value: 'bonus', type: 'income', keywords: ['مكافأة', 'bonus', 'عيدية', 'حافز'] },
+      { value: 'gift', type: 'income', keywords: ['هدية', 'gift'] },
+      { value: 'freelance', type: 'income', keywords: ['شغل حر', 'freelance', 'مشروع'] },
+      { value: 'rental', type: 'income', keywords: ['ايجار وارد', 'rent income'] },
+      // Expense categories
+      { value: 'food', type: 'expense', keywords: ['اكل', 'طعام', 'فطار', 'فطور', 'غداء', 'غذاء', 'عشاء', 'مطعم', 'كافيه', 'كافيهات', 'مكدونالدز', 'بيتزا', 'food', 'lunch', 'dinner', 'breakfast', 'cafe', 'restaurant'] },
+      { value: 'transport', type: 'expense', keywords: ['مواصلات', 'عربية', 'بنزين', 'تاكسي', 'اوبر', 'كريم', 'uber', 'careem', 'transport', 'metro', 'مترو', 'اتوبيس'] },
+      { value: 'shopping', type: 'expense', keywords: ['تسوق', 'اشتريت', 'شراء', 'ملابس', 'هدوم', 'shopping', 'clothes', 'mall'] },
+      { value: 'health', type: 'expense', keywords: ['دكتور', 'دواء', 'صيدلية', 'مستشفى', 'علاج', 'طب', 'doctor', 'medicine', 'hospital', 'pharmacy'] },
+      { value: 'education', type: 'expense', keywords: ['تعليم', 'كتب', 'دروس', 'مدرسة', 'جامعة', 'school', 'education', 'books'] },
+      { value: 'utilities', type: 'expense', keywords: ['كهرباء', 'مياه', 'غاز', 'فاتورة كهرباء', 'electricity', 'water', 'utilities'] },
+      { value: 'internet_bill', type: 'expense', keywords: ['نت', 'انترنت', 'internet', 'wifi'] },
+      { value: 'phone_recharge', type: 'expense', keywords: ['شحن', 'شحن موبايل', 'رصيد', 'موبايل', 'تليفون', 'recharge', 'mobile credit'] },
+      { value: 'entertainment', type: 'expense', keywords: ['ترفيه', 'سينما', 'لعبة', 'netflix', 'entertainment', 'cinema', 'game'] },
+      { value: 'housing', type: 'expense', keywords: ['ايجار', 'إيجار', 'شقة', 'rent', 'housing'] },
+      { value: 'subscriptions', type: 'expense', keywords: ['اشتراك', 'subscription'] },
+      { value: 'allowance', type: 'expense', keywords: ['مصروف يومي', 'بدل'] },
+      { value: 'money_pool', type: 'expense', keywords: ['جمعية', 'جميعة', 'money pool'] },
+      { value: 'charity', type: 'expense', keywords: ['صدقة', 'تبرع', 'charity', 'donation'] },
+      { value: 'savings', type: 'expense', keywords: ['توفير', 'ادخار', 'savings'] },
+      { value: 'personal', type: 'expense', keywords: ['شخصي', 'personal'] },
+      { value: 'gas_cylinder', type: 'expense', keywords: ['انبوبة', 'بوتاجاز', 'gas cylinder'] },
+      { value: 'house_wife_allowance', type: 'expense', keywords: ['مصروف البيت', 'مصروف الست', 'بيت'] },
+      { value: 'bank_fees', type: 'expense', keywords: ['عمولة', 'رسوم بنك', 'bank fee'] },
+    ];
+
+    let detectedCategory = '';
+    for (const { value, type: catType, keywords } of categoryMap) {
+      if (keywords.some(k => lower.includes(k))) {
+        if (catType === 'both') { detectedCategory = value; break; }
+        if (catType === detectedType) { detectedCategory = value; break; }
       }
     }
     if (!detectedCategory) detectedCategory = 'other';
 
-    // ── 4. Use the raw text as description ───────────────────────────────────
+    // ── 5. Use the raw text as description ───────────────────────────────────
     const detectedDesc = text.trim();
 
-    // ── 5. Apply to form ─────────────────────────────────────────────────────
-    if (detectedType !== type) setType(detectedType);
+    // ── 6. Apply everything to form ──────────────────────────────────────────
+    setType(detectedType);
     setCategory(detectedCategory);
     if (detectedAmount) setAmount(detectedAmount);
     setDescription(detectedDesc);
+    if (detectedAccountId) setAccountId(detectedAccountId);
 
     setVoiceParsing(false);
+
+    // Build summary toast
     const catLabel = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES].find(c => c.value === detectedCategory)?.label || detectedCategory;
-    toast.success(
-      lang === 'ar'
-        ? `✅ تم التعرف: ${detectedType === 'expense' ? 'مصروف' : 'إيراد'} — ${detectedAmount ? detectedAmount + ' ج.م' : '؟'} — ${catLabel}`
-        : `✅ Detected: ${detectedType} — ${detectedAmount ? detectedAmount + ' EGP' : '?'} — ${catLabel}`,
-      { duration: 4000 }
-    );
-  }, [type, lang]);
+    const accName = accounts.find(a => a.id === detectedAccountId)?.name || '';
+    const parts = [
+      detectedType === 'expense' ? '🔴 مصروف' : '🟢 إيراد',
+      detectedAmount ? `💰 ${detectedAmount} ج.م` : '💰 ؟',
+      `📂 ${catLabel}`,
+      accName ? `🏦 ${accName}` : '',
+    ].filter(Boolean).join('  ');
+
+    toast.success(parts, { duration: 5000 });
+  }, [lang, accounts]);
 
   // ─── Start / Stop voice listening ────────────────────────────────────────────
+  // We keep the transcript accumulating so when user presses stop manually
+  // we parse whatever was captured.
+  const finalTranscriptRef = useRef('');
+
   const startListening = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast.error(lang === 'ar' ? '❌ المتصفح لا يدعم التعرف على الصوت — استخدم Chrome أو Edge' : '❌ Voice not supported — use Chrome or Edge');
       return;
     }
+    finalTranscriptRef.current = '';
     const recognition = new SpeechRecognition();
     recognition.lang = lang === 'ar' ? 'ar-EG' : 'en-US';
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
-    recognition.continuous = false;
+    recognition.continuous = true; // keep listening until user presses stop
 
     recognition.onstart = () => {
       setIsListening(true);
       setVoiceTranscript('');
     };
     recognition.onresult = (event: any) => {
-      const transcript = Array.from(event.results)
-        .map((r: any) => r[0].transcript)
-        .join('');
-      setVoiceTranscript(transcript);
-      if (event.results[0].isFinal) {
-        parseVoiceInput(transcript);
+      let interim = '';
+      let final = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const t = event.results[i][0].transcript;
+        if (event.results[i].isFinal) final += t;
+        else interim += t;
       }
+      if (final) finalTranscriptRef.current += final;
+      setVoiceTranscript((finalTranscriptRef.current + interim).trim());
     };
     recognition.onerror = (event: any) => {
       setIsListening(false);
-      if (event.error !== 'no-speech') {
+      if (event.error !== 'no-speech' && event.error !== 'aborted') {
         toast.error(lang === 'ar' ? `❌ خطأ في الصوت: ${event.error}` : `❌ Voice error: ${event.error}`);
       }
     };
-    recognition.onend = () => setIsListening(false);
+    recognition.onend = () => {
+      setIsListening(false);
+      // Auto-parse whatever we captured when recognition ends naturally
+      const captured = finalTranscriptRef.current.trim();
+      if (captured) parseVoiceInput(captured);
+    };
 
     recognitionRef.current = recognition;
     recognition.start();
   }, [lang, parseVoiceInput]);
 
   const stopListening = useCallback(() => {
+    // Stop recognition — onend will fire and parse automatically
     recognitionRef.current?.stop();
     setIsListening(false);
   }, []);
