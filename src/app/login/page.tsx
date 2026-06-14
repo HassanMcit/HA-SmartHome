@@ -46,7 +46,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#16172e] relative overflow-hidden selection:bg-indigo-500/30">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0d1a00] relative overflow-hidden selection:bg-indigo-500/30">
       {/* Background blobs */}
       <div className="absolute top-[-10%] left-[20%] w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-indigo-600/10 blur-[80px] sm:blur-[120px] pointer-events-none animate-pulse" />
       <div className="absolute bottom-[-10%] right-[20%] w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-purple-600/10 blur-[80px] sm:blur-[120px] pointer-events-none animate-pulse delay-700" />

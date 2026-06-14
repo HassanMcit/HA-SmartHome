@@ -208,7 +208,7 @@ export default function BudgetsPage() {
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">
                   {lang === 'ar' ? 'المستخدم المستهدف' : 'Target User'}
                 </label>
-                <Select value={targetUserId} onValueChange={setTargetUserId}>
+                <Select value={targetUserId} onValueChange={(val) => setTargetUserId(val || '')}>
                   <SelectTrigger
                     className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4"
                     style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}

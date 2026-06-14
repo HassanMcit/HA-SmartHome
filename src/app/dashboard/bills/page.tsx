@@ -212,11 +212,9 @@ export default function BillsPage() {
         </div>
 
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl px-6 h-12 shadow-lg shadow-amber-500/20 active:scale-95 transition-all">
-              <Plus className="w-5 h-5 ml-2" />
-              {lang === 'ar' ? 'إضافة فاتورة' : 'Add Bill'}
-            </Button>
+          <DialogTrigger className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl px-6 h-12 shadow-lg shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center cursor-pointer">
+            <Plus className="w-5 h-5 ml-2" />
+            {lang === 'ar' ? 'إضافة فاتورة' : 'Add Bill'}
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px] border-slate-700 rounded-[24px] outline-none" style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}>
             <DialogHeader><DialogTitle className="text-right text-xl font-black">{lang === 'ar' ? 'إضافة فاتورة جديدة' : 'Add New Bill'}</DialogTitle></DialogHeader>
@@ -503,7 +501,7 @@ export default function BillsPage() {
 
             <div className="mt-5 space-y-2 text-right">
               <label className="text-xs font-bold uppercase tracking-widest mr-1" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'الحساب المالي' : 'Financial Account'}</label>
-              <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+              <Select value={selectedAccountId} onValueChange={(val) => setSelectedAccountId(val || '')}>
                 <SelectTrigger className="w-full border text-right h-12 rounded-xl px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
                   <SelectValue placeholder={lang === 'ar' ? 'اختر حساب الخصم' : 'Select deduction account'} />
                 </SelectTrigger>

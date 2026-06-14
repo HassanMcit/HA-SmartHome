@@ -250,7 +250,7 @@ export default function RemindersPage() {
                         <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300 bg-indigo-500/10 w-fit px-3 py-1.5 rounded-lg">
                           <Clock className="w-3.5 h-3.5" />
                           <span>{new Date(reminder.reminderAt).toLocaleString('ar-EG-u-nu-latn', { dateStyle: 'medium', timeStyle: 'short' })}</span>
-                          {reminder.emailSent && <CheckCircle className="w-3 h-3 text-emerald-400 ml-1" title="تم إرسال الإيميل" />}
+                          {reminder.emailSent && <CheckCircle className="w-3 h-3 text-emerald-400 ml-1" />}
                         </div>
                       )}
                     </div>

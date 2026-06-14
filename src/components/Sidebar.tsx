@@ -50,7 +50,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-64 h-full flex flex-col bg-[#121325] border-l border-white/5 direction-rtl overflow-y-auto custom-scrollbar">
+    <div className="w-64 h-full flex flex-col bg-[#142300] border-l border-white/5 direction-rtl overflow-y-auto custom-scrollbar">
       {/* Logo & Toggles */}
       <div className="px-6 py-6 border-b border-white/5 flex-shrink-0 flex items-center justify-between gap-2">
         <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">

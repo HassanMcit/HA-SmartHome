@@ -57,24 +57,24 @@ export default function MobileNav() {
     { href: '/dashboard/budgets', icon: Target, labelKey: 'nav_budgets' as const },
   ];
 
-  const moreItems = [
-    { href: '/dashboard/savings', icon: PiggyBank, labelKey: 'nav_savings' as const },
-    { href: '/dashboard/bills', icon: FileText, labelKey: 'nav_bills' as const },
-    { href: '/dashboard/reminders', icon: Bell, labelKey: 'nav_reminders' as const },
-    { href: '/dashboard/split', icon: Receipt, labelKey: 'nav_split' as const },
-    { href: '/dashboard/advisor', icon: BrainCircuit, labelKey: 'nav_advisor' as const },
-    { href: '/dashboard/settings', icon: SettingsIcon, labelKey: 'nav_settings' as const },
+  const moreItems: { href: string; icon: any; labelKey: any }[] = [
+    { href: '/dashboard/savings', icon: PiggyBank, labelKey: 'nav_savings' },
+    { href: '/dashboard/bills', icon: FileText, labelKey: 'nav_bills' },
+    { href: '/dashboard/reminders', icon: Bell, labelKey: 'nav_reminders' },
+    { href: '/dashboard/split', icon: Receipt, labelKey: 'nav_split' },
+    { href: '/dashboard/advisor', icon: BrainCircuit, labelKey: 'nav_advisor' },
+    { href: '/dashboard/settings', icon: SettingsIcon, labelKey: 'nav_settings' },
   ];
 
   if (user?.role === 'admin') {
-    moreItems.push({ href: '/dashboard/admin', icon: ShieldCheck, labelKey: 'nav_admin' as const });
+    moreItems.push({ href: '/dashboard/admin', icon: ShieldCheck, labelKey: 'nav_admin' });
   }
 
   const ChevronIcon = isRtl ? ChevronLeft : ChevronRight;
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="mx-4 mb-4 bg-[#121325]/90 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl shadow-black/50 p-2 flex items-center justify-around">
+      <div className="mx-4 mb-4 bg-[#142300]/90 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl shadow-black/50 p-2 flex items-center justify-around">
         {mainItems.map((item) => {
           const active = isActive(item.href);
           return (
@@ -97,13 +97,11 @@ export default function MobileNav() {
 
         {/* More Menu */}
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <button className="flex flex-col items-center gap-1 p-2 rounded-xl text-slate-500 hover:text-slate-300 flex-1 min-w-0">
-              <Menu className="w-5 h-5" />
-              <span className="text-[10px] font-bold">{t('nav_more')}</span>
-            </button>
+          <SheetTrigger className="flex flex-col items-center gap-1 p-2 rounded-xl text-slate-500 hover:text-slate-300 flex-1 min-w-0 focus:outline-none">
+            <Menu className="w-5 h-5" />
+            <span className="text-[10px] font-bold">{t('nav_more')}</span>
           </SheetTrigger>
-          <SheetContent side="bottom" className="bg-[#121325] border-white/5 rounded-t-[32px] p-0 outline-none max-h-[85dvh] overflow-hidden flex flex-col">
+          <SheetContent side="bottom" className="bg-[#142300] border-white/5 rounded-t-[32px] p-0 outline-none max-h-[85dvh] overflow-hidden flex flex-col">
             {/* Handle bar + header */}
             <div className="px-6 pt-5 pb-4 flex-shrink-0">
               <div className="w-12 h-1.5 bg-slate-800 rounded-full mx-auto mb-5" />

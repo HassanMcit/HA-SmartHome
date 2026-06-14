@@ -4,79 +4,116 @@
 @theme {
   --font-cairo: 'Cairo', sans-serif;
   
-  --color-primary: #6366f1;
-  --color-primary-dark: #4f46e5;
-  --color-primary-light: #818cf8;
+  --color-primary: #82E600;
+  --color-primary-dark: #6bc400;
+  --color-primary-light: #a3f032;
   
   --color-success: #10b981;
   --color-danger: #ef4444;
   --color-warning: #f59e0b;
-  --color-info: #3b82f6;
+  --color-info: #82E600;
   
-  --color-bg: #16172e;
-  --color-surface: #121325;
-  --color-surface-2: #1e1f3a;
-  --color-border: rgba(255, 255, 255, 0.08);
+  --color-bg: #f9fff0;
+  --color-surface: #ffffff;
+  --color-surface-2: #edffd0;
+  --color-border: #c6f085;
   
-  --color-text: #f8fafc;
-  --color-text-muted: #94a3b8;
+  --color-text: #1a2e00;
+  --color-text-muted: #5a7a30;
+
+  /* Overrides to map indigo, purple, and violet to the green theme scale */
+  --color-indigo-50: #f9fff0;
+  --color-indigo-100: #e8ffb0;
+  --color-indigo-200: #c6f085;
+  --color-indigo-300: #a3f032;
+  --color-indigo-400: #82E600;
+  --color-indigo-500: #82E600;
+  --color-indigo-600: #6bc400;
+  --color-indigo-700: #579e00;
+  --color-indigo-800: #3a6400;
+  --color-indigo-900: #1c3300;
+  --color-indigo-950: #0d1a00;
+
+  --color-purple-50: #f9fff0;
+  --color-purple-100: #e8ffb0;
+  --color-purple-200: #c6f085;
+  --color-purple-300: #a3f032;
+  --color-purple-400: #82E600;
+  --color-purple-500: #82E600;
+  --color-purple-600: #6bc400;
+  --color-purple-700: #579e00;
+  --color-purple-800: #3a6400;
+  --color-purple-900: #1c3300;
+  --color-purple-950: #0d1a00;
+
+  --color-violet-50: #f9fff0;
+  --color-violet-100: #e8ffb0;
+  --color-violet-200: #c6f085;
+  --color-violet-300: #a3f032;
+  --color-violet-400: #82E600;
+  --color-violet-500: #82E600;
+  --color-violet-600: #6bc400;
+  --color-violet-700: #579e00;
+  --color-violet-800: #3a6400;
+  --color-violet-900: #1c3300;
+  --color-violet-950: #0d1a00;
 }
 
 :root {
-  --background: #16172e;
-  --foreground: #f8fafc;
-  --card: rgba(18, 19, 37, 0.85);
-  --card-foreground: #f8fafc;
-  --popover: #121325;
-  --popover-foreground: #f8fafc;
-  --primary: #6366f1;
+  --background: #f9fff0;
+  --foreground: #1a2e00;
+  --card: #ffffff;
+  --card-foreground: #1a2e00;
+  --popover: #ffffff;
+  --popover-foreground: #1a2e00;
+  --primary: #82E600;
   --primary-foreground: #ffffff;
-  --secondary: rgba(18, 19, 37, 0.5);
-  --secondary-foreground: #f8fafc;
-  --muted: rgba(18, 19, 37, 0.3);
-  --muted-foreground: #94a3b8;
-  --accent: rgba(99, 102, 241, 0.12);
-  --accent-foreground: #818cf8;
+  --secondary: #edffd0;
+  --secondary-foreground: #3a6400;
+  --muted: #edffd0;
+  --muted-foreground: #5a7a30;
+  --accent: #c6f085;
+  --accent-foreground: #3a6400;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.05);
-  --ring: #6366f1;
+  --border: #c6f085;
+  --input: #edffd0;
+  --ring: #82E600;
   --radius: 0.75rem;
-  --chart-1: #6366f1;
+  --chart-1: #82E600;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
   --chart-4: #ef4444;
-  --chart-5: #3b82f6;
-  --logo-bg: rgba(18, 19, 37, 0.4);
-  --logo-border: rgba(255, 255, 255, 0.06);
+  --chart-5: #a3f032;
+  --logo-bg: #ffffff;
+  --logo-border: #c6f085;
 }
 
 /* ──────────────────────────────────────────────
-   LIGHT MODE VARIABLES
+   DARK MODE VARIABLES
 ────────────────────────────────────────────── */
-html.light {
-  --background: #f1f5f9;
-  --foreground: #1e293b;
-  --card: #ffffff;
-  --card-foreground: #1e293b;
-  --popover: #ffffff;
-  --popover-foreground: #1e293b;
-  --primary: #6366f1;
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #334155;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #e0e7ff;
-  --accent-foreground: #4f46e5;
+html.dark {
+  --background: #0d1a00;
+  --foreground: #e8ffb0;
+  --card: rgba(20, 35, 0, 0.85);
+  --card-foreground: #e8ffb0;
+  --popover: #142300;
+  --popover-foreground: #e8ffb0;
+  --primary: #82E600;
+  --primary-foreground: #0d1a00;
+  --secondary: #1c3300;
+  --secondary-foreground: #c6f085;
+  --muted: #1c3300;
+  --muted-foreground: #8ab840;
+  --accent: #243f00;
+  --accent-foreground: #c6f085;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #6366f1;
-  --logo-bg: #ffffff;
-  --logo-border: #cbd5e1;
+  --border: #2a4d00;
+  --input: #1c3300;
+  --ring: #82E600;
+  --logo-bg: #1c3300;
+  --logo-border: rgba(130, 230, 0, 0.25);
 }
 
 
@@ -127,16 +164,16 @@ input, textarea, [contenteditable] {
 ────────────────────────────────────────────── */
 html.dark body,
 body {
-  background: #16172e;
-  color: #f8fafc;
+  background: #0d1a00;
+  color: #e8ffb0;
 }
 
 /* ──────────────────────────────────────────────
    LIGHT MODE: base element overrides
  ────────────────────────────────────────────── */
 html.light body {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: #f9fff0;
+  color: #1a2e00;
 }
 
 /* ─── Layout backgrounds ─── */
@@ -145,25 +182,30 @@ html.light .min-h-screen.bg-\[\#0b1e36\],
 html.light .bg-\[\#070a13\],
 html.light .min-h-screen.bg-\[\#070a13\],
 html.light .bg-\[\#16172e\],
-html.light .min-h-screen.bg-\[\#16172e\] {
-  background: #f1f5f9 !important;
+html.light .min-h-screen.bg-\[\#16172e\],
+html.light .bg-\[\#0d1a00\],
+html.light .min-h-screen.bg-\[\#0d1a00\] {
+  background: #f9fff0 !important;
 }
 
 html.light .bg-\[\#1a1a35\],
 html.light [class*="bg-[#1a1a35]"],
 html.light .bg-\[\#121325\],
-html.light [class*="bg-[#121325]"] {
+html.light [class*="bg-[#121325]"],
+html.light .bg-\[\#142300\],
+html.light [class*="bg-[#142300]"] {
   background: #ffffff !important;
 }
 
 html.light .bg-\[\#1a1a35\]\/80,
-html.light .bg-\[\#121325\]\/80 {
+html.light .bg-\[\#121325\]\/80,
+html.light .bg-\[\#142300\]\/80 {
   background: rgba(255,255,255,0.9) !important;
 }
 
 html.light [class*="direction-rtl"],
 html.light .flex.min-h-screen {
-  background: #f1f5f9;
+  background: #f9fff0;
 }
 
 /* ─── Sidebar in light mode ─── */
@@ -303,7 +345,8 @@ html.light .bg-black\/10 {
 }
 
 html.light .bg-\[\#1a1a35\]\/80,
-html.light .bg-\[\#121325\]\/80 {
+html.light .bg-\[\#121325\]\/80,
+html.light .bg-\[\#142300\]\/80 {
   background: rgba(255,255,255,0.95) !important;
 }
 
@@ -329,7 +372,8 @@ html.light textarea::placeholder {
 
 /* ─── Dialogs / Modals ─── */
 html.light [class*="bg-[#1a1a35]"],
-html.light [class*="bg-[#121325]"] {
+html.light [class*="bg-[#121325]"],
+html.light [class*="bg-[#142300]"] {
   background: #ffffff !important;
   color: #1e293b !important;
 }

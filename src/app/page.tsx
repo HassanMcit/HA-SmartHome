@@ -18,7 +18,7 @@ export default function HomePage() {
   }, [status, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#16172e' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0d1a00' }}>
       <div className="text-center">
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
           style={{ background: 'linear-gradient(135deg, #6366f1, #818cf8)' }}>
