@@ -65,6 +65,14 @@ export default function TransactionsPage() {
       return acc + (parseFloat(denom) * (count || 0));
     }, 0);
   }, [denominations]);
+
+  // Sync cash denominations total to transaction amount input automatically
+  useEffect(() => {
+    if (isCashAccount) {
+      const total = getDenominationsTotal();
+      setAmount(total > 0 ? total.toString() : '');
+    }
+  }, [denominations, isCashAccount, getDenominationsTotal]);
   
   // Transfer form state
   const [transferOpen, setTransferOpen] = useState(false);
