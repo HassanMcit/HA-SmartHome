@@ -317,6 +317,15 @@ export default function DashboardPage() {
 
     const name = newAccType === 'cash' ? 'كاش' : newAccName;
 
+    if (newAccType === 'cash') {
+      const totalCount = Object.values(newAccDenominations).reduce((sum, val) => sum + (val || 0), 0);
+      const balanceVal = parseFloat(newAccBalance) || 0;
+      if (balanceVal > 0 && totalCount === 0) {
+        toast.error(lang === 'ar' ? '⚠️ يرجى إدخال فئات العملات وتوزيع الأعداد لرصيد الكاش أولاً' : '⚠️ Please specify the cash denominations counts for the initial balance');
+        return;
+      }
+    }
+
     setAddAccountSubmitting(true);
     try {
       const payload: any = {
@@ -412,10 +421,15 @@ export default function DashboardPage() {
     e.preventDefault();
     const acc = editDialog.account;
     if (!acc) return;
-    if (acc.type !== 'cash' && !editName) {
-      toast.error(lang === 'ar' ? 'يرجى تحديد اسم الحساب المالي' : 'Please specify account name');
-      return;
+    if (acc.type === 'cash') {
+      const totalCount = Object.values(editDenominations).reduce((sum, val) => sum + (val || 0), 0);
+      const balanceVal = parseFloat(editBalance) || 0;
+      if (balanceVal > 0 && totalCount === 0) {
+        toast.error(lang === 'ar' ? '⚠️ يرجى إدخال فئات العملات وتوزيع الأعداد لرصيد الكاش أولاً' : '⚠️ Please specify the cash denominations counts for the balance');
+        return;
+      }
     }
+
     setEditSubmitting(true);
     try {
       const payload: any = {
@@ -1213,14 +1227,17 @@ export default function DashboardPage() {
                     type="number"
                     placeholder="0.00"
                     value={newAccBalance}
-                    onChange={e => setNewAccBalance(e.target.value)}
-                    className="h-12 text-center font-bold"
-                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                    disabled
+                    className="h-12 text-center font-bold bg-white/5 opacity-80 cursor-not-allowed"
+                    style={{ color: 'var(--foreground)', borderColor: 'var(--border)' }}
                   />
+                  <p className="text-[10px] text-slate-500 mr-1">
+                    {lang === 'ar' ? '💡 يتم احتساب الرصيد تلقائياً بناءً على توزيع الفئات النقدية أدناه.' : '💡 Balance is calculated automatically based on the cash denominations below.'}
+                  </p>
                 </div>
 
                 <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
-                  <Label className="text-xs font-bold text-slate-400 block mb-3">{lang === 'ar' ? 'توزيع الفئات النقدية (اختياري)' : 'Cash Denominations (Optional)'}</Label>
+                  <Label className="text-xs font-bold text-slate-400 block mb-3">{lang === 'ar' ? 'توزيع الفئات النقدية (إجباري)' : 'Cash Denominations (Required)'}</Label>
                   <div className="grid grid-cols-1 gap-2">
                     {EGYPTIAN_DENOMINATIONS.map(({ value: denom, ar, en }) => (
                       <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
@@ -1548,11 +1565,21 @@ export default function DashboardPage() {
                 </div>
                 <div className="space-y-2 text-right">
                   <Label className="text-xs font-bold text-slate-400">{lang === 'ar' ? 'الرصيد النقدي الحالي' : 'Current Cash Balance'}</Label>
-                  <Input type="number" placeholder="0.00" value={editBalance} onChange={e => setEditBalance(e.target.value)} className="h-11 font-bold" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    value={editBalance}
+                    disabled
+                    className="h-11 font-bold bg-white/5 opacity-80 cursor-not-allowed"
+                    style={{ color: 'var(--foreground)', borderColor: 'var(--border)' }}
+                  />
+                  <p className="text-[10px] text-slate-500 mr-1">
+                    {lang === 'ar' ? '💡 يتم احتساب الرصيد تلقائياً بناءً على توزيع الفئات النقدية أدناه.' : '💡 Balance is calculated automatically based on the cash denominations below.'}
+                  </p>
                 </div>
 
                 <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
-                  <Label className="text-xs font-bold text-slate-400 block mb-3">{lang === 'ar' ? 'توزيع الفئات النقدية' : 'Cash Denominations'}</Label>
+                  <Label className="text-xs font-bold text-slate-400 block mb-3">{lang === 'ar' ? 'توزيع الفئات النقدية (إجباري)' : 'Cash Denominations (Required)'}</Label>
                   <div className="grid grid-cols-1 gap-2">
                     {EGYPTIAN_DENOMINATIONS.map(({ value: denom, ar, en }) => (
                       <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
