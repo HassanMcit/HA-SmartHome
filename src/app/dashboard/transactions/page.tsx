@@ -916,7 +916,7 @@ export default function TransactionsPage() {
                       </span>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {EGYPTIAN_DENOMINATIONS_LIST.map(({ value: denom, ar, en }) => {
                         const count = denominations[denom] || 0;
                         const subtotal = count * parseFloat(denom);
@@ -939,7 +939,7 @@ export default function TransactionsPage() {
                               </div>
                             </div>
                             
-                            <div className="flex items-center gap-1 shrink-0">
+                            <div className="flex items-center gap-1 shrink-0 bg-white/5 p-1 rounded-xl border border-white/5">
                               {/* Minus */}
                               <button
                                 type="button"
@@ -949,7 +949,7 @@ export default function TransactionsPage() {
                                     [denom]: Math.max(0, (prev[denom] || 0) - 1)
                                   }));
                                 }}
-                                className="w-6 h-6 rounded-md bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors active:scale-90 font-bold text-xs"
+                                className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all active:scale-95 font-bold text-sm"
                               >
                                 -
                               </button>
@@ -966,7 +966,7 @@ export default function TransactionsPage() {
                                     [denom]: Math.max(0, val)
                                   }));
                                 }}
-                                className="w-10 h-6 bg-transparent border-0 text-center font-black text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-0 select-all p-0 m-0 tabular-nums"
+                                className="w-12 h-7 bg-black/20 border border-white/10 rounded-lg text-center font-black text-xs text-slate-100 dark:text-white focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums"
                                 placeholder="0"
                               />
                               
@@ -979,7 +979,7 @@ export default function TransactionsPage() {
                                     [denom]: (prev[denom] || 0) + 1
                                   }));
                                 }}
-                                className="w-6 h-6 rounded-md bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors active:scale-90 font-bold text-xs"
+                                className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all active:scale-95 font-bold text-sm"
                               >
                                 +
                               </button>
