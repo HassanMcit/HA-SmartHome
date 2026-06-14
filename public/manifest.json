@@ -6,8 +6,8 @@
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
-  "background_color": "#0d1a00",
-  "theme_color": "#0d1a00",
+  "background_color": "#0d1b2a",
+  "theme_color": "#0d1b2a",
   "orientation": "portrait-primary",
   "lang": "ar",
   "dir": "rtl",
@@ -63,4 +63,5 @@
   ],
   "prefer_related_applications": false
 }
+
 

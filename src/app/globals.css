@@ -4,116 +4,116 @@
 @theme {
   --font-cairo: 'Cairo', sans-serif;
   
-  --color-primary: #82E600;
-  --color-primary-dark: #6bc400;
-  --color-primary-light: #a3f032;
+  --color-primary: #5BC8F5;
+  --color-primary-dark: #2aadd4;
+  --color-primary-light: #8adeff;
   
   --color-success: #10b981;
   --color-danger: #ef4444;
   --color-warning: #f59e0b;
-  --color-info: #82E600;
+  --color-info: #5BC8F5;
   
-  --color-bg: #f9fff0;
+  --color-bg: #f0f8ff;
   --color-surface: #ffffff;
-  --color-surface-2: #edffd0;
-  --color-border: #c6f085;
+  --color-surface-2: #e0f4ff;
+  --color-border: #7dd3fc;
   
-  --color-text: #1a2e00;
-  --color-text-muted: #5a7a30;
+  --color-text: #0c2340;
+  --color-text-muted: #4a7a9b;
 
-  /* Overrides to map indigo, purple, and violet to the green theme scale */
-  --color-indigo-50: #f9fff0;
-  --color-indigo-100: #e8ffb0;
-  --color-indigo-200: #c6f085;
-  --color-indigo-300: #a3f032;
-  --color-indigo-400: #82E600;
-  --color-indigo-500: #82E600;
-  --color-indigo-600: #6bc400;
-  --color-indigo-700: #579e00;
-  --color-indigo-800: #3a6400;
-  --color-indigo-900: #1c3300;
-  --color-indigo-950: #0d1a00;
+  /* Map indigo, purple, violet → baby blue scale */
+  --color-indigo-50: #f0f8ff;
+  --color-indigo-100: #e0f4ff;
+  --color-indigo-200: #bae8fd;
+  --color-indigo-300: #7dd3fc;
+  --color-indigo-400: #5BC8F5;
+  --color-indigo-500: #5BC8F5;
+  --color-indigo-600: #2aadd4;
+  --color-indigo-700: #1e8fb3;
+  --color-indigo-800: #155e7e;
+  --color-indigo-900: #0c3549;
+  --color-indigo-950: #0d1b2a;
 
-  --color-purple-50: #f9fff0;
-  --color-purple-100: #e8ffb0;
-  --color-purple-200: #c6f085;
-  --color-purple-300: #a3f032;
-  --color-purple-400: #82E600;
-  --color-purple-500: #82E600;
-  --color-purple-600: #6bc400;
-  --color-purple-700: #579e00;
-  --color-purple-800: #3a6400;
-  --color-purple-900: #1c3300;
-  --color-purple-950: #0d1a00;
+  --color-purple-50: #f0f8ff;
+  --color-purple-100: #e0f4ff;
+  --color-purple-200: #bae8fd;
+  --color-purple-300: #7dd3fc;
+  --color-purple-400: #5BC8F5;
+  --color-purple-500: #5BC8F5;
+  --color-purple-600: #2aadd4;
+  --color-purple-700: #1e8fb3;
+  --color-purple-800: #155e7e;
+  --color-purple-900: #0c3549;
+  --color-purple-950: #0d1b2a;
 
-  --color-violet-50: #f9fff0;
-  --color-violet-100: #e8ffb0;
-  --color-violet-200: #c6f085;
-  --color-violet-300: #a3f032;
-  --color-violet-400: #82E600;
-  --color-violet-500: #82E600;
-  --color-violet-600: #6bc400;
-  --color-violet-700: #579e00;
-  --color-violet-800: #3a6400;
-  --color-violet-900: #1c3300;
-  --color-violet-950: #0d1a00;
+  --color-violet-50: #f0f8ff;
+  --color-violet-100: #e0f4ff;
+  --color-violet-200: #bae8fd;
+  --color-violet-300: #7dd3fc;
+  --color-violet-400: #5BC8F5;
+  --color-violet-500: #5BC8F5;
+  --color-violet-600: #2aadd4;
+  --color-violet-700: #1e8fb3;
+  --color-violet-800: #155e7e;
+  --color-violet-900: #0c3549;
+  --color-violet-950: #0d1b2a;
 }
 
 :root {
-  --background: #f9fff0;
-  --foreground: #1a2e00;
+  --background: #f0f8ff;
+  --foreground: #0c2340;
   --card: #ffffff;
-  --card-foreground: #1a2e00;
+  --card-foreground: #0c2340;
   --popover: #ffffff;
-  --popover-foreground: #1a2e00;
-  --primary: #82E600;
+  --popover-foreground: #0c2340;
+  --primary: #5BC8F5;
   --primary-foreground: #ffffff;
-  --secondary: #edffd0;
-  --secondary-foreground: #3a6400;
-  --muted: #edffd0;
-  --muted-foreground: #5a7a30;
-  --accent: #c6f085;
-  --accent-foreground: #3a6400;
+  --secondary: #e0f4ff;
+  --secondary-foreground: #0c4a6e;
+  --muted: #e0f4ff;
+  --muted-foreground: #4a7a9b;
+  --accent: #bae8fd;
+  --accent-foreground: #0c4a6e;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #c6f085;
-  --input: #edffd0;
-  --ring: #82E600;
+  --border: #7dd3fc;
+  --input: #e0f4ff;
+  --ring: #5BC8F5;
   --radius: 0.75rem;
-  --chart-1: #82E600;
+  --chart-1: #5BC8F5;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
   --chart-4: #ef4444;
-  --chart-5: #a3f032;
+  --chart-5: #8adeff;
   --logo-bg: #ffffff;
-  --logo-border: #c6f085;
+  --logo-border: #bae8fd;
 }
 
 /* ──────────────────────────────────────────────
    DARK MODE VARIABLES
 ────────────────────────────────────────────── */
 html.dark {
-  --background: #0d1a00;
-  --foreground: #e8ffb0;
-  --card: rgba(20, 35, 0, 0.85);
-  --card-foreground: #e8ffb0;
-  --popover: #142300;
-  --popover-foreground: #e8ffb0;
-  --primary: #82E600;
-  --primary-foreground: #0d1a00;
-  --secondary: #1c3300;
-  --secondary-foreground: #c6f085;
-  --muted: #1c3300;
-  --muted-foreground: #8ab840;
-  --accent: #243f00;
-  --accent-foreground: #c6f085;
+  --background: #0d1b2a;
+  --foreground: #e0f4ff;
+  --card: rgba(22, 32, 53, 0.85);
+  --card-foreground: #e0f4ff;
+  --popover: #162035;
+  --popover-foreground: #e0f4ff;
+  --primary: #5BC8F5;
+  --primary-foreground: #0d1b2a;
+  --secondary: #1a2e45;
+  --secondary-foreground: #bae8fd;
+  --muted: #1a2e45;
+  --muted-foreground: #5ba8cc;
+  --accent: #1e3a54;
+  --accent-foreground: #bae8fd;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #2a4d00;
-  --input: #1c3300;
-  --ring: #82E600;
-  --logo-bg: #1c3300;
-  --logo-border: rgba(130, 230, 0, 0.25);
+  --border: #1e3a54;
+  --input: #1a2e45;
+  --ring: #5BC8F5;
+  --logo-bg: #1a2e45;
+  --logo-border: rgba(91, 200, 245, 0.25);
 }
 
 
@@ -164,16 +164,16 @@ input, textarea, [contenteditable] {
 ────────────────────────────────────────────── */
 html.dark body,
 body {
-  background: #0d1a00;
-  color: #e8ffb0;
+  background: #0d1b2a;
+  color: #e0f4ff;
 }
 
 /* ──────────────────────────────────────────────
    LIGHT MODE: base element overrides
  ────────────────────────────────────────────── */
 html.light body {
-  background: #f9fff0;
-  color: #1a2e00;
+  background: #f0f8ff;
+  color: #0c2340;
 }
 
 /* ─── Layout backgrounds ─── */
@@ -184,8 +184,10 @@ html.light .min-h-screen.bg-\[\#070a13\],
 html.light .bg-\[\#16172e\],
 html.light .min-h-screen.bg-\[\#16172e\],
 html.light .bg-\[\#0d1a00\],
-html.light .min-h-screen.bg-\[\#0d1a00\] {
-  background: #f9fff0 !important;
+html.light .min-h-screen.bg-\[\#0d1a00\],
+html.light .bg-\[\#0d1b2a\],
+html.light .min-h-screen.bg-\[\#0d1b2a\] {
+  background: #f0f8ff !important;
 }
 
 html.light .bg-\[\#1a1a35\],
@@ -193,19 +195,22 @@ html.light [class*="bg-[#1a1a35]"],
 html.light .bg-\[\#121325\],
 html.light [class*="bg-[#121325]"],
 html.light .bg-\[\#142300\],
-html.light [class*="bg-[#142300]"] {
+html.light [class*="bg-[#142300]"],
+html.light .bg-\[\#162035\],
+html.light [class*="bg-[#162035]"] {
   background: #ffffff !important;
 }
 
 html.light .bg-\[\#1a1a35\]\/80,
 html.light .bg-\[\#121325\]\/80,
-html.light .bg-\[\#142300\]\/80 {
+html.light .bg-\[\#142300\]\/80,
+html.light .bg-\[\#162035\]\/80 {
   background: rgba(255,255,255,0.9) !important;
 }
 
 html.light [class*="direction-rtl"],
 html.light .flex.min-h-screen {
-  background: #f9fff0;
+  background: #f0f8ff;
 }
 
 /* ─── Sidebar in light mode ─── */
@@ -231,11 +236,11 @@ html.light .text-white {
 }
 
 html.light .text-slate-400 {
-  color: #475569 !important; /* Darker slate for readability */
+  color: #475569 !important;
 }
 
 html.light .text-slate-500 {
-  color: #475569 !important; /* Darker slate for readability */
+  color: #475569 !important;
 }
 
 html.light .text-slate-600 {
@@ -243,7 +248,7 @@ html.light .text-slate-600 {
 }
 
 html.light .text-slate-300 {
-  color: #1e293b !important; /* Dark slate for prominent values (like account numbers/IBANs) */
+  color: #1e293b !important;
 }
 
 html.light .text-slate-200 {
@@ -276,22 +281,20 @@ html.light .text-indigo-300,
 html.light [class*="text-indigo-300"],
 html.light .text-indigo-400,
 html.light [class*="text-indigo-400"] {
-  color: #4f46e5 !important; /* Indigo 600 */
+  color: #2aadd4 !important;
 }
 
 html.light .text-amber-400,
 html.light [class*="text-amber-400"] {
-  color: #b45309 !important; /* Amber 700 */
+  color: #b45309 !important;
 }
 
 html.light .bg-indigo-600\/20,
 html.light [class*="bg-indigo-600/20"] {
-  background-color: #e0e7ff !important; /* Indigo 100 */
+  background-color: #e0f4ff !important;
 }
 
 /* Force white text ONLY on solid dark-colored button/badge backgrounds in light mode */
-/* NOTE: Do NOT use [class*="bg-emerald-500"] or [class*="bg-red-500"] wildcards —
-   they would also match bg-emerald-500/10 icon wrappers and make icons invisible! */
 html.light .bg-indigo-600,
 html.light .bg-indigo-600 *,
 html.light .bg-indigo-700,
@@ -319,7 +322,6 @@ html.light .bg-amber-500\/10 svg,
 html.light .bg-yellow-500\/10 svg,
 html.light .bg-pink-500\/10 svg,
 html.light .bg-purple-500\/10 svg {
-  /* Inherit the text color class applied to the icon itself, not forced white */
   color: inherit !important;
 }
 
@@ -327,7 +329,7 @@ html.light .bg-purple-500\/10 svg {
 /* ─── Glass Card ─── */
 html.light .glass-card {
   background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid rgba(99, 102, 241, 0.15) !important;
+  border: 1px solid rgba(91, 200, 245, 0.2) !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
 }
 
@@ -346,14 +348,15 @@ html.light .bg-black\/10 {
 
 html.light .bg-\[\#1a1a35\]\/80,
 html.light .bg-\[\#121325\]\/80,
-html.light .bg-\[\#142300\]\/80 {
+html.light .bg-\[\#142300\]\/80,
+html.light .bg-\[\#162035\]\/80 {
   background: rgba(255,255,255,0.95) !important;
 }
 
 /* ─── Credentials / account number panels ─── */
 html.light .bg-black\/20 {
-  background: rgba(99, 102, 241, 0.04) !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
+  background: rgba(91, 200, 245, 0.04) !important;
+  border-color: rgba(91, 200, 245, 0.15) !important;
 }
 
 /* ─── Input fields ─── */
@@ -373,7 +376,8 @@ html.light textarea::placeholder {
 /* ─── Dialogs / Modals ─── */
 html.light [class*="bg-[#1a1a35]"],
 html.light [class*="bg-[#121325]"],
-html.light [class*="bg-[#142300]"] {
+html.light [class*="bg-[#142300]"],
+html.light [class*="bg-[#162035]"] {
   background: #ffffff !important;
   color: #1e293b !important;
 }
@@ -396,7 +400,7 @@ html.light .hover\:bg-white\/5:hover {
 /* ─── Scrollbar ─── */
 html.dark ::-webkit-scrollbar-track,
 ::-webkit-scrollbar-track {
-  background: #1a1a35;
+  background: #162035;
 }
 html.light ::-webkit-scrollbar-track {
   background: #f1f5f9;
@@ -406,11 +410,11 @@ html.light ::-webkit-scrollbar-track {
   height: 6px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #6366f1;
+  background: #5BC8F5;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4f46e5;
+  background: #2aadd4;
 }
 
 /* ─── Navigation links in light ─── */
@@ -424,15 +428,15 @@ html.light nav a:hover {
 
 /* Glass Card */
 .glass-card {
-  background: rgba(26, 26, 53, 0.8);
+  background: rgba(22, 32, 53, 0.8);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(91, 200, 245, 0.2);
   border-radius: 16px;
 }
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1, #818cf8);
+  background: linear-gradient(135deg, #5BC8F5, #8adeff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -544,8 +548,8 @@ dialog input, dialog select, dialog textarea {
 }
 
 .bills-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  border-color: #5BC8F5;
+  box-shadow: 0 0 0 2px rgba(91, 200, 245, 0.2);
 }
 
 .bills-input::placeholder {
@@ -574,8 +578,8 @@ html.light input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(91, 200, 245, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(91, 200, 245, 0); }
 }
 
 .animate-fade-in {
@@ -613,10 +617,10 @@ input[type=number] {
   width: 5px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  margin: 8px 0; /* Keeps scrollbar away from top/bottom rounded corners */
+  margin: 8px 0;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.4);
+  background: rgba(91, 200, 245, 0.4);
   border-radius: 10px;
   border: 1px solid transparent;
   background-clip: content-box;
@@ -641,9 +645,9 @@ input[type=number] {
 }
 
 .theme-toggle-btn:hover {
-  background: rgba(99,102,241,0.15);
-  border-color: rgba(99,102,241,0.3);
-  color: #818cf8;
+  background: rgba(91,200,245,0.15);
+  border-color: rgba(91,200,245,0.3);
+  color: #5BC8F5;
   transform: scale(1.05);
 }
 
@@ -654,6 +658,6 @@ html.light .theme-toggle-btn {
 }
 
 html.light .theme-toggle-btn:hover {
-  background: rgba(99,102,241,0.1);
-  color: #6366f1;
+  background: rgba(91,200,245,0.1);
+  color: #2aadd4;
 }

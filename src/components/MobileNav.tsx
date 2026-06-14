@@ -74,7 +74,7 @@ export default function MobileNav() {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="mx-4 mb-4 bg-[#142300]/90 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl shadow-black/50 p-2 flex items-center justify-around">
+      <div className="mx-4 mb-4 bg-[#162035]/90 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl shadow-black/50 p-2 flex items-center justify-around">
         {mainItems.map((item) => {
           const active = isActive(item.href);
           return (
@@ -101,7 +101,7 @@ export default function MobileNav() {
             <Menu className="w-5 h-5" />
             <span className="text-[10px] font-bold">{t('nav_more')}</span>
           </SheetTrigger>
-          <SheetContent side="bottom" className="bg-[#142300] border-white/5 rounded-t-[32px] p-0 outline-none max-h-[85dvh] overflow-hidden flex flex-col">
+          <SheetContent side="bottom" className="bg-[#162035] border-white/5 rounded-t-[32px] p-0 outline-none max-h-[85dvh] overflow-hidden flex flex-col">
             {/* Handle bar + header */}
             <div className="px-6 pt-5 pb-4 flex-shrink-0">
               <div className="w-12 h-1.5 bg-slate-800 rounded-full mx-auto mb-5" />
@@ -161,3 +161,4 @@ export default function MobileNav() {
     </nav>
   );
 }
+

@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function PublicSplitPage() {
   return (
-    <div className="min-h-screen py-10 flex flex-col items-center justify-start gap-8" style={{ background: '#0d1a00' }}>
+    <div className="min-h-screen py-10 flex flex-col items-center justify-start gap-8" style={{ background: '#0d1b2a' }}>
       
       {/* Main Calculator */}
       <BillSplitting />
@@ -88,3 +88,4 @@ export default function PublicSplitPage() {
     </div>
   );
 }
+

@@ -30,8 +30,8 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 
         {/* PWA Theme */}
-        <meta name="theme-color" content="#0d1a00" />
-        <meta name="background-color" content="#0d1a00" />
+        <meta name="theme-color" content="#0d1b2a" />
+        <meta name="background-color" content="#0d1b2a" />
 
         {/* iOS PWA Support */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -46,7 +46,7 @@ export default function RootLayout({
         <meta name="application-name" content="مدبّر" />
 
         {/* Splash Screen Colors */}
-        <meta name="msapplication-TileColor" content="#0d1a00" />
+        <meta name="msapplication-TileColor" content="#0d1b2a" />
         <meta name="msapplication-tap-highlight" content="no" />
 
         {/* Prevent phone number detection */}
@@ -67,3 +67,4 @@ export default function RootLayout({
     </html>
   );
 }
+
