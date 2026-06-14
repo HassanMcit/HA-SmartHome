@@ -59,109 +59,7 @@ const EGYPTIAN_DENOMINATIONS = [
   { value: '0.5', ar: 'نص جنيه', en: '50 PT' },
 ];
 
-const getBanknoteStyle = (denom: string) => {
-  switch (denom) {
-    case '200':
-      return {
-        bg: 'bg-gradient-to-br from-[#cfc797] via-[#b2a568] to-[#8d8040] border-[#ebd68f]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
-        text: 'text-[#473e16] font-black',
-        labelText: 'text-[#473e16]/60 font-black',
-        sign: '٢٠٠',
-        arabicText: 'مائتا جنيه',
-        watermark: 'bg-[#473e16]/5 border-[#473e16]/10',
-        metallic: 'bg-gradient-to-b from-[#ffd700] via-[#d4af37] to-[#ffd700] shadow-[0_0_8px_rgba(255,215,0,0.6)]',
-        glow: 'shadow-[0_0_15px_rgba(223,215,167,0.25)]',
-      };
-    case '100':
-      return {
-        bg: 'bg-gradient-to-br from-[#cab2ea] via-[#a886d4] to-[#7f5bb2] border-[#dac5f7]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
-        text: 'text-[#361e59] font-black',
-        labelText: 'text-[#361e59]/60 font-black',
-        sign: '١٠٠',
-        arabicText: 'مائة جنيه',
-        watermark: 'bg-[#361e59]/5 border-[#361e59]/10',
-        metallic: 'bg-gradient-to-b from-[#c0c0c0] via-[#e6e6e6] to-[#c0c0c0] shadow-[0_0_8px_rgba(192,192,192,0.6)]',
-        glow: 'shadow-[0_0_15px_rgba(202,178,234,0.25)]',
-      };
-    case '50':
-      return {
-        bg: 'bg-gradient-to-br from-[#d29b7a] via-[#ba7b56] to-[#915030] border-[#fcaea0]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
-        text: 'text-[#54160c] font-black',
-        labelText: 'text-[#54160c]/60 font-black',
-        sign: '٥٠',
-        arabicText: 'خمسون جنيهاً',
-        watermark: 'bg-[#54160c]/5 border-[#54160c]/10',
-        metallic: 'bg-gradient-to-b from-[#b87333] via-[#e09a56] to-[#b87333] shadow-[0_0_8px_rgba(184,115,51,0.6)]',
-        glow: 'shadow-[0_0_15px_rgba(242,170,155,0.25)]',
-      };
-    case '20':
-      return {
-        bg: 'bg-gradient-to-br from-[#aaece5] via-[#7ccfbf] to-[#48a192] border-[#a0f5df]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
-        text: 'text-[#0a3d31] font-black',
-        labelText: 'text-[#0a3d31]/60 font-black',
-        sign: '٢٠',
-        arabicText: 'عشرين جنيهاً',
-        watermark: 'bg-[#0a3d31]/5 border-[#0a3d31]/10',
-        metallic: 'bg-gradient-to-b from-[#a3e635] via-[#84cc16] to-[#a3e635] shadow-[0_0_8px_rgba(163,230,53,0.6)]',
-        glow: 'shadow-[0_0_15px_rgba(141,230,207,0.25)]',
-      };
-    case '10':
-      return {
-        bg: 'bg-gradient-to-br from-[#e8ce97] via-[#cca36a] to-[#9c7540] border-[#fbe5bd]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
-        text: 'text-[#422e11] font-black',
-        labelText: 'text-[#422e11]/60 font-black',
-        sign: '١٠',
-        arabicText: 'عشرة جنيهات',
-        watermark: 'bg-[#422e11]/5 border-[#422e11]/10',
-        metallic: 'bg-gradient-to-b from-[#ffd700] via-[#d4af37] to-[#ffd700] shadow-[0_0_8px_rgba(255,215,0,0.6)]',
-        glow: 'shadow-[0_0_15px_rgba(236,208,155,0.25)]',
-      };
-    case '5':
-      return {
-        bg: 'bg-gradient-to-br from-[#9be5d8] via-[#70ccbe] to-[#469e90] border-[#aeeefb]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
-        text: 'text-[#0e3b42] font-black',
-        labelText: 'text-[#0e3b42]/60 font-black',
-        sign: '٥',
-        arabicText: 'خمسة جنيهات',
-        watermark: 'bg-[#0e3b42]/5 border-[#0e3b42]/10',
-        metallic: 'bg-gradient-to-b from-[#c0c0c0] via-[#e6e6e6] to-[#c0c0c0] shadow-[0_0_8px_rgba(192,192,192,0.6)]',
-        glow: 'shadow-[0_0_15px_rgba(139,213,227,0.25)]',
-      };
-    case '1':
-      return {
-        bg: 'bg-gradient-to-br from-[#e0caaa] via-[#c2aa88] to-[#99805e] border-[#ebd9c2]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
-        text: 'text-[#3b2d1c] font-black',
-        labelText: 'text-[#3b2d1c]/60 font-black',
-        sign: '١',
-        arabicText: 'جنيه واحد',
-        watermark: 'bg-[#3b2d1c]/5 border-[#3b2d1c]/10',
-        metallic: 'bg-gradient-to-b from-[#b87333] via-[#a0522d] to-[#b87333] shadow-[0_0_4px_rgba(184,115,51,0.4)]',
-        glow: 'shadow-[0_0_15px_rgba(224,202,170,0.25)]',
-      };
-    case '0.5':
-      return {
-        bg: 'bg-gradient-to-br from-[#bdd9a5] via-[#a0bd88] to-[#799464] border-[#d8ebb8]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
-        text: 'text-[#2a381e] font-black',
-        labelText: 'text-[#2a381e]/60 font-black',
-        sign: '٠.٥',
-        arabicText: 'نصف جنيه',
-        watermark: 'bg-[#2a381e]/5 border-[#2a381e]/10',
-        metallic: 'bg-gradient-to-b from-[#c0c0c0] via-[#dcdcdc] to-[#c0c0c0] shadow-[0_0_4px_rgba(192,192,192,0.4)]',
-        glow: 'shadow-[0_0_15px_rgba(189,217,165,0.25)]',
-      };
-    default:
-      return {
-        bg: 'bg-emerald-500/15 border-emerald-500/20',
-        text: 'text-emerald-400 font-bold',
-        labelText: 'text-emerald-400/60 font-bold',
-        sign: denom,
-        arabicText: denom,
-        watermark: 'bg-white/5 border-white/10',
-        metallic: '',
-        glow: '',
-      };
-  }
-};
+
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -1347,68 +1245,13 @@ export default function DashboardPage() {
                       <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           {/* Mini Banknote Card */}
-                          {(() => {
-                            const style = getBanknoteStyle(denom);
-                            return (
-                              <div className={cn(
-                                "shrink-0 w-24 h-14 rounded-xl border relative overflow-hidden flex flex-col justify-between p-1.5 shadow-md shadow-black/45 transition-all select-none",
-                                style.bg,
-                                style.glow
-                              )}>
-                                {/* Fine banknote background texture */}
-                                <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:4px_4px]" />
-
-                                {/* Geometric watermark pattern */}
-                                <div className="absolute right-0.5 bottom-0.5 w-6 h-6 opacity-[0.07] pointer-events-none">
-                                  <svg viewBox="0 0 24 24" className="w-full h-full fill-current">
-                                    <path d="M12 2L14.8 7.6L21 8.5L16.5 12.9L17.6 19L12 16.1L6.4 19L7.5 12.9L3 8.5L9.2 7.6L12 2Z" />
-                                  </svg>
-                                </div>
-
-                                {/* Mosque and Minaret Silhouette Watermark */}
-                                <div className="absolute left-5 bottom-0.5 w-10 h-8 opacity-[0.08] pointer-events-none">
-                                  <svg viewBox="0 0 100 80" className="w-full h-full fill-current">
-                                    <path d="M 50,70 C 50,45 60,35 70,35 C 80,35 90,45 90,70 Z" />
-                                    <path d="M 30,70 L 34,70 L 34,20 L 32,15 L 30,20 Z" />
-                                    <path d="M 30,35 L 34,35" />
-                                    <path d="M 30,50 L 34,50" />
-                                  </svg>
-                                </div>
-
-                                {/* Metallic security thread */}
-                                {style.metallic && (
-                                  <div className={cn("absolute top-0 bottom-0 left-[25%] w-0.5 z-10", style.metallic)} />
-                                )}
-
-                                {/* Top Row: Arabic calligraphic style bank label + Denomination */}
-                                <div className="flex justify-between items-start w-full leading-none z-20">
-                                  <span className="text-[6px] font-bold tracking-tight opacity-75" style={{ color: 'rgba(0,0,0,0.6)' }}>
-                                    البنك المركزي المصري
-                                  </span>
-                                  <span className={cn("text-[10px] font-black tracking-tight", style.text)}>
-                                    {denom}
-                                  </span>
-                                </div>
-
-                                {/* Middle Row: Large Arabic numeral watermark */}
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-10">
-                                  <span className={cn("text-[16px] font-black opacity-[0.12]", style.text)}>
-                                    {style.sign}
-                                  </span>
-                                </div>
-
-                                {/* Bottom Row: EGP + Arabic denomination label */}
-                                <div className="flex justify-between items-end w-full leading-none z-20">
-                                  <span className="text-[6px] font-extrabold tracking-tighter uppercase opacity-60" style={{ color: 'rgba(0,0,0,0.6)' }}>
-                                    EGP
-                                  </span>
-                                  <span className={cn("text-[7px] font-black", style.text)}>
-                                    {style.arabicText}
-                                  </span>
-                                </div>
-                              </div>
-                            );
-                          })()}
+                          <div className="shrink-0 w-24 h-14 rounded-xl border border-white/10 relative overflow-hidden shadow-md shadow-black/45 transition-all select-none bg-slate-900/10">
+                            <img
+                              src={`/banknotes/egp_${denom}.png`}
+                              alt={`${denom} EGP`}
+                              className="w-full h-full object-cover rounded-xl"
+                            />
+                          </div>
                           <span className="text-xs font-semibold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
@@ -1587,68 +1430,13 @@ export default function DashboardPage() {
                       return (
                         <div key={d} className="flex items-center gap-3 p-2.5 rounded-xl border" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
                           {/* Mini Banknote Card */}
-                          {(() => {
-                            const style = getBanknoteStyle(d);
-                            return (
-                              <div className={cn(
-                                "shrink-0 w-24 h-14 rounded-xl border relative overflow-hidden flex flex-col justify-between p-1.5 shadow-md shadow-black/45 transition-all select-none",
-                                style.bg,
-                                style.glow
-                              )}>
-                                {/* Fine banknote background texture */}
-                                <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:4px_4px]" />
-
-                                {/* Geometric watermark pattern */}
-                                <div className="absolute right-0.5 bottom-0.5 w-6 h-6 opacity-[0.07] pointer-events-none">
-                                  <svg viewBox="0 0 24 24" className="w-full h-full fill-current">
-                                    <path d="M12 2L14.8 7.6L21 8.5L16.5 12.9L17.6 19L12 16.1L6.4 19L7.5 12.9L3 8.5L9.2 7.6L12 2Z" />
-                                  </svg>
-                                </div>
-
-                                {/* Mosque and Minaret Silhouette Watermark */}
-                                <div className="absolute left-5 bottom-0.5 w-10 h-8 opacity-[0.08] pointer-events-none">
-                                  <svg viewBox="0 0 100 80" className="w-full h-full fill-current">
-                                    <path d="M 50,70 C 50,45 60,35 70,35 C 80,35 90,45 90,70 Z" />
-                                    <path d="M 30,70 L 34,70 L 34,20 L 32,15 L 30,20 Z" />
-                                    <path d="M 30,35 L 34,35" />
-                                    <path d="M 30,50 L 34,50" />
-                                  </svg>
-                                </div>
-
-                                {/* Metallic security thread */}
-                                {style.metallic && (
-                                  <div className={cn("absolute top-0 bottom-0 left-[25%] w-0.5 z-10", style.metallic)} />
-                                )}
-
-                                {/* Top Row: Arabic calligraphic style bank label + Denomination */}
-                                <div className="flex justify-between items-start w-full leading-none z-20">
-                                  <span className="text-[6px] font-bold tracking-tight opacity-75" style={{ color: 'rgba(0,0,0,0.6)' }}>
-                                    البنك المركزي المصري
-                                  </span>
-                                  <span className={cn("text-[10px] font-black tracking-tight", style.text)}>
-                                    {d}
-                                  </span>
-                                </div>
-
-                                {/* Middle Row: Large Arabic numeral watermark */}
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-10">
-                                  <span className={cn("text-[16px] font-black opacity-[0.12]", style.text)}>
-                                    {style.sign}
-                                  </span>
-                                </div>
-
-                                {/* Bottom Row: EGP + Arabic denomination label */}
-                                <div className="flex justify-between items-end w-full leading-none z-20">
-                                  <span className="text-[6px] font-extrabold tracking-tighter uppercase opacity-60" style={{ color: 'rgba(0,0,0,0.6)' }}>
-                                    EGP
-                                  </span>
-                                  <span className={cn("text-[7px] font-black", style.text)}>
-                                    {style.arabicText}
-                                  </span>
-                                </div>
-                              </div>
-                            );
-                          })()}
+                          <div className="shrink-0 w-24 h-14 rounded-xl border border-white/10 relative overflow-hidden shadow-md shadow-black/45 transition-all select-none bg-slate-900/10">
+                            <img
+                              src={`/banknotes/egp_${d}.png`}
+                              alt={`${d} EGP`}
+                              className="w-full h-full object-cover rounded-xl"
+                            />
+                          </div>
                           {/* Label + bar */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
@@ -1810,68 +1598,13 @@ export default function DashboardPage() {
                       <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           {/* Mini Banknote Card */}
-                          {(() => {
-                            const style = getBanknoteStyle(denom);
-                            return (
-                              <div className={cn(
-                                "shrink-0 w-24 h-14 rounded-xl border relative overflow-hidden flex flex-col justify-between p-1.5 shadow-md shadow-black/45 transition-all select-none",
-                                style.bg,
-                                style.glow
-                              )}>
-                                {/* Fine banknote background texture */}
-                                <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:4px_4px]" />
-
-                                {/* Geometric watermark pattern */}
-                                <div className="absolute right-0.5 bottom-0.5 w-6 h-6 opacity-[0.07] pointer-events-none">
-                                  <svg viewBox="0 0 24 24" className="w-full h-full fill-current">
-                                    <path d="M12 2L14.8 7.6L21 8.5L16.5 12.9L17.6 19L12 16.1L6.4 19L7.5 12.9L3 8.5L9.2 7.6L12 2Z" />
-                                  </svg>
-                                </div>
-
-                                {/* Mosque and Minaret Silhouette Watermark */}
-                                <div className="absolute left-5 bottom-0.5 w-10 h-8 opacity-[0.08] pointer-events-none">
-                                  <svg viewBox="0 0 100 80" className="w-full h-full fill-current">
-                                    <path d="M 50,70 C 50,45 60,35 70,35 C 80,35 90,45 90,70 Z" />
-                                    <path d="M 30,70 L 34,70 L 34,20 L 32,15 L 30,20 Z" />
-                                    <path d="M 30,35 L 34,35" />
-                                    <path d="M 30,50 L 34,50" />
-                                  </svg>
-                                </div>
-
-                                {/* Metallic security thread */}
-                                {style.metallic && (
-                                  <div className={cn("absolute top-0 bottom-0 left-[25%] w-0.5 z-10", style.metallic)} />
-                                )}
-
-                                {/* Top Row: Arabic calligraphic style bank label + Denomination */}
-                                <div className="flex justify-between items-start w-full leading-none z-20">
-                                  <span className="text-[6px] font-bold tracking-tight opacity-75" style={{ color: 'rgba(0,0,0,0.6)' }}>
-                                    البنك المركزي المصري
-                                  </span>
-                                  <span className={cn("text-[10px] font-black tracking-tight", style.text)}>
-                                    {denom}
-                                  </span>
-                                </div>
-
-                                {/* Middle Row: Large Arabic numeral watermark */}
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-10">
-                                  <span className={cn("text-[16px] font-black opacity-[0.12]", style.text)}>
-                                    {style.sign}
-                                  </span>
-                                </div>
-
-                                {/* Bottom Row: EGP + Arabic denomination label */}
-                                <div className="flex justify-between items-end w-full leading-none z-20">
-                                  <span className="text-[6px] font-extrabold tracking-tighter uppercase opacity-60" style={{ color: 'rgba(0,0,0,0.6)' }}>
-                                    EGP
-                                  </span>
-                                  <span className={cn("text-[7px] font-black", style.text)}>
-                                    {style.arabicText}
-                                  </span>
-                                </div>
-                              </div>
-                            );
-                          })()}
+                          <div className="shrink-0 w-24 h-14 rounded-xl border border-white/10 relative overflow-hidden shadow-md shadow-black/45 transition-all select-none bg-slate-900/10">
+                            <img
+                              src={`/banknotes/egp_${denom}.png`}
+                              alt={`${denom} EGP`}
+                              className="w-full h-full object-cover rounded-xl"
+                            />
+                          </div>
                           <span className="text-xs font-semibold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
