@@ -221,7 +221,7 @@ export default function RemindersPage() {
           ) : (
             <div className="space-y-4">
               {pendingReminders.map(reminder => (
-                <div key={reminder.id} className="group relative bg-[#1a1a35]/80 hover:bg-[#1a1a35] border border-white/5 rounded-2xl p-5 transition-all shadow-lg hover:shadow-xl hover:border-indigo-500/30 overflow-hidden">
+                <div key={reminder.id} className="group relative bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl p-5 transition-all shadow-lg hover:shadow-xl hover:border-indigo-500/30 overflow-hidden">
                   <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   
                   <div className="flex items-start gap-4">

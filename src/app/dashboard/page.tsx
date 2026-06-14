@@ -59,6 +59,74 @@ const EGYPTIAN_DENOMINATIONS = [
   { value: '0.5', ar: 'نص جنيه', en: '50 PT' },
 ];
 
+const getBanknoteStyle = (denom: string) => {
+  switch (denom) {
+    case '200':
+      return {
+        bg: 'bg-gradient-to-r from-[#4d4822] to-[#262410] border-[#8a7f37]/30',
+        text: 'text-[#e6d87e]',
+        sign: '٢٠٠',
+        metallic: 'bg-[#ffd700]/30',
+      };
+    case '100':
+      return {
+        bg: 'bg-gradient-to-r from-[#312547] to-[#171124] border-[#7559ad]/30',
+        text: 'text-[#bfa3ff]',
+        sign: '١٠٠',
+        metallic: 'bg-[#c0c0c0]/30',
+      };
+    case '50':
+      return {
+        bg: 'bg-gradient-to-r from-[#59261f] to-[#2d120d] border-[#bf5345]/30',
+        text: 'text-[#ff9d8f]',
+        sign: '٥٠',
+        metallic: 'bg-[#b87333]/30',
+      };
+    case '20':
+      return {
+        bg: 'bg-gradient-to-r from-[#173d34] to-[#0a1c18] border-[#368f7b]/30',
+        text: 'text-[#6ee7b7]',
+        sign: '٢٠',
+        metallic: 'bg-[#a3e635]/20',
+      };
+    case '10':
+      return {
+        bg: 'bg-gradient-to-r from-[#522d16] to-[#29160a] border-[#bf6933]/30',
+        text: 'text-[#fdba74]',
+        sign: '١٠',
+        metallic: 'bg-[#ffd700]/20',
+      };
+    case '5':
+      return {
+        bg: 'bg-gradient-to-r from-[#1e323b] to-[#0e171c] border-[#426e82]/30',
+        text: 'text-[#93c5fd]',
+        sign: '٥',
+        metallic: 'bg-[#a1a1aa]/20',
+      };
+    case '1':
+      return {
+        bg: 'bg-gradient-to-r from-[#443828] to-[#211b13] border-[#9c805c]/30',
+        text: 'text-[#fcd34d]',
+        sign: '١',
+        metallic: 'bg-[#b87333]/10',
+      };
+    case '0.5':
+      return {
+        bg: 'bg-gradient-to-r from-[#213f28] to-[#102013] border-[#4c8f5b]/30',
+        text: 'text-[#86efac]',
+        sign: '٠.٥',
+        metallic: 'bg-[#c0c0c0]/15',
+      };
+    default:
+      return {
+        bg: 'bg-emerald-500/15 border-emerald-500/20',
+        text: 'text-emerald-400',
+        sign: denom,
+        metallic: '',
+      };
+  }
+};
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const { t, lang } = useLanguage();
@@ -1241,8 +1309,32 @@ export default function DashboardPage() {
                   <div className="grid grid-cols-1 gap-2">
                     {EGYPTIAN_DENOMINATIONS.map(({ value: denom, ar, en }) => (
                       <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <span className="text-sm font-black text-emerald-400 tabular-nums w-12 shrink-0" dir="ltr">{denom}</span>
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {/* Mini Banknote Card */}
+                          {(() => {
+                            const style = getBanknoteStyle(denom);
+                            return (
+                              <div className={cn(
+                                "shrink-0 w-16 h-10 rounded-lg border relative overflow-hidden flex flex-col justify-between p-1 shadow-md shadow-black/45",
+                                style.bg
+                              )}>
+                                {style.metallic && (
+                                  <div className={cn("absolute top-0 bottom-0 left-[30%] w-0.5 animate-pulse", style.metallic)} />
+                                )}
+                                <div className="absolute right-1 bottom-0.5 text-[18px] font-black opacity-[0.06] leading-none pointer-events-none select-none">
+                                  {style.sign}
+                                </div>
+                                <div className="flex justify-between items-center w-full leading-none">
+                                  <span className="text-[6px] font-bold opacity-50 uppercase tracking-tighter" style={{ color: 'var(--foreground)' }}>EGP</span>
+                                  <span className={cn("text-[9px] font-black leading-none", style.text)}>{denom}</span>
+                                </div>
+                                <div className="flex justify-between items-end w-full leading-none">
+                                  <span className={cn("text-[8px] font-black leading-none", style.text)}>{style.sign}</span>
+                                  <span className="text-[5px] font-bold opacity-35 leading-none">{lang === 'ar' ? 'المركزي' : 'CBE'}</span>
+                                </div>
+                              </div>
+                            );
+                          })()}
                           <span className="text-xs font-semibold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
@@ -1420,10 +1512,31 @@ export default function DashboardPage() {
                       const pct = Math.min(100, (subtotal / total) * 100);
                       return (
                         <div key={d} className="flex items-center gap-3 p-2.5 rounded-xl border" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
-                          {/* Denomination badge */}
-                          <div className="shrink-0 w-12 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center">
-                            <span className="text-[11px] font-black text-emerald-400 tabular-nums" dir="ltr">{d}</span>
-                          </div>
+                          {/* Mini Banknote Card */}
+                          {(() => {
+                            const style = getBanknoteStyle(d);
+                            return (
+                              <div className={cn(
+                                "shrink-0 w-16 h-10 rounded-lg border relative overflow-hidden flex flex-col justify-between p-1 shadow-md shadow-black/45",
+                                style.bg
+                              )}>
+                                {style.metallic && (
+                                  <div className={cn("absolute top-0 bottom-0 left-[30%] w-0.5 animate-pulse", style.metallic)} />
+                                )}
+                                <div className="absolute right-1 bottom-0.5 text-[18px] font-black opacity-[0.06] leading-none pointer-events-none select-none">
+                                  {style.sign}
+                                </div>
+                                <div className="flex justify-between items-center w-full leading-none">
+                                  <span className="text-[6px] font-bold opacity-50 uppercase tracking-tighter" style={{ color: 'var(--foreground)' }}>EGP</span>
+                                  <span className={cn("text-[9px] font-black leading-none", style.text)}>{d}</span>
+                                </div>
+                                <div className="flex justify-between items-end w-full leading-none">
+                                  <span className={cn("text-[8px] font-black leading-none", style.text)}>{style.sign}</span>
+                                  <span className="text-[5px] font-bold opacity-35 leading-none">{lang === 'ar' ? 'المركزي' : 'CBE'}</span>
+                                </div>
+                              </div>
+                            );
+                          })()}
                           {/* Label + bar */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
@@ -1583,8 +1696,32 @@ export default function DashboardPage() {
                   <div className="grid grid-cols-1 gap-2">
                     {EGYPTIAN_DENOMINATIONS.map(({ value: denom, ar, en }) => (
                       <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <span className="text-sm font-black text-emerald-400 tabular-nums w-12 shrink-0" dir="ltr">{denom}</span>
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {/* Mini Banknote Card */}
+                          {(() => {
+                            const style = getBanknoteStyle(denom);
+                            return (
+                              <div className={cn(
+                                "shrink-0 w-16 h-10 rounded-lg border relative overflow-hidden flex flex-col justify-between p-1 shadow-md shadow-black/45",
+                                style.bg
+                              )}>
+                                {style.metallic && (
+                                  <div className={cn("absolute top-0 bottom-0 left-[30%] w-0.5 animate-pulse", style.metallic)} />
+                                )}
+                                <div className="absolute right-1 bottom-0.5 text-[18px] font-black opacity-[0.06] leading-none pointer-events-none select-none">
+                                  {style.sign}
+                                </div>
+                                <div className="flex justify-between items-center w-full leading-none">
+                                  <span className="text-[6px] font-bold opacity-50 uppercase tracking-tighter" style={{ color: 'var(--foreground)' }}>EGP</span>
+                                  <span className={cn("text-[9px] font-black leading-none", style.text)}>{denom}</span>
+                                </div>
+                                <div className="flex justify-between items-end w-full leading-none">
+                                  <span className={cn("text-[8px] font-black leading-none", style.text)}>{style.sign}</span>
+                                  <span className="text-[5px] font-bold opacity-35 leading-none">{lang === 'ar' ? 'المركزي' : 'CBE'}</span>
+                                </div>
+                              </div>
+                            );
+                          })()}
                           <span className="text-xs font-semibold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">

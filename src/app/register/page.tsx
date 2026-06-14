@@ -49,7 +49,7 @@ export default function RegisterPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0b1e36]">
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#070a13]">
         <div className="w-full max-w-md text-center animate-slide-up">
           <div className="glass-card p-8 sm:p-12 border-emerald-500/10">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/50 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/10">
@@ -75,7 +75,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0b1e36] relative overflow-hidden selection:bg-indigo-500/30">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#070a13] relative overflow-hidden selection:bg-indigo-500/30">
       {/* Background orbs */}
       <div className="absolute top-[-5%] right-[10%] w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] rounded-full bg-indigo-600/10 blur-[70px] sm:blur-[110px] pointer-events-none animate-pulse" />
       <div className="absolute bottom-[-5%] left-[10%] w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] rounded-full bg-purple-600/10 blur-[70px] sm:blur-[110px] pointer-events-none animate-pulse delay-1000" />
@@ -116,7 +116,7 @@ export default function RegisterPage() {
                 placeholder="أدخل اسمك الكامل"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl"
+                className="h-12 bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl"
                 disabled={loading}
               />
             </div>
@@ -129,7 +129,7 @@ export default function RegisterPage() {
                 placeholder="example@home.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-left"
+                className="h-12 bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-left"
                 dir="ltr"
                 disabled={loading}
               />
@@ -144,7 +144,7 @@ export default function RegisterPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl pl-12 text-left"
+                  className="h-12 bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl pl-12 text-left"
                   dir="ltr"
                   disabled={loading}
                 />
@@ -166,7 +166,7 @@ export default function RegisterPage() {
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-left"
+                className="h-12 bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-left"
                 dir="ltr"
                 disabled={loading}
               />

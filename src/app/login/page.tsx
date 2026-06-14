@@ -46,7 +46,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#0b1e36] relative overflow-hidden selection:bg-indigo-500/30">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#070a13] relative overflow-hidden selection:bg-indigo-500/30">
       {/* Background blobs */}
       <div className="absolute top-[-10%] left-[20%] w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-indigo-600/10 blur-[80px] sm:blur-[120px] pointer-events-none animate-pulse" />
       <div className="absolute bottom-[-10%] right-[20%] w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-purple-600/10 blur-[80px] sm:blur-[120px] pointer-events-none animate-pulse delay-700" />
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 placeholder="example@home.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-left"
+                className="h-12 bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl text-left"
                 dir="ltr"
                 disabled={loading}
               />
@@ -98,7 +98,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="h-12 bg-[#242444] border-[#2d2d5e] text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl pl-12 text-left"
+                  className="h-12 bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl pl-12 text-left"
                   dir="ltr"
                   disabled={loading}
                 />

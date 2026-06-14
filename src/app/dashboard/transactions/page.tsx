@@ -23,6 +23,74 @@ const EGYPTIAN_DENOMINATIONS_LIST = [
   { value: '0.5', ar: '٠.٥ جنيه', en: '0.5 EGP' },
 ];
 
+const getBanknoteStyle = (denom: string) => {
+  switch (denom) {
+    case '200':
+      return {
+        bg: 'bg-gradient-to-r from-[#4d4822] to-[#262410] border-[#8a7f37]/30',
+        text: 'text-[#e6d87e]',
+        sign: '٢٠٠',
+        metallic: 'bg-[#ffd700]/30',
+      };
+    case '100':
+      return {
+        bg: 'bg-gradient-to-r from-[#312547] to-[#171124] border-[#7559ad]/30',
+        text: 'text-[#bfa3ff]',
+        sign: '١٠٠',
+        metallic: 'bg-[#c0c0c0]/30',
+      };
+    case '50':
+      return {
+        bg: 'bg-gradient-to-r from-[#59261f] to-[#2d120d] border-[#bf5345]/30',
+        text: 'text-[#ff9d8f]',
+        sign: '٥٠',
+        metallic: 'bg-[#b87333]/30',
+      };
+    case '20':
+      return {
+        bg: 'bg-gradient-to-r from-[#173d34] to-[#0a1c18] border-[#368f7b]/30',
+        text: 'text-[#6ee7b7]',
+        sign: '٢٠',
+        metallic: 'bg-[#a3e635]/20',
+      };
+    case '10':
+      return {
+        bg: 'bg-gradient-to-r from-[#522d16] to-[#29160a] border-[#bf6933]/30',
+        text: 'text-[#fdba74]',
+        sign: '١٠',
+        metallic: 'bg-[#ffd700]/20',
+      };
+    case '5':
+      return {
+        bg: 'bg-gradient-to-r from-[#1e323b] to-[#0e171c] border-[#426e82]/30',
+        text: 'text-[#93c5fd]',
+        sign: '٥',
+        metallic: 'bg-[#a1a1aa]/20',
+      };
+    case '1':
+      return {
+        bg: 'bg-gradient-to-r from-[#443828] to-[#211b13] border-[#9c805c]/30',
+        text: 'text-[#fcd34d]',
+        sign: '١',
+        metallic: 'bg-[#b87333]/10',
+      };
+    case '0.5':
+      return {
+        bg: 'bg-gradient-to-r from-[#213f28] to-[#102013] border-[#4c8f5b]/30',
+        text: 'text-[#86efac]',
+        sign: '٠.٥',
+        metallic: 'bg-[#c0c0c0]/15',
+      };
+    default:
+      return {
+        bg: 'bg-emerald-500/15 border-emerald-500/20',
+        text: 'text-emerald-400',
+        sign: denom,
+        metallic: '',
+      };
+  }
+};
+
 export default function TransactionsPage() {
   const { user: currentUser } = useAuth();
   const { lang } = useLanguage();
@@ -924,11 +992,38 @@ export default function TransactionsPage() {
                         const subtotal = count * parseFloat(denom);
                         return (
                           <div key={denom} className="flex items-center justify-between p-2 rounded-xl bg-black/20 border border-white/5 gap-2">
-                            <div className="flex flex-col min-w-0 flex-1">
-                              <span className="text-[10px] font-bold text-slate-400 truncate">{lang === 'ar' ? ar : en}</span>
-                              <span className="text-[9px] font-black text-emerald-400 tabular-nums">
-                                {subtotal > 0 ? `${subtotal} ج.م` : '—'}
-                              </span>
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              {/* Mini Banknote Card */}
+                              {(() => {
+                                const style = getBanknoteStyle(denom);
+                                return (
+                                  <div className={cn(
+                                    "shrink-0 w-16 h-10 rounded-lg border relative overflow-hidden flex flex-col justify-between p-1 shadow-md shadow-black/45",
+                                    style.bg
+                                  )}>
+                                    {style.metallic && (
+                                      <div className={cn("absolute top-0 bottom-0 left-[30%] w-0.5 animate-pulse", style.metallic)} />
+                                    )}
+                                    <div className="absolute right-1 bottom-0.5 text-[18px] font-black opacity-[0.06] leading-none pointer-events-none select-none">
+                                      {style.sign}
+                                    </div>
+                                    <div className="flex justify-between items-center w-full leading-none">
+                                      <span className="text-[6px] font-bold opacity-50 uppercase tracking-tighter" style={{ color: 'var(--foreground)' }}>EGP</span>
+                                      <span className={cn("text-[9px] font-black leading-none", style.text)}>{denom}</span>
+                                    </div>
+                                    <div className="flex justify-between items-end w-full leading-none">
+                                      <span className={cn("text-[8px] font-black leading-none", style.text)}>{style.sign}</span>
+                                      <span className="text-[5px] font-bold opacity-35 leading-none">{lang === 'ar' ? 'المركزي' : 'CBE'}</span>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="text-[10px] font-bold text-slate-400 truncate">{lang === 'ar' ? ar : en}</span>
+                                <span className="text-[9px] font-black text-emerald-400 tabular-nums">
+                                  {subtotal > 0 ? `${subtotal} ج.م` : '—'}
+                                </span>
+                              </div>
                             </div>
                             
                             <div className="flex items-center gap-1 shrink-0">
