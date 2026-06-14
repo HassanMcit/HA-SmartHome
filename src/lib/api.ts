@@ -370,6 +370,7 @@ export const transactionsApi = {
     date: string;
     targetUserId?: string;
     accountId?: string;
+    denominations?: Record<string, number>;
   }) =>
     request<Transaction>('/transactions', {
       method: 'POST',

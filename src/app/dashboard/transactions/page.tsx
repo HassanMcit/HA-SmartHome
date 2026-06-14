@@ -12,6 +12,17 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+const EGYPTIAN_DENOMINATIONS_LIST = [
+  { value: '200', ar: '٢٠٠ جنيه', en: '200 EGP' },
+  { value: '100', ar: '١٠٠ جنيه', en: '100 EGP' },
+  { value: '50', ar: '٥٠ جنيه', en: '50 EGP' },
+  { value: '20', ar: '٢٠ جنيه', en: '20 EGP' },
+  { value: '10', ar: '١٠ جنيه', en: '10 EGP' },
+  { value: '5', ar: '٥ جنيه', en: '5 EGP' },
+  { value: '1', ar: '١ جنيه', en: '1 EGP' },
+  { value: '0.5', ar: '٠.٥ جنيه', en: '0.5 EGP' },
+];
+
 export default function TransactionsPage() {
   const { user: currentUser } = useAuth();
   const { lang } = useLanguage();
@@ -33,6 +44,25 @@ export default function TransactionsPage() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [targetUserId, setTargetUserId] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
+  const [denominations, setDenominations] = useState<Record<string, number>>({
+    '200': 0,
+    '100': 0,
+    '50': 0,
+    '20': 0,
+    '10': 0,
+    '5': 0,
+    '1': 0,
+    '0.5': 0,
+  });
+
+  const selectedAccount = accounts.find(a => a.id === accountId);
+  const isCashAccount = selectedAccount?.type === 'cash';
+
+  const getDenominationsTotal = useCallback(() => {
+    return Object.entries(denominations).reduce((acc, [denom, count]) => {
+      return acc + (parseFloat(denom) * (count || 0));
+    }, 0);
+  }, [denominations]);
   
   // Transfer form state
   const [transferOpen, setTransferOpen] = useState(false);
@@ -445,6 +475,20 @@ export default function TransactionsPage() {
       toast.error('المبلغ والفئة مطلوبان');
       return;
     }
+
+    const parsedAmount = parseFloat(amount);
+
+    if (isCashAccount) {
+      const denomTotal = getDenominationsTotal();
+      if (Math.abs(denomTotal - parsedAmount) > 0.01) {
+        toast.error(
+          lang === 'ar'
+            ? `⚠️ مجموع فئات العملة (${denomTotal} ج.م) يجب أن يساوي قيمة المعاملة (${parsedAmount} ج.م)`
+            : `⚠️ Denominations total (${denomTotal} EGP) must equal the transaction amount (${parsedAmount} EGP)`
+        );
+        return;
+      }
+    }
     
     const selectedUser = users.find(u => u.id === targetUserId);
     console.log(`[Transaction Form] Attempting to save for: ${selectedUser?.name} (ID: ${targetUserId})`);
@@ -453,12 +497,13 @@ export default function TransactionsPage() {
     try {
       await transactionsApi.create({ 
         type, 
-        amount: parseFloat(amount), 
+        amount: parsedAmount, 
         category, 
         description, 
         date,
         targetUserId: targetUserId,
         accountId: accountId && accountId !== 'none' ? accountId : undefined,
+        denominations: isCashAccount ? denominations : undefined,
       });
       
       toast.success(`تم إضافة معاملة ${selectedUser?.name || ''} بنجاح`);
@@ -468,6 +513,16 @@ export default function TransactionsPage() {
       setCategory('');
       setAccountId('');
       setDate(new Date().toISOString().split('T')[0]);
+      setDenominations({
+        '200': 0,
+        '100': 0,
+        '50': 0,
+        '20': 0,
+        '10': 0,
+        '5': 0,
+        '1': 0,
+        '0.5': 0,
+      });
       fetchTransactions();
       fetchAccounts();
     } catch (error: any) {
@@ -852,6 +907,105 @@ export default function TransactionsPage() {
                   </Select>
                 </div>
 
+                {isCashAccount && (
+                  <div className="space-y-3 p-4 rounded-2xl bg-white/5 border border-white/10 animate-fade-in text-right">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                      <span className="text-xs font-bold text-slate-400">
+                        {lang === 'ar' ? '💵 فئات العملة الكاش' : '💵 Cash Denominations'}
+                      </span>
+                      <span className="text-[10px] font-semibold text-slate-500">
+                        {lang === 'ar' ? 'حدد عدد ورقات كل فئة (إجباري)' : 'Specify counts (required)'}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      {EGYPTIAN_DENOMINATIONS_LIST.map(({ value: denom, ar, en }) => {
+                        const count = denominations[denom] || 0;
+                        const subtotal = count * parseFloat(denom);
+                        return (
+                          <div key={denom} className="flex items-center justify-between p-2 rounded-xl bg-black/20 border border-white/5 gap-2">
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="text-[10px] font-bold text-slate-400 truncate">{lang === 'ar' ? ar : en}</span>
+                              <span className="text-[9px] font-black text-emerald-400 tabular-nums">
+                                {subtotal > 0 ? `${subtotal} ج.م` : '—'}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-1 shrink-0">
+                              {/* Minus */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setDenominations(prev => ({
+                                    ...prev,
+                                    [denom]: Math.max(0, (prev[denom] || 0) - 1)
+                                  }));
+                                }}
+                                className="w-6 h-6 rounded-md bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors active:scale-90 font-bold text-xs"
+                              >
+                                -
+                              </button>
+                              
+                              {/* Input */}
+                              <input
+                                type="number"
+                                min="0"
+                                value={count || ''}
+                                onChange={e => {
+                                  const val = parseInt(e.target.value) || 0;
+                                  setDenominations(prev => ({
+                                    ...prev,
+                                    [denom]: Math.max(0, val)
+                                  }));
+                                }}
+                                className="w-10 h-6 bg-transparent border-0 text-center font-black text-xs text-white focus:outline-none focus:ring-0 select-all p-0 m-0 tabular-nums"
+                                placeholder="0"
+                              />
+                              
+                              {/* Plus */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setDenominations(prev => ({
+                                    ...prev,
+                                    [denom]: (prev[denom] || 0) + 1
+                                  }));
+                                }}
+                                className="w-6 h-6 rounded-md bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors active:scale-90 font-bold text-xs"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Realtime sum checking */}
+                    <div className="mt-3 pt-2 border-t border-white/5 flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between text-xs font-bold">
+                        <span className="text-slate-400">{lang === 'ar' ? 'إجمالي فئات الكاش:' : 'Total Cash Denoms:'}</span>
+                        <span className={cn(
+                          "tabular-nums font-black text-sm",
+                          Math.abs(getDenominationsTotal() - parseFloat(amount || '0')) < 0.01
+                            ? "text-emerald-400"
+                            : "text-amber-500"
+                        )}>
+                          {getDenominationsTotal()} {lang === 'ar' ? 'ج.م' : 'EGP'}
+                        </span>
+                      </div>
+                      
+                      {amount && Math.abs(getDenominationsTotal() - parseFloat(amount)) >= 0.01 && (
+                        <p className="text-[10px] text-amber-500 font-semibold leading-relaxed">
+                          {lang === 'ar' 
+                            ? `⚠️ المجموع لا يطابق مبلغ المعاملة (${amount} ج.م) - الفرق: ${parseFloat(amount) - getDenominationsTotal()} ج.م`
+                            : `⚠️ Total does not match transaction amount (${amount} EGP) - Diff: ${parseFloat(amount) - getDenominationsTotal()} EGP`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-2 text-right">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'الوصف — ماذا فعلت؟' : 'Description — What did you do?'}</label>
                   <input 
@@ -883,7 +1037,7 @@ export default function TransactionsPage() {
 
                 <Button 
                   type="submit" 
-                  disabled={submitting || !amount || !category}
+                  disabled={submitting || !amount || !category || (isCashAccount && Math.abs(getDenominationsTotal() - parseFloat(amount || '0')) >= 0.01)}
                   className={cn(
                     "w-full h-14 text-white rounded-2xl font-black text-lg shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 mt-4",
                     type === 'expense' ? "bg-red-500 hover:bg-red-600 shadow-red-500/20" : "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20"
