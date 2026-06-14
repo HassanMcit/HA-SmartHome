@@ -435,13 +435,13 @@ export default function AccountDetailPage() {
                       />
                     </div>
                     <div className="text-center flex flex-col gap-1">
-                      <span className="text-sm font-black text-slate-900 dark:text-white">
+                      <span className="text-sm font-black text-[var(--foreground)]">
                         {count}{' '}
-                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                        <span className="text-xs font-bold text-[var(--muted-foreground)]">
                           {lang === 'ar' ? 'ورقات' : 'notes'}
                         </span>
                       </span>
-                      <span className="text-xs font-bold text-slate-600 dark:text-slate-300 tabular-nums">
+                      <span className="text-xs font-bold text-[var(--foreground)] opacity-80 tabular-nums">
                         {formatCurrency(value)}
                       </span>
                     </div>
