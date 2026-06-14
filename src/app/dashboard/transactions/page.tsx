@@ -97,10 +97,15 @@ export default function TransactionsPage() {
     // Strategy: try western digits first, then eastern Arabic digits, then word numbers
     let detectedAmount = '';
 
-    // a) Western digits: 1000, 1,500, 1.5
-    const westernMatch = lower.match(/\b(\d[\d,]*(?:\.\d+)?)\b/);
+    // a) Western digits with optional multiplier: "100 الف" = 100000, "5 مية" = 500
+    const westernMatch = lower.match(/\b(\d[\d,]*(?:\.\d+)?)\s*(الف|ألف|آلاف|الاف|مية|مئة|مليون)?\b/);
     if (westernMatch) {
-      detectedAmount = westernMatch[1].replace(/,/g, '');
+      let num = parseFloat(westernMatch[1].replace(/,/g, ''));
+      const multiplier = westernMatch[2] || '';
+      if (multiplier.match(/الف|ألف|آلاف|الاف/)) num *= 1000;
+      else if (multiplier.match(/مية|مئة/)) num *= 100;
+      else if (multiplier.match(/مليون/)) num *= 1000000;
+      detectedAmount = Number.isInteger(num) ? String(num) : num.toFixed(2);
     }
 
     // b) Eastern Arabic digits: ١٠٠٠
@@ -117,12 +122,13 @@ export default function TransactionsPage() {
     if (!detectedAmount) {
       // Multi-word patterns first (order matters!)
       const wordPatterns: [RegExp, number][] = [
-        [/مية الف/, 100000],
+        [/مية الف|مئة الف|مئة ألف/, 100000],
+        [/خمسين الف|خمسين ألف/, 50000],
         [/عشرين الف|عشرين ألف/, 20000],
-        [/خمستاشر الف|خمستعشر الف/, 15000],
-        [/عشر(ة)? (آلاف|الاف)/, 10000],
+        [/خمستاشر الف|خمستعشر الف|خمسة عشر الف/, 15000],
+        [/عشر(ة)? (آلاف|الاف|ألف)/, 10000],
         [/خمس(ة)? آلاف|خمس(ة)? الاف/, 5000],
-        [/ألفين|الفين/, 2000],
+        [/ألفين|الفين|الفان/, 2000],
         [/الف|ألف/, 1000],
         [/تسعمية|تسعمائة/, 900],
         [/تمانمية|ثمانمائة/, 800],
@@ -175,18 +181,22 @@ export default function TransactionsPage() {
     if (accounts.length > 0) {
       // Dynamic matching: vodafone cash, cib, nbe, banque misr, instapay, etc.
       const bankAliasMap: Array<[string, string[]]> = [
-        ['vodafone', ['فودافون', 'vodafone', 'vf cash', 'فودافون كاش']],
-        ['orange', ['اورنج', 'orange']],
-        ['etisalat', ['اتصالات', 'etisalat', 'we']],
-        ['instapay', ['انستاباي', 'instapay']],
-        ['cib', ['سيب', 'cib', 'سي اي بي']],
-        ['nbe', ['الاهلي', 'nbe', 'بنك الاهلي', 'البنك الأهلي']],
-        ['banque_misr', ['مصر', 'بنك مصر', 'banque misr']],
-        ['alexbank', ['الاسكندرية', 'alex bank', 'بنك الاسكندرية']],
-        ['qnb', ['قطر', 'qnb', 'بنك قطر']],
+        ['vodafone', ['فودافون', 'vodafone', 'vf cash', 'فودافون كاش', 'فودا فون']],
+        ['orange', ['اورنج', 'orange', 'اورانج']],
+        ['etisalat', ['اتصالات', 'etisalat', 'we', 'وي']],
+        ['instapay', ['انستاباي', 'instapay', 'انستا باي']],
+        ['cib', ['سيب', 'cib', 'سي اي بي', 'التجاري الدولي']],
+        ['nbe', ['الاهلي', 'nbe', 'بنك الاهلي', 'البنك الأهلي', 'الاهلى']],
+        ['banque_misr', ['بنك مصر', 'banque misr', 'ميسر']],
+        ['hdb', ['التعمير', 'الاسكان', 'التعمير والاسكان', 'hdb', 'housing development']],
+        ['alexbank', ['الاسكندرية', 'alex bank', 'بنك الاسكندرية', 'اسكندرية']],
+        ['qnb', ['قطر', 'qnb', 'بنك قطر', 'القطري']],
         ['hsbc', ['hsbc', 'اتش اس بي سي']],
         ['fawry', ['فوري', 'fawry']],
         ['wepay', ['وي باي', 'wepay']],
+        ['aaib', ['العربي الافريقي', 'aaib', 'العربي']],
+        ['saib', ['سايب', 'saib', 'الصناعي']],
+        ['mibank', ['ميدميد', 'mibank', 'ميدل']],
         ['cash', ['كاش', 'نقدي', 'نقود', 'فلوس', 'cash']],
       ];
 
@@ -213,6 +223,7 @@ export default function TransactionsPage() {
     // ── 4. Detect category ───────────────────────────────────────────────────
     const categoryMap: Array<{ value: string; type: 'both' | 'income' | 'expense'; keywords: string[] }> = [
       // Income categories
+      { value: 'installments', type: 'expense', keywords: ['قسط', 'أقساط', 'اقساط', 'installment', 'installments'] },
       { value: 'salary', type: 'income', keywords: ['راتب', 'مرتب', 'salary', 'paycheck'] },
       { value: 'bonus', type: 'income', keywords: ['مكافأة', 'bonus', 'عيدية', 'حافز'] },
       { value: 'gift', type: 'income', keywords: ['هدية', 'gift'] },

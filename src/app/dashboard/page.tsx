@@ -1385,6 +1385,56 @@ export default function DashboardPage() {
                   )}
                 </div>
               )}
+              {/* ─── Cash Denominations Breakdown ─── */}
+              {selectedAccount.type === 'cash' && selectedAccount.denominations && Object.values(selectedAccount.denominations as Record<string, number>).some(v => v > 0) && (
+                <div className="mt-5 pt-4 border-t" style={{ borderTopColor: 'var(--border)' }}>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 text-right">
+                    {lang === 'ar' ? '💵 تفاصيل الفئات النقدية' : '💵 Cash Denominations'}
+                  </p>
+                  <div className="space-y-2">
+                    {EGYPTIAN_DENOMINATIONS.filter(({ value: d }) => {
+                      const denoms = selectedAccount.denominations as Record<string, number>;
+                      return denoms[d] && denoms[d] > 0;
+                    }).map(({ value: d, ar, en }) => {
+                      const denoms = selectedAccount.denominations as Record<string, number>;
+                      const count = denoms[d] || 0;
+                      const subtotal = count * parseFloat(d);
+                      const total = selectedAccount.balance || 1;
+                      const pct = Math.min(100, (subtotal / total) * 100);
+                      return (
+                        <div key={d} className="flex items-center gap-3 p-2.5 rounded-xl border" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
+                          {/* Denomination badge */}
+                          <div className="shrink-0 w-12 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center">
+                            <span className="text-[11px] font-black text-emerald-400 tabular-nums" dir="ltr">{d}</span>
+                          </div>
+                          {/* Label + bar */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] font-bold text-slate-500">{lang === 'ar' ? ar : en}</span>
+                              <span className="text-[10px] font-black text-slate-300 tabular-nums">{formatCurrency(subtotal)}</span>
+                            </div>
+                            <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-emerald-500/60 transition-all duration-500"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                          {/* Count badge */}
+                          <div className="shrink-0 min-w-[2.5rem] text-center">
+                            <span className="text-xs font-black tabular-nums" style={{ color: 'var(--foreground)' }}>×{count}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {/* Total */}
+                  <div className="mt-3 flex items-center justify-between px-1">
+                    <span className="text-[10px] font-bold text-slate-500">{lang === 'ar' ? 'إجمالي من الفئات' : 'Total from denominations'}</span>
+                    <span className="text-sm font-black text-emerald-400">{formatCurrency(selectedAccount.balance)}</span>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </DialogContent>
