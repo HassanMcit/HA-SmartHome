@@ -13,9 +13,9 @@
   --color-warning: #f59e0b;
   --color-info: #3b82f6;
   
-  --color-bg: #070a13;
-  --color-surface: #0f172a;
-  --color-surface-2: #1e293b;
+  --color-bg: #16172e;
+  --color-surface: #121325;
+  --color-surface-2: #1e1f3a;
   --color-border: rgba(255, 255, 255, 0.08);
   
   --color-text: #f8fafc;
@@ -23,17 +23,17 @@
 }
 
 :root {
-  --background: #070a13;
+  --background: #16172e;
   --foreground: #f8fafc;
-  --card: rgba(15, 23, 42, 0.65);
+  --card: rgba(18, 19, 37, 0.85);
   --card-foreground: #f8fafc;
-  --popover: #0b0f19;
+  --popover: #121325;
   --popover-foreground: #f8fafc;
   --primary: #6366f1;
   --primary-foreground: #ffffff;
-  --secondary: rgba(30, 41, 59, 0.5);
+  --secondary: rgba(18, 19, 37, 0.5);
   --secondary-foreground: #f8fafc;
-  --muted: rgba(30, 41, 59, 0.3);
+  --muted: rgba(18, 19, 37, 0.3);
   --muted-foreground: #94a3b8;
   --accent: rgba(99, 102, 241, 0.12);
   --accent-foreground: #818cf8;
@@ -48,7 +48,7 @@
   --chart-3: #f59e0b;
   --chart-4: #ef4444;
   --chart-5: #3b82f6;
-  --logo-bg: rgba(30, 41, 59, 0.4);
+  --logo-bg: rgba(18, 19, 37, 0.4);
   --logo-border: rgba(255, 255, 255, 0.06);
 }
 
@@ -127,13 +127,13 @@ input, textarea, [contenteditable] {
 ────────────────────────────────────────────── */
 html.dark body,
 body {
-  background: #070a13;
+  background: #16172e;
   color: #f8fafc;
 }
 
 /* ──────────────────────────────────────────────
    LIGHT MODE: base element overrides
-────────────────────────────────────────────── */
+ ────────────────────────────────────────────── */
 html.light body {
   background: #f1f5f9;
   color: #1e293b;
@@ -141,16 +141,23 @@ html.light body {
 
 /* ─── Layout backgrounds ─── */
 html.light .bg-\[\#0b1e36\],
-html.light .min-h-screen.bg-\[\#0b1e36\] {
+html.light .min-h-screen.bg-\[\#0b1e36\],
+html.light .bg-\[\#070a13\],
+html.light .min-h-screen.bg-\[\#070a13\],
+html.light .bg-\[\#16172e\],
+html.light .min-h-screen.bg-\[\#16172e\] {
   background: #f1f5f9 !important;
 }
 
 html.light .bg-\[\#1a1a35\],
-html.light [class*="bg-[#1a1a35]"] {
+html.light [class*="bg-[#1a1a35]"],
+html.light .bg-\[\#121325\],
+html.light [class*="bg-[#121325]"] {
   background: #ffffff !important;
 }
 
-html.light .bg-\[\#1a1a35\]\/80 {
+html.light .bg-\[\#1a1a35\]\/80,
+html.light .bg-\[\#121325\]\/80 {
   background: rgba(255,255,255,0.9) !important;
 }
 
@@ -295,7 +302,8 @@ html.light .bg-black\/10 {
   background: rgba(0,0,0,0.04) !important;
 }
 
-html.light .bg-\[\#1a1a35\]\/80 {
+html.light .bg-\[\#1a1a35\]\/80,
+html.light .bg-\[\#121325\]\/80 {
   background: rgba(255,255,255,0.95) !important;
 }
 
@@ -320,7 +328,8 @@ html.light textarea::placeholder {
 }
 
 /* ─── Dialogs / Modals ─── */
-html.light [class*="bg-[#1a1a35]"] {
+html.light [class*="bg-[#1a1a35]"],
+html.light [class*="bg-[#121325]"] {
   background: #ffffff !important;
   color: #1e293b !important;
 }
