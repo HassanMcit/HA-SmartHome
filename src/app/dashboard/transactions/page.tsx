@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { transactionsApi, adminApi, accountsApi, Account, Transaction, User, formatCurrency, getCategoryInfo, INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ArrowDownRight, ArrowUpRight, Plus, Trash2, Users, Loader2, Activity, Calendar, Tag, AlertCircle, Pencil, ArrowLeftRight } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Plus, Trash2, Users, Loader2, Activity, Calendar, Tag, AlertCircle, Pencil, ArrowLeftRight, Mic, MicOff, Sparkles } from 'lucide-react';
 import BankLogo, { getTranslatedBankName } from '@/components/BankLogo';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -60,6 +60,160 @@ export default function TransactionsPage() {
   const [editDate, setEditDate] = useState('');
   const [editTargetUserId, setEditTargetUserId] = useState<string>('');
   const [editSubmitting, setEditSubmitting] = useState(false);
+
+  // Voice input states
+  const [isListening, setIsListening] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState('');
+  const [voiceParsing, setVoiceParsing] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  // ─── Voice input parser ──────────────────────────────────────────────────────
+  const parseVoiceInput = useCallback((text: string) => {
+    setVoiceParsing(true);
+    const lower = text.toLowerCase();
+
+    // ── 1. Detect type: expense or income ────────────────────────────────────
+    const incomeKeywords = [
+      'دخل', 'راتب', 'مرتب', 'إيراد', 'ايراد', 'استلمت', 'اخذت', 'أخذت', 'حصلت',
+      'income', 'salary', 'received', 'got paid', 'earned', 'bonus', 'مكافأة', 'هدية'
+    ];
+    const expenseKeywords = [
+      'دفعت', 'صرفت', 'اشتريت', 'خلصت', 'سحبت', 'مصروف', 'مصاريف',
+      'spent', 'paid', 'bought', 'purchased', 'expense'
+    ];
+    let detectedType: 'income' | 'expense' = 'expense';
+    if (incomeKeywords.some(k => lower.includes(k))) detectedType = 'income';
+    else if (expenseKeywords.some(k => lower.includes(k))) detectedType = 'expense';
+
+    // ── 2. Extract amount ────────────────────────────────────────────────────
+    // Matches: "١٢٠", "120", "مية وعشرين", "ألف"
+    const arabicNums: Record<string, number> = {
+      'صفر': 0, 'واحد': 1, 'اتنين': 2, 'تلاتة': 3, 'اربعة': 4, 'خمسة': 5,
+      'ستة': 6, 'سبعة': 7, 'تمانية': 8, 'تسعة': 9, 'عشرة': 10,
+      'عشرين': 20, 'تلاتين': 30, 'اربعين': 40, 'خمسين': 50,
+      'ستين': 60, 'سبعين': 70, 'تمانين': 80, 'تسعين': 90,
+      'مية': 100, 'ميه': 100, 'مئة': 100, 'مئتين': 200, 'ميتين': 200,
+      'تلاتمية': 300, 'اربعمية': 400, 'خمسمية': 500,
+      'الف': 1000, 'ألف': 1000, 'عشرة آلاف': 10000, 'مية الف': 100000,
+    };
+    let detectedAmount = '';
+    // Try to find a western or eastern Arabic numeral
+    const numMatch = lower.match(/[٠-٩\d]+([.,][٠-٩\d]+)?/);
+    if (numMatch) {
+      const normalized = numMatch[0]
+        .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+        .replace(',', '.');
+      detectedAmount = normalized;
+    } else {
+      // Try Arabic word numbers
+      for (const [word, val] of Object.entries(arabicNums)) {
+        if (lower.includes(word)) {
+          detectedAmount = String(val);
+          break;
+        }
+      }
+    }
+
+    // ── 3. Detect category ───────────────────────────────────────────────────
+    const categoryMap: Array<{ value: string; keywords: string[] }> = [
+      { value: 'food', keywords: ['اكل', 'طعام', 'فطار', 'غذاء', 'عشاء', 'مطعم', 'كافيه', 'كافيهات', 'فطور', 'food', 'lunch', 'dinner', 'breakfast', 'cafe', 'restaurant'] },
+      { value: 'transport', keywords: ['مواصلات', 'عربية', 'بنزين', 'تاكسي', 'اوبر', 'uber', 'transport', 'gas', 'petrol', 'taxi', 'كريم', 'careem'] },
+      { value: 'shopping', keywords: ['تسوق', 'اشتريت', 'شراء', 'ملابس', 'هدوم', 'shopping', 'clothes', 'mall'] },
+      { value: 'health', keywords: ['دكتور', 'دواء', 'صيدلية', 'مستشفى', 'طب', 'health', 'doctor', 'medicine', 'hospital', 'pharmacy'] },
+      { value: 'education', keywords: ['تعليم', 'كتب', 'دروس', 'مدرسة', 'جامعة', 'education', 'school', 'university', 'books'] },
+      { value: 'utilities', keywords: ['كهرباء', 'مياه', 'غاز', 'فاتورة', 'utilities', 'electricity', 'water', 'bill'] },
+      { value: 'internet_bill', keywords: ['نت', 'انترنت', 'internet', 'wifi'] },
+      { value: 'phone_recharge', keywords: ['شحن', 'رصيد', 'موبايل', 'تليفون', 'recharge', 'mobile'] },
+      { value: 'entertainment', keywords: ['ترفيه', 'سينما', 'لعبة', 'entertainment', 'cinema', 'game', 'netflix'] },
+      { value: 'housing', keywords: ['ايجار', 'إيجار', 'شقة', 'rent', 'housing', 'apartment'] },
+      { value: 'salary', keywords: ['راتب', 'مرتب', 'salary'] },
+      { value: 'food', keywords: ['طعام', 'اكل', 'food'] },
+      { value: 'personal', keywords: ['شخصي', 'نفسي', 'personal'] },
+      { value: 'subscriptions', keywords: ['اشتراك', 'subscription'] },
+      { value: 'allowance', keywords: ['مصروف', 'allowance'] },
+      { value: 'money_pool', keywords: ['جمعية', 'جميعة', 'money pool'] },
+      { value: 'charity', keywords: ['صدقة', 'تبرع', 'charity', 'donation'] },
+      { value: 'savings', keywords: ['توفير', 'ادخار', 'savings'] },
+    ];
+    let detectedCategory = '';
+    for (const { value, keywords } of categoryMap) {
+      if (keywords.some(k => lower.includes(k))) {
+        // only pick categories valid for the detected type
+        const validCats = detectedType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+        if (validCats.find(c => c.value === value)) {
+          detectedCategory = value;
+          break;
+        }
+      }
+    }
+    if (!detectedCategory) detectedCategory = 'other';
+
+    // ── 4. Use the raw text as description ───────────────────────────────────
+    const detectedDesc = text.trim();
+
+    // ── 5. Apply to form ─────────────────────────────────────────────────────
+    if (detectedType !== type) setType(detectedType);
+    setCategory(detectedCategory);
+    if (detectedAmount) setAmount(detectedAmount);
+    setDescription(detectedDesc);
+
+    setVoiceParsing(false);
+    const catLabel = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES].find(c => c.value === detectedCategory)?.label || detectedCategory;
+    toast.success(
+      lang === 'ar'
+        ? `✅ تم التعرف: ${detectedType === 'expense' ? 'مصروف' : 'إيراد'} — ${detectedAmount ? detectedAmount + ' ج.م' : '؟'} — ${catLabel}`
+        : `✅ Detected: ${detectedType} — ${detectedAmount ? detectedAmount + ' EGP' : '?'} — ${catLabel}`,
+      { duration: 4000 }
+    );
+  }, [type, lang]);
+
+  // ─── Start / Stop voice listening ────────────────────────────────────────────
+  const startListening = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error(lang === 'ar' ? '❌ المتصفح لا يدعم التعرف على الصوت — استخدم Chrome أو Edge' : '❌ Voice not supported — use Chrome or Edge');
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = lang === 'ar' ? 'ar-EG' : 'en-US';
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    recognition.continuous = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceTranscript('');
+    };
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((r: any) => r[0].transcript)
+        .join('');
+      setVoiceTranscript(transcript);
+      if (event.results[0].isFinal) {
+        parseVoiceInput(transcript);
+      }
+    };
+    recognition.onerror = (event: any) => {
+      setIsListening(false);
+      if (event.error !== 'no-speech') {
+        toast.error(lang === 'ar' ? `❌ خطأ في الصوت: ${event.error}` : `❌ Voice error: ${event.error}`);
+      }
+    };
+    recognition.onend = () => setIsListening(false);
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  }, [lang, parseVoiceInput]);
+
+  const stopListening = useCallback(() => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
+  }, []);
+
+  const toggleListening = useCallback(() => {
+    if (isListening) stopListening();
+    else startListening();
+  }, [isListening, startListening, stopListening]);
 
   const handleOpenEdit = (tx: Transaction) => {
     setEditingTxId(tx.id);
@@ -386,10 +540,84 @@ export default function TransactionsPage() {
                 </Button>
               </DialogTrigger>
             <DialogContent className="rounded-[24px] sm:rounded-[32px] p-0 outline-none sm:max-w-[480px] max-h-[90vh] flex flex-col overflow-hidden" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
-              <DialogHeader className="text-right p-5 sm:p-8 pb-0">
-                <DialogTitle className="text-2xl font-black mb-2" style={{ color: 'var(--foreground)' }}>{lang === 'ar' ? 'إضافة معاملة جديدة' : 'Add New Transaction'}</DialogTitle>
+              <DialogHeader className="text-right p-5 sm:p-8 pb-3">
+                <div className="flex items-start justify-between">
+                  <DialogTitle className="text-2xl font-black" style={{ color: 'var(--foreground)' }}>{lang === 'ar' ? 'إضافة معاملة جديدة' : 'Add New Transaction'}</DialogTitle>
+                </div>
+
+                {/* ─── Voice Input Panel ─── */}
+                <div className={cn(
+                  "mt-4 rounded-2xl border transition-all duration-300",
+                  isListening
+                    ? "bg-red-500/10 border-red-500/40 shadow-lg shadow-red-500/10"
+                    : "bg-white/3 border-white/8 hover:border-indigo-500/30"
+                )}>
+                  <div className="flex items-center gap-4 p-4">
+                    {/* Mic button */}
+                    <button
+                      type="button"
+                      onClick={toggleListening}
+                      className={cn(
+                        "relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200 shrink-0",
+                        isListening
+                          ? "bg-red-500 text-white shadow-xl shadow-red-500/40 scale-105"
+                          : "bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 border border-indigo-500/30 hover:border-indigo-400/50 hover:scale-105 active:scale-95"
+                      )}
+                    >
+                      {isListening ? (
+                        <>
+                          {/* Pulse rings */}
+                          <span className="absolute inset-0 rounded-2xl bg-red-400 opacity-30 animate-ping" />
+                          <MicOff className="w-6 h-6 relative z-10" />
+                        </>
+                      ) : (
+                        <Mic className="w-6 h-6" />
+                      )}
+                    </button>
+
+                    {/* Text area */}
+                    <div className="flex-1 min-w-0 text-right">
+                      {isListening ? (
+                        <>
+                          <p className="text-xs font-black text-red-400 mb-1 flex items-center gap-1 justify-end">
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                            {lang === 'ar' ? 'جاري الاستماع...' : 'Listening...'}
+                          </p>
+                          <p className="text-sm text-white/80 font-medium leading-snug truncate">
+                            {voiceTranscript || (lang === 'ar' ? 'تكلم الآن...' : 'Speak now...')}
+                          </p>
+                        </>
+                      ) : voiceParsing ? (
+                        <>
+                          <p className="text-xs font-black text-indigo-400 mb-1 flex items-center gap-1 justify-end">
+                            <Sparkles className="w-3 h-3 animate-spin" />
+                            {lang === 'ar' ? 'جاري التحليل...' : 'Analyzing...'}
+                          </p>
+                          <p className="text-sm text-white/60 font-medium leading-snug truncate">{voiceTranscript}</p>
+                        </>
+                      ) : voiceTranscript ? (
+                        <>
+                          <p className="text-xs font-black text-emerald-400 mb-1 flex items-center gap-1 justify-end">
+                            <Sparkles className="w-3 h-3" />
+                            {lang === 'ar' ? 'تم التعرف ✓' : 'Recognized ✓'}
+                          </p>
+                          <p className="text-sm text-white/60 font-medium leading-snug truncate">{voiceTranscript}</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm font-bold text-slate-300 mb-0.5">{lang === 'ar' ? 'إدخال بالصوت' : 'Voice Input'}</p>
+                          <p className="text-xs text-slate-500 leading-snug">
+                            {lang === 'ar'
+                              ? 'اضغط على الميكروفون وقول مثلاً: "دفعت 150 جنيه اكل كافيه"'
+                              : 'Tap mic and say e.g. "spent 150 EGP on food cafe"'}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto custom-scrollbar px-5 sm:px-8 pb-5 sm:pb-8 pt-2">
+              <form onSubmit={handleSubmit} className="space-y-5 overflow-y-auto custom-scrollbar px-5 sm:px-8 pb-5 sm:pb-8 pt-2">
                 {isAdmin && (
                   <div className="space-y-2 text-right">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'المستخدم المستهدف' : 'Target User'}</label>
