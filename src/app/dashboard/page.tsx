@@ -47,7 +47,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useRouter } from 'next/navigation';
 
 
-const EGYPTIAN_DENOMINATIONS = ['200', '100', '50', '20', '10', '5', '1', '0.5'];
+
+const EGYPTIAN_DENOMINATIONS = [
+  { value: '200', ar: 'ميتين جنيه', en: '200 EGP' },
+  { value: '100', ar: 'مية جنيه', en: '100 EGP' },
+  { value: '50', ar: 'خمسين جنيه', en: '50 EGP' },
+  { value: '20', ar: 'عشرين جنيه', en: '20 EGP' },
+  { value: '10', ar: 'عشرة جنيه', en: '10 EGP' },
+  { value: '5', ar: 'خمسة جنيه', en: '5 EGP' },
+  { value: '1', ar: 'جنيه', en: '1 EGP' },
+  { value: '0.5', ar: 'نص جنيه', en: '50 PT' },
+];
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -100,7 +110,7 @@ export default function DashboardPage() {
     const total = Object.entries(newDenoms).reduce((sum, [d, c]) => {
       return sum + parseFloat(d) * c;
     }, 0);
-    setNewAccBalance(String(total));
+    setNewAccBalance(total.toFixed(2));
   };
   const [addAccountSubmitting, setAddAccountSubmitting] = useState(false);
 
@@ -150,7 +160,7 @@ export default function DashboardPage() {
     const total = Object.entries(newDenoms).reduce((sum, [d, c]) => {
       return sum + parseFloat(d) * c;
     }, 0);
-    setEditBalance(String(total));
+    setEditBalance(total.toFixed(2));
   };
 
   const fetchData = async () => {
@@ -1210,23 +1220,35 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
-                  <Label className="text-xs font-bold text-slate-400 block mb-2">{lang === 'ar' ? 'توزيع الفئات النقدية (اختياري)' : 'Cash Denominations (Optional)'}</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {EGYPTIAN_DENOMINATIONS.map(denom => (
-                      <div key={denom} className="flex items-center justify-between gap-2 bg-white/5 p-2 rounded-xl border border-white/5">
-                        <span className="text-xs font-bold text-slate-300 w-12 text-left" dir="ltr">{denom} ج.م</span>
-                        <Input
-                          type="number"
-                          min="0"
-                          placeholder="0"
-                          value={newAccDenominations[denom] || ''}
-                          onChange={e => handleNewDenominationChange(denom, e.target.value)}
-                          className="h-9 w-20 text-center text-xs"
-                          style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                        />
+                  <Label className="text-xs font-bold text-slate-400 block mb-3">{lang === 'ar' ? 'توزيع الفئات النقدية (اختياري)' : 'Cash Denominations (Optional)'}</Label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {EGYPTIAN_DENOMINATIONS.map(({ value: denom, ar, en }) => (
+                      <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className="text-sm font-black text-emerald-400 tabular-nums w-12 shrink-0" dir="ltr">{denom}</span>
+                          <span className="text-xs font-semibold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-[10px] text-slate-500 font-bold">{lang === 'ar' ? 'عدد' : 'qty'}</span>
+                          <Input
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={newAccDenominations[denom] || ''}
+                            onChange={e => handleNewDenominationChange(denom, e.target.value)}
+                            className="h-9 w-20 text-center text-sm font-bold"
+                            style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
+                  {Object.values(newAccDenominations).some(v => v > 0) && (
+                    <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+                      <span className="text-xs text-slate-400 font-bold">{lang === 'ar' ? 'إجمالي من الفئات' : 'Total from denominations'}</span>
+                      <span className="text-sm font-black text-emerald-400">{newAccBalance} {lang === 'ar' ? 'ج.م' : 'EGP'}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1480,23 +1502,35 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
-                  <Label className="text-xs font-bold text-slate-400 block mb-2">{lang === 'ar' ? 'توزيع الفئات النقدية' : 'Cash Denominations'}</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {EGYPTIAN_DENOMINATIONS.map(denom => (
-                      <div key={denom} className="flex items-center justify-between gap-2 bg-white/5 p-2 rounded-xl border border-white/5">
-                        <span className="text-xs font-bold text-slate-300 w-12 text-left" dir="ltr">{denom} ج.م</span>
-                        <Input
-                          type="number"
-                          min="0"
-                          placeholder="0"
-                          value={editDenominations[denom] || ''}
-                          onChange={e => handleDenominationChange(denom, e.target.value)}
-                          className="h-9 w-20 text-center text-xs"
-                          style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                        />
+                  <Label className="text-xs font-bold text-slate-400 block mb-3">{lang === 'ar' ? 'توزيع الفئات النقدية' : 'Cash Denominations'}</Label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {EGYPTIAN_DENOMINATIONS.map(({ value: denom, ar, en }) => (
+                      <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className="text-sm font-black text-emerald-400 tabular-nums w-12 shrink-0" dir="ltr">{denom}</span>
+                          <span className="text-xs font-semibold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-[10px] text-slate-500 font-bold">{lang === 'ar' ? 'عدد' : 'qty'}</span>
+                          <Input
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={editDenominations[denom] || ''}
+                            onChange={e => handleDenominationChange(denom, e.target.value)}
+                            className="h-9 w-20 text-center text-sm font-bold"
+                            style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
+                  {Object.values(editDenominations).some(v => v > 0) && (
+                    <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+                      <span className="text-xs text-slate-400 font-bold">{lang === 'ar' ? 'إجمالي من الفئات' : 'Total from denominations'}</span>
+                      <span className="text-sm font-black text-emerald-400">{editBalance} {lang === 'ar' ? 'ج.م' : 'EGP'}</span>
+                    </div>
+                  )}
                 </div>
               </>
             )}

@@ -323,11 +323,11 @@ export default function TransactionsPage() {
                           required 
                           value={transferAmount} 
                           onChange={e => setTransferAmount(e.target.value)} 
-                          className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl h-12 pl-14 pr-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-right"
                           placeholder="0.00"
                           dir="ltr"
                         />
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">ج.م</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs bg-white/10 px-2 py-0.5 rounded-lg pointer-events-none">ج.م</span>
                       </div>
                     </div>
 
@@ -437,11 +437,11 @@ export default function TransactionsPage() {
                         required 
                         value={amount} 
                         onChange={e => setAmount(e.target.value)} 
-                        className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl h-12 pl-14 pr-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-right"
                         placeholder="0.00"
                         dir="ltr"
                       />
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">{lang === 'ar' ? 'ج.م' : 'EGP'}</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs bg-white/10 px-2 py-0.5 rounded-lg pointer-events-none">{lang === 'ar' ? 'ج.م' : 'EGP'}</span>
                     </div>
                   </div>
 
