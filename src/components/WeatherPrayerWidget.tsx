@@ -144,6 +144,8 @@ export default function WeatherPrayerWidget() {
   const wInfo      = weatherInfo(weather?.weatherCode, lang);
 
   const clockStr = now.toLocaleTimeString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const timeDigits = clockStr.replace(/[^\d:]/g, '').trim();
+  const period = clockStr.replace(/[\d:]/g, '').trim();
   const dateStr  = now.toLocaleDateString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' });
 
   const cityDisplayName = city === 'القاهرة' 
@@ -160,8 +162,13 @@ export default function WeatherPrayerWidget() {
 
         {/* Clock */}
         <div className={`text-center flex-1 ${lang === 'ar' ? 'sm:text-right' : 'sm:text-left'}`}>
-          <div className="text-5xl sm:text-6xl font-black text-white tabular-nums tracking-tight leading-none" dir="ltr">
-            {clockStr}
+          <div className={`text-5xl sm:text-6xl font-black text-white tabular-nums tracking-tight leading-none flex items-baseline gap-1 justify-center ${lang === 'ar' ? 'sm:justify-end' : 'sm:justify-start'}`} dir="ltr">
+            <span>{timeDigits}</span>
+            {period && (
+              <span className="text-xl sm:text-2xl font-bold text-slate-400 select-none ml-1.5">
+                {period}
+              </span>
+            )}
           </div>
           <p className="text-slate-400 text-sm font-medium mt-1.5">{dateStr}</p>
           <div className={`flex items-center justify-center gap-1 mt-1 text-slate-500 text-xs ${lang === 'ar' ? 'sm:justify-start' : 'sm:justify-end'}`}>
