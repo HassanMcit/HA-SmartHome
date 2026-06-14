@@ -916,78 +916,77 @@ export default function TransactionsPage() {
                       </span>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 gap-2">
                       {EGYPTIAN_DENOMINATIONS_LIST.map(({ value: denom, ar, en }) => {
                         const count = denominations[denom] || 0;
                         const subtotal = count * parseFloat(denom);
                         return (
-                          <div key={denom} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-2xl bg-black/20 border border-white/5 gap-3">
+                          <div key={denom} className="flex items-center justify-between p-3 rounded-2xl bg-black/20 border border-white/5 gap-3">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                               {/* Mini Banknote Card */}
-                              <div className="shrink-0 w-24 h-14 rounded-xl border border-white/10 relative overflow-hidden shadow-md shadow-black/45 transition-all select-none bg-slate-900/10">
+                              <div className="shrink-0 w-20 h-12 rounded-xl border border-white/10 relative overflow-hidden shadow-md shadow-black/45 transition-all select-none bg-slate-900/10">
                                 <img
                                   src={`/banknotes/egp_${denom}.png`}
                                   alt={`${denom} EGP`}
                                   className="w-full h-full object-cover rounded-xl"
+                                  loading="lazy"
                                 />
                               </div>
                               <div className="flex flex-col min-w-0 flex-1">
-                                <span className="text-[11px] font-bold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
+                                <span className="text-[11px] font-bold text-[var(--foreground)] truncate">{lang === 'ar' ? ar : en}</span>
                                 <span className="text-[10px] font-black text-emerald-400 tabular-nums">
                                   {subtotal > 0 ? `${subtotal} ج.م` : '—'}
                                 </span>
                               </div>
                             </div>
                             
-                            <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto shrink-0 bg-white/5 p-1 rounded-xl border border-white/5">
-                              <span className="text-[10px] text-slate-400 px-2 font-semibold block sm:hidden">
-                                {lang === 'ar' ? 'عدد الورقات' : 'Notes Count'}
-                              </span>
-                              <div className="flex items-center gap-1">
-                                {/* Minus */}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setDenominations(prev => ({
-                                      ...prev,
-                                      [denom]: Math.max(0, (prev[denom] || 0) - 1)
-                                    }));
-                                  }}
-                                  className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all active:scale-95 font-bold text-sm"
-                                >
-                                  -
-                                </button>
-                                
-                                {/* Input */}
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={count || ''}
-                                  onChange={e => {
-                                    const val = parseInt(e.target.value) || 0;
-                                    setDenominations(prev => ({
-                                      ...prev,
-                                      [denom]: Math.max(0, val)
-                                    }));
-                                  }}
-                                  className="w-12 h-7 bg-black/20 border border-white/10 rounded-lg text-center font-black text-xs text-slate-100 dark:text-white focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums"
-                                  placeholder="0"
-                                />
-                                
-                                {/* Plus */}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setDenominations(prev => ({
-                                      ...prev,
-                                      [denom]: (prev[denom] || 0) + 1
-                                    }));
-                                  }}
-                                  className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all active:scale-95 font-bold text-sm"
-                                >
-                                  +
-                                </button>
-                              </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {/* Minus */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setDenominations(prev => ({
+                                    ...prev,
+                                    [denom]: Math.max(0, (prev[denom] || 0) - 1)
+                                  }));
+                                }}
+                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-sm border hover:bg-white/5 cursor-pointer"
+                                style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                              >
+                                -
+                              </button>
+                              
+                              {/* Input */}
+                              <input
+                                type="number"
+                                min="0"
+                                value={count || ''}
+                                onChange={e => {
+                                  const val = parseInt(e.target.value) || 0;
+                                  setDenominations(prev => ({
+                                    ...prev,
+                                    [denom]: Math.max(0, val)
+                                  }));
+                                }}
+                                className="w-12 h-8 rounded-lg text-center font-black text-xs focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums border"
+                                style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                placeholder="0"
+                              />
+                              
+                              {/* Plus */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setDenominations(prev => ({
+                                    ...prev,
+                                    [denom]: (prev[denom] || 0) + 1
+                                  }));
+                                }}
+                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-sm border hover:bg-white/5 cursor-pointer"
+                                style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                              >
+                                +
+                              </button>
                             </div>
                           </div>
                         );
