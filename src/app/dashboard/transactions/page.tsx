@@ -27,66 +27,93 @@ const getBanknoteStyle = (denom: string) => {
   switch (denom) {
     case '200':
       return {
-        bg: 'bg-gradient-to-r from-[#4d4822] to-[#262410] border-[#8a7f37]/30',
-        text: 'text-[#e6d87e]',
+        bg: 'bg-gradient-to-br from-[#dfd7a7] via-[#c2b578] to-[#9e9050] border-[#ebd68f]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
+        text: 'text-[#473e16] font-black',
+        labelText: 'text-[#473e16]/60 font-black',
         sign: '٢٠٠',
-        metallic: 'bg-[#ffd700]/30',
+        watermark: 'bg-[#473e16]/5 border-[#473e16]/10',
+        metallic: 'bg-gradient-to-b from-[#ffd700] via-[#d4af37] to-[#ffd700] shadow-[0_0_8px_rgba(255,215,0,0.6)]',
+        glow: 'shadow-[0_0_15px_rgba(223,215,167,0.25)]',
       };
     case '100':
       return {
-        bg: 'bg-gradient-to-r from-[#312547] to-[#171124] border-[#7559ad]/30',
-        text: 'text-[#bfa3ff]',
+        bg: 'bg-gradient-to-br from-[#cab2ea] via-[#a886d4] to-[#7f5bb2] border-[#dac5f7]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
+        text: 'text-[#361e59] font-black',
+        labelText: 'text-[#361e59]/60 font-black',
         sign: '١٠٠',
-        metallic: 'bg-[#c0c0c0]/30',
+        watermark: 'bg-[#361e59]/5 border-[#361e59]/10',
+        metallic: 'bg-gradient-to-b from-[#c0c0c0] via-[#e6e6e6] to-[#c0c0c0] shadow-[0_0_8px_rgba(192,192,192,0.6)]',
+        glow: 'shadow-[0_0_15px_rgba(202,178,234,0.25)]',
       };
     case '50':
       return {
-        bg: 'bg-gradient-to-r from-[#59261f] to-[#2d120d] border-[#bf5345]/30',
-        text: 'text-[#ff9d8f]',
+        bg: 'bg-gradient-to-br from-[#f2aa9b] via-[#d67b6b] to-[#a84c3c] border-[#fcaea0]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
+        text: 'text-[#54160c] font-black',
+        labelText: 'text-[#54160c]/60 font-black',
         sign: '٥٠',
-        metallic: 'bg-[#b87333]/30',
+        watermark: 'bg-[#54160c]/5 border-[#54160c]/10',
+        metallic: 'bg-gradient-to-b from-[#b87333] via-[#e09a56] to-[#b87333] shadow-[0_0_8px_rgba(184,115,51,0.6)]',
+        glow: 'shadow-[0_0_15px_rgba(242,170,155,0.25)]',
       };
     case '20':
       return {
-        bg: 'bg-gradient-to-r from-[#173d34] to-[#0a1c18] border-[#368f7b]/30',
-        text: 'text-[#6ee7b7]',
+        bg: 'bg-gradient-to-br from-[#8de6cf] via-[#5cbfa5] to-[#368f78] border-[#a0f5df]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
+        text: 'text-[#0a3d31] font-black',
+        labelText: 'text-[#0a3d31]/60 font-black',
         sign: '٢٠',
-        metallic: 'bg-[#a3e635]/20',
+        watermark: 'bg-[#0a3d31]/5 border-[#0a3d31]/10',
+        metallic: 'bg-gradient-to-b from-[#a3e635] via-[#84cc16] to-[#a3e635] shadow-[0_0_8px_rgba(163,230,53,0.6)]',
+        glow: 'shadow-[0_0_15px_rgba(141,230,207,0.25)]',
       };
     case '10':
       return {
-        bg: 'bg-gradient-to-r from-[#522d16] to-[#29160a] border-[#bf6933]/30',
-        text: 'text-[#fdba74]',
+        bg: 'bg-gradient-to-br from-[#ecd09b] via-[#cda972] to-[#9e7a46] border-[#fbe5bd]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
+        text: 'text-[#422e11] font-black',
+        labelText: 'text-[#422e11]/60 font-black',
         sign: '١٠',
-        metallic: 'bg-[#ffd700]/20',
+        watermark: 'bg-[#422e11]/5 border-[#422e11]/10',
+        metallic: 'bg-gradient-to-b from-[#ffd700] via-[#d4af37] to-[#ffd700] shadow-[0_0_8px_rgba(255,215,0,0.6)]',
+        glow: 'shadow-[0_0_15px_rgba(236,208,155,0.25)]',
       };
     case '5':
       return {
-        bg: 'bg-gradient-to-r from-[#1e323b] to-[#0e171c] border-[#426e82]/30',
-        text: 'text-[#93c5fd]',
+        bg: 'bg-gradient-to-br from-[#8bd5e3] via-[#63b9c7] to-[#3d8c9a] border-[#aeeefb]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
+        text: 'text-[#0e3b42] font-black',
+        labelText: 'text-[#0e3b42]/60 font-black',
         sign: '٥',
-        metallic: 'bg-[#a1a1aa]/20',
+        watermark: 'bg-[#0e3b42]/5 border-[#0e3b42]/10',
+        metallic: 'bg-gradient-to-b from-[#c0c0c0] via-[#e6e6e6] to-[#c0c0c0] shadow-[0_0_8px_rgba(192,192,192,0.6)]',
+        glow: 'shadow-[0_0_15px_rgba(139,213,227,0.25)]',
       };
     case '1':
       return {
-        bg: 'bg-gradient-to-r from-[#443828] to-[#211b13] border-[#9c805c]/30',
-        text: 'text-[#fcd34d]',
+        bg: 'bg-gradient-to-br from-[#e0caaa] via-[#c2aa88] to-[#99805e] border-[#ebd9c2]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
+        text: 'text-[#3b2d1c] font-black',
+        labelText: 'text-[#3b2d1c]/60 font-black',
         sign: '١',
-        metallic: 'bg-[#b87333]/10',
+        watermark: 'bg-[#3b2d1c]/5 border-[#3b2d1c]/10',
+        metallic: 'bg-gradient-to-b from-[#b87333] via-[#a0522d] to-[#b87333] shadow-[0_0_4px_rgba(184,115,51,0.4)]',
+        glow: 'shadow-[0_0_15px_rgba(224,202,170,0.25)]',
       };
     case '0.5':
       return {
-        bg: 'bg-gradient-to-r from-[#213f28] to-[#102013] border-[#4c8f5b]/30',
-        text: 'text-[#86efac]',
+        bg: 'bg-gradient-to-br from-[#bdd9a5] via-[#a0bd88] to-[#799464] border-[#d8ebb8]/50 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_8px_rgba(0,0,0,0.4)]',
+        text: 'text-[#2a381e] font-black',
+        labelText: 'text-[#2a381e]/60 font-black',
         sign: '٠.٥',
-        metallic: 'bg-[#c0c0c0]/15',
+        watermark: 'bg-[#2a381e]/5 border-[#2a381e]/10',
+        metallic: 'bg-gradient-to-b from-[#c0c0c0] via-[#dcdcdc] to-[#c0c0c0] shadow-[0_0_4px_rgba(192,192,192,0.4)]',
+        glow: 'shadow-[0_0_15px_rgba(189,217,165,0.25)]',
       };
     default:
       return {
         bg: 'bg-emerald-500/15 border-emerald-500/20',
-        text: 'text-emerald-400',
+        text: 'text-emerald-400 font-bold',
+        labelText: 'text-emerald-400/60 font-bold',
         sign: denom,
+        watermark: 'bg-white/5 border-white/10',
         metallic: '',
+        glow: '',
       };
   }
 };
@@ -998,22 +1025,35 @@ export default function TransactionsPage() {
                                 const style = getBanknoteStyle(denom);
                                 return (
                                   <div className={cn(
-                                    "shrink-0 w-16 h-10 rounded-lg border relative overflow-hidden flex flex-col justify-between p-1 shadow-md shadow-black/45",
-                                    style.bg
+                                    "shrink-0 w-16 h-10 rounded-md border relative overflow-hidden flex flex-col justify-between p-1 transition-all duration-300",
+                                    style.bg,
+                                    style.glow
                                   )}>
+                                    {/* Metallic security thread */}
                                     {style.metallic && (
-                                      <div className={cn("absolute top-0 bottom-0 left-[30%] w-0.5 animate-pulse", style.metallic)} />
+                                      <div className={cn("absolute top-0 bottom-0 left-[25%] w-0.5 z-10", style.metallic)} />
                                     )}
-                                    <div className="absolute right-1 bottom-0.5 text-[18px] font-black opacity-[0.06] leading-none pointer-events-none select-none">
+                                    
+                                    {/* Watermark circular window */}
+                                    <div className={cn("absolute right-2 top-1.5 w-4 h-4 rounded-full border flex items-center justify-center opacity-40", style.watermark)}>
+                                      <span className="text-[4px] font-black select-none pointer-events-none opacity-20">CBE</span>
+                                    </div>
+
+                                    {/* Background large value watermark */}
+                                    <div className="absolute left-1 bottom-0.5 text-[14px] font-black opacity-[0.08] leading-none pointer-events-none select-none">
                                       {style.sign}
                                     </div>
-                                    <div className="flex justify-between items-center w-full leading-none">
-                                      <span className="text-[6px] font-bold opacity-50 uppercase tracking-tighter" style={{ color: 'var(--foreground)' }}>EGP</span>
+
+                                    {/* Top row: currency + denomination */}
+                                    <div className="flex justify-between items-center w-full leading-none z-20">
+                                      <span className="text-[5px] font-black uppercase tracking-tighter" style={{ color: 'rgba(0,0,0,0.45)' }}>EGP</span>
                                       <span className={cn("text-[9px] font-black leading-none", style.text)}>{denom}</span>
                                     </div>
-                                    <div className="flex justify-between items-end w-full leading-none">
+
+                                    {/* Bottom row: Arabic value + CBE label */}
+                                    <div className="flex justify-between items-end w-full leading-none z-20">
                                       <span className={cn("text-[8px] font-black leading-none", style.text)}>{style.sign}</span>
-                                      <span className="text-[5px] font-bold opacity-35 leading-none">{lang === 'ar' ? 'المركزي' : 'CBE'}</span>
+                                      <span className="text-[4px] font-black opacity-45 leading-none" style={{ color: 'rgba(0,0,0,0.45)' }}>{lang === 'ar' ? 'المركزي' : 'CBE'}</span>
                                     </div>
                                   </div>
                                 );
