@@ -434,9 +434,16 @@ export default function AccountDetailPage() {
                         className="w-full h-full object-cover rounded-xl"
                       />
                     </div>
-                    <div className="text-center flex flex-col gap-0.5">
-                      <span className="text-xs font-black text-slate-800 dark:text-white">{count} <span className="text-[9px] font-normal text-slate-500">{lang === 'ar' ? 'ورقات' : 'notes'}</span></span>
-                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatCurrency(value)}</span>
+                    <div className="text-center flex flex-col gap-1">
+                      <span className="text-sm font-black text-slate-100 dark:text-white">
+                        {count}{' '}
+                        <span className="text-xs font-bold text-slate-400 dark:text-slate-300">
+                          {lang === 'ar' ? 'ورقات' : 'notes'}
+                        </span>
+                      </span>
+                      <span className="text-xs font-bold text-slate-200 dark:text-slate-100 tabular-nums">
+                        {formatCurrency(value)}
+                      </span>
                     </div>
                   </div>
                 );
