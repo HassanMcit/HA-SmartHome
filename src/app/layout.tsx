@@ -10,6 +10,15 @@ export const metadata: Metadata = {
   title: "مدبّر | إدارة المنزل الذكية",
   description: "تطبيق عائلي لإدارة الميزانية والمصاريف والادخار بذكاء",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/favicon.ico", type: "image/x-icon" },
+    ],
+    apple: [
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({
