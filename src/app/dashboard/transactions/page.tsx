@@ -929,10 +929,10 @@ export default function TransactionsPage() {
                         const count = denominations[denom] || 0;
                         const subtotal = count * parseFloat(denom);
                         return (
-                          <div key={denom} className="flex items-center justify-between p-3 rounded-2xl bg-black/20 border border-white/5 gap-3">
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div key={denom} className="flex items-center justify-between p-3 rounded-2xl bg-black/20 border border-white/5 gap-2 sm:gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                               {/* Mini Banknote Card */}
-                              <div className="shrink-0 w-20 h-12 rounded-xl border border-white/10 relative overflow-hidden shadow-md shadow-black/45 transition-all select-none bg-slate-900/10">
+                              <div className="shrink-0 w-16 h-10 sm:w-20 sm:h-12 rounded-xl border border-white/10 relative overflow-hidden shadow-md shadow-black/45 transition-all select-none bg-slate-900/10">
                                 <img
                                   src={`/banknotes/egp_${denom}.png`}
                                   alt={`${denom} EGP`}
@@ -942,7 +942,7 @@ export default function TransactionsPage() {
                               </div>
                               <div className="flex flex-col min-w-0 flex-1">
                                 <span className="text-[11px] font-bold text-[var(--foreground)] truncate">{lang === 'ar' ? ar : en}</span>
-                                <span className="text-[10px] font-black text-emerald-400 tabular-nums">
+                                <span className="text-[10px] font-black text-emerald-400 tabular-nums truncate">
                                   {subtotal > 0 ? `${subtotal} ج.م` : '—'}
                                 </span>
                               </div>
@@ -958,7 +958,7 @@ export default function TransactionsPage() {
                                     [denom]: Math.max(0, (prev[denom] || 0) - 1)
                                   }));
                                 }}
-                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-sm border hover:bg-white/5 cursor-pointer"
+                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-xs sm:text-sm border hover:bg-white/5 cursor-pointer"
                                 style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                               >
                                 -
@@ -976,7 +976,7 @@ export default function TransactionsPage() {
                                     [denom]: Math.max(0, val)
                                   }));
                                 }}
-                                className="w-12 h-8 rounded-lg text-center font-black text-xs focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums border"
+                                className="w-10 h-7 sm:w-12 sm:h-8 rounded-lg text-center font-black text-[10px] sm:text-xs focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums border"
                                 style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                                 placeholder="0"
                               />
@@ -990,7 +990,7 @@ export default function TransactionsPage() {
                                     [denom]: (prev[denom] || 0) + 1
                                   }));
                                 }}
-                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-sm border hover:bg-white/5 cursor-pointer"
+                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-xs sm:text-sm border hover:bg-white/5 cursor-pointer"
                                 style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                               >
                                 +
