@@ -83,8 +83,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20 pulse-glow">
-            <Home className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden mx-auto mb-4 shadow-lg shadow-indigo-500/20 pulse-glow border border-white/10 shrink-0">
+            <img src="/favicon.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-black gradient-text tracking-tight">مدبّر</h1>
           <p className="text-slate-400 text-sm sm:text-base mt-2 font-medium">إدارة المنزل الذكية</p>

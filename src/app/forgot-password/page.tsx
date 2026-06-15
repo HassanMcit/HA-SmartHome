@@ -81,9 +81,8 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 pulse-glow"
-            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
-            <Home className="w-10 h-10 text-white" />
+          <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-4 pulse-glow border border-white/10 shrink-0">
+            <img src="/favicon.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-3xl font-bold gradient-text">مدبّر</h1>
           <p className="text-slate-400 mt-2 text-sm">إدارة المنزل الذكية</p>

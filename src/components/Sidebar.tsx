@@ -54,13 +54,8 @@ export default function Sidebar() {
       {/* Logo & Toggles */}
       <div className="px-6 py-6 border-b border-white/5 flex-shrink-0 flex items-center justify-between gap-2">
         <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
-          <div className={cn(
-            "w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all group-hover:scale-110",
-            theme === 'dark'
-              ? "bg-[#7650FF] border-2 border-white text-white shadow-purple-500/20"
-              : "bg-white border-2 border-[#7650FF] text-[#7650FF] shadow-indigo-500/10"
-          )}>
-            <Home className="w-6 h-6" />
+          <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-lg transition-all group-hover:scale-110 select-none border border-white/10 shrink-0">
+            <img src="/favicon.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col">
             <span className="text-xl font-black text-white leading-none tracking-tight">{t('app_name')}</span>
