@@ -428,7 +428,7 @@ html.light nav a:hover {
 
 /* Glass Card */
 .glass-card {
-  background: rgba(22, 32, 53, 0.8);
+  background: rgba(17, 40, 58, 0.8);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(91, 200, 245, 0.2);
   border-radius: 16px;
