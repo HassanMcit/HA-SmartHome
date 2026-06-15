@@ -55,7 +55,7 @@ export default function Sidebar() {
       <div className="px-6 py-6 border-b border-white/5 flex-shrink-0 flex items-center justify-between gap-2">
         <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
           <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-lg transition-all group-hover:scale-110 select-none border border-white/10 shrink-0">
-            <img src="/favicon.png?v=2" alt="Logo" className="w-full h-full object-cover" />
+            <img src="/favicon.png?v=3" alt="Logo" className="w-full h-full object-cover" />
           </div>
         </Link>
 
