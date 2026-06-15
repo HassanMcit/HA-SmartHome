@@ -85,7 +85,6 @@ export default function ForgotPasswordPage() {
             <img src="/favicon.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-3xl font-bold gradient-text">مدبّر</h1>
-          <p className="text-slate-400 mt-2 text-sm">إدارة المنزل الذكية</p>
         </div>
 
         <div className="glass-card p-8">

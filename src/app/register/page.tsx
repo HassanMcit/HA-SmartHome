@@ -87,7 +87,6 @@ export default function RegisterPage() {
             <img src="/favicon.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-black gradient-text tracking-tight">مدبّر</h1>
-          <p className="text-slate-400 text-sm sm:text-base mt-2 font-medium">إدارة المنزل الذكية</p>
         </div>
 
         {/* Status Info */}
