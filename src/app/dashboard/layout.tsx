@@ -29,7 +29,7 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0d1b2a] gap-6">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#091b29] gap-6">
         <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg shadow-indigo-500/20 pulse-glow border border-white/10 shrink-0">
           <img src="/favicon.png" alt="Logo" className="w-full h-full object-cover" />
         </div>
@@ -44,7 +44,7 @@ export default function DashboardLayout({
   if (!user) return null;
 
   return (
-    <div className="flex min-h-screen bg-[#0d1b2a]">
+    <div className="flex min-h-screen bg-[#091b29]">
       {/* Desktop Sidebar - sticky */}
       <aside className={`hidden md:block w-64 flex-shrink-0 ${lang === 'ar' ? 'border-l' : 'border-r'} border-white/5`}>
         <div className="sticky top-0 h-screen overflow-y-auto">
@@ -56,7 +56,7 @@ export default function DashboardLayout({
       <main className="flex-1 min-w-0 overflow-x-hidden flex flex-col">
         
         {/* Mobile Header */}
-        <header className="md:hidden sticky top-0 z-40 bg-[#0d1b2a]/85 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
+        <header className="md:hidden sticky top-0 z-40 bg-[#091b29]/85 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
             <div className="w-9 h-9 rounded-xl overflow-hidden shadow-lg border border-white/10 group-hover:scale-110 transition-transform shrink-0">
               <img src="/favicon.png" alt="Logo" className="w-full h-full object-cover" />

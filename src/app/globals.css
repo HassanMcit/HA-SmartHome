@@ -32,7 +32,7 @@
   --color-indigo-700: #1e8fb3;
   --color-indigo-800: #155e7e;
   --color-indigo-900: #0c3549;
-  --color-indigo-950: #0d1b2a;
+  --color-indigo-950: #091b29;
 
   --color-purple-50: #f0f8ff;
   --color-purple-100: #e0f4ff;
@@ -44,7 +44,7 @@
   --color-purple-700: #1e8fb3;
   --color-purple-800: #155e7e;
   --color-purple-900: #0c3549;
-  --color-purple-950: #0d1b2a;
+  --color-purple-950: #091b29;
 
   --color-violet-50: #f0f8ff;
   --color-violet-100: #e0f4ff;
@@ -56,7 +56,7 @@
   --color-violet-700: #1e8fb3;
   --color-violet-800: #155e7e;
   --color-violet-900: #0c3549;
-  --color-violet-950: #0d1b2a;
+  --color-violet-950: #091b29;
 }
 
 :root {
@@ -93,26 +93,26 @@
    DARK MODE VARIABLES
 ────────────────────────────────────────────── */
 html.dark {
-  --background: #0d1b2a;
+  --background: #091b29;
   --foreground: #e0f4ff;
-  --card: rgba(22, 32, 53, 0.85);
+  --card: rgba(17, 40, 58, 0.85);
   --card-foreground: #e0f4ff;
-  --popover: #162035;
+  --popover: #11283a;
   --popover-foreground: #e0f4ff;
   --primary: #5BC8F5;
-  --primary-foreground: #0d1b2a;
-  --secondary: #1a2e45;
+  --primary-foreground: #091b29;
+  --secondary: #16334d;
   --secondary-foreground: #bae8fd;
-  --muted: #1a2e45;
+  --muted: #16334d;
   --muted-foreground: #5ba8cc;
-  --accent: #1e3a54;
+  --accent: #1b3e5c;
   --accent-foreground: #bae8fd;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #1e3a54;
-  --input: #1a2e45;
+  --border: #1b3e5c;
+  --input: #16334d;
   --ring: #5BC8F5;
-  --logo-bg: #1a2e45;
+  --logo-bg: #16334d;
   --logo-border: rgba(91, 200, 245, 0.25);
 }
 
@@ -164,7 +164,7 @@ input, textarea, [contenteditable] {
 ────────────────────────────────────────────── */
 html.dark body,
 body {
-  background: #0d1b2a;
+  background: #091b29;
   color: #e0f4ff;
 }
 
@@ -185,8 +185,8 @@ html.light .bg-\[\#16172e\],
 html.light .min-h-screen.bg-\[\#16172e\],
 html.light .bg-\[\#0d1a00\],
 html.light .min-h-screen.bg-\[\#0d1a00\],
-html.light .bg-\[\#0d1b2a\],
-html.light .min-h-screen.bg-\[\#0d1b2a\] {
+html.light .bg-\[\#091b29\],
+html.light .min-h-screen.bg-\[\#091b29\] {
   background: #f0f8ff !important;
 }
 
@@ -196,15 +196,15 @@ html.light .bg-\[\#121325\],
 html.light [class*="bg-[#121325]"],
 html.light .bg-\[\#142300\],
 html.light [class*="bg-[#142300]"],
-html.light .bg-\[\#162035\],
-html.light [class*="bg-[#162035]"] {
+html.light .bg-\[\#11283a\],
+html.light [class*="bg-[#11283a]"] {
   background: #ffffff !important;
 }
 
 html.light .bg-\[\#1a1a35\]\/80,
 html.light .bg-\[\#121325\]\/80,
 html.light .bg-\[\#142300\]\/80,
-html.light .bg-\[\#162035\]\/80 {
+html.light .bg-\[\#11283a\]\/80 {
   background: rgba(255,255,255,0.9) !important;
 }
 
@@ -349,7 +349,7 @@ html.light .bg-black\/10 {
 html.light .bg-\[\#1a1a35\]\/80,
 html.light .bg-\[\#121325\]\/80,
 html.light .bg-\[\#142300\]\/80,
-html.light .bg-\[\#162035\]\/80 {
+html.light .bg-\[\#11283a\]\/80 {
   background: rgba(255,255,255,0.95) !important;
 }
 
@@ -377,7 +377,7 @@ html.light textarea::placeholder {
 html.light [class*="bg-[#1a1a35]"],
 html.light [class*="bg-[#121325]"],
 html.light [class*="bg-[#142300]"],
-html.light [class*="bg-[#162035]"] {
+html.light [class*="bg-[#11283a]"] {
   background: #ffffff !important;
   color: #1e293b !important;
 }
@@ -400,7 +400,7 @@ html.light .hover\:bg-white\/5:hover {
 /* ─── Scrollbar ─── */
 html.dark ::-webkit-scrollbar-track,
 ::-webkit-scrollbar-track {
-  background: #162035;
+  background: #11283a;
 }
 html.light ::-webkit-scrollbar-track {
   background: #f1f5f9;
