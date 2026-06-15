@@ -61,7 +61,6 @@ export default function DashboardLayout({
             <div className="w-9 h-9 rounded-xl overflow-hidden shadow-lg border border-white/10 group-hover:scale-110 transition-transform shrink-0">
               <img src="/favicon.png?v=2" alt="Logo" className="w-full h-full object-cover" />
             </div>
-            <span className="text-xl font-black gradient-text tracking-tight">{t('app_name')}</span>
           </Link>
 
           <div className="flex items-center gap-2">

@@ -57,7 +57,6 @@ export default function Sidebar() {
           <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-lg transition-all group-hover:scale-110 select-none border border-white/10 shrink-0">
             <img src="/favicon.png?v=2" alt="Logo" className="w-full h-full object-cover" />
           </div>
-          <span className="text-xl font-black text-white tracking-tight">{t('app_name')}</span>
         </Link>
 
         {/* Quick Actions (Theme & Language) */}
