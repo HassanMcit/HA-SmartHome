@@ -31,7 +31,7 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#091b29] gap-6">
         <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg shadow-indigo-500/20 pulse-glow border border-white/10 shrink-0">
-          <img src="/favicon.png" alt="Logo" className="w-full h-full object-cover" />
+          <img src="/favicon.png?v=2" alt="Logo" className="w-full h-full object-cover" />
         </div>
         <div className="flex flex-col items-center gap-2">
           <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
@@ -59,7 +59,7 @@ export default function DashboardLayout({
         <header className="md:hidden sticky top-0 z-40 bg-[#091b29]/85 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-3 active:scale-95 transition-transform group">
             <div className="w-9 h-9 rounded-xl overflow-hidden shadow-lg border border-white/10 group-hover:scale-110 transition-transform shrink-0">
-              <img src="/favicon.png" alt="Logo" className="w-full h-full object-cover" />
+              <img src="/favicon.png?v=2" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-xl font-black gradient-text tracking-tight">{t('app_name')}</span>
           </Link>
