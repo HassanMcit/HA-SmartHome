@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { Loader2 } from 'lucide-react';
 
 export default function HomePage() {
   const { status } = useSession();
@@ -18,13 +19,13 @@ export default function HomePage() {
   }, [status, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#091b29' }}>
-      <div className="text-center">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-          style={{ background: 'linear-gradient(135deg, #6366f1, #818cf8)' }}>
-          <span className="text-2xl">🏠</span>
-        </div>
-        <p className="text-slate-400">جاري التحميل...</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#091b29] gap-6">
+      <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg shadow-indigo-500/20 pulse-glow border border-white/10 shrink-0">
+        <img src="/favicon.png" alt="Logo" className="w-full h-full object-cover" />
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
+        <p className="text-slate-400 text-sm font-bold">جاري التحميل...</p>
       </div>
     </div>
   );
