@@ -66,13 +66,51 @@ export default function TransactionsPage() {
     }, 0);
   }, [denominations]);
 
+  // Change calculator states
+  const [useChangeCalculator, setUseChangeCalculator] = useState(false);
+  const [paidDenominations, setPaidDenominations] = useState<Record<string, number>>({
+    '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
+  });
+  const [receivedDenominations, setReceivedDenominations] = useState<Record<string, number>>({
+    '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
+  });
+
+  const getChangeCalculatorTotal = useCallback(() => {
+    const paidTotal = Object.entries(paidDenominations).reduce((acc, [denom, count]) => {
+      return acc + (parseFloat(denom) * (count || 0));
+    }, 0);
+    const receivedTotal = Object.entries(receivedDenominations).reduce((acc, [denom, count]) => {
+      return acc + (parseFloat(denom) * (count || 0));
+    }, 0);
+    return type === 'expense' ? (paidTotal - receivedTotal) : (receivedTotal - paidTotal);
+  }, [paidDenominations, receivedDenominations, type]);
+
+  const getChangeCalculatorDenominations = useCallback(() => {
+    const result: Record<string, number> = {};
+    const denoms = ['200', '100', '50', '20', '10', '5', '1', '0.5'];
+    for (const denom of denoms) {
+      const p = paidDenominations[denom] || 0;
+      const r = receivedDenominations[denom] || 0;
+      const net = type === 'expense' ? (p - r) : (r - p);
+      if (net !== 0) {
+        result[denom] = net;
+      }
+    }
+    return result;
+  }, [paidDenominations, receivedDenominations, type]);
+
   // Sync cash denominations total to transaction amount input automatically
   useEffect(() => {
     if (isCashAccount) {
-      const total = getDenominationsTotal();
-      setAmount(total > 0 ? total.toString() : '');
+      if (useChangeCalculator) {
+        const total = getChangeCalculatorTotal();
+        setAmount(total > 0 ? total.toString() : '');
+      } else {
+        const total = getDenominationsTotal();
+        setAmount(total > 0 ? total.toString() : '');
+      }
     }
-  }, [denominations, isCashAccount, getDenominationsTotal]);
+  }, [denominations, paidDenominations, receivedDenominations, useChangeCalculator, isCashAccount, getDenominationsTotal, getChangeCalculatorTotal]);
   
   // Transfer form state
   const [transferOpen, setTransferOpen] = useState(false);
@@ -82,6 +120,31 @@ export default function TransactionsPage() {
   const [transferDesc, setTransferDesc] = useState('');
   const [transferDate, setTransferDate] = useState(new Date().toISOString().split('T')[0]);
   const [transferSubmitting, setTransferSubmitting] = useState(false);
+
+  // Transfer denominations states
+  const [transferFromDenominations, setTransferFromDenominations] = useState<Record<string, number>>({
+    '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
+  });
+  const [transferToDenominations, setTransferToDenominations] = useState<Record<string, number>>({
+    '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
+  });
+
+  const fromAccount = accounts.find(a => a.id === fromAccountId);
+  const toAccount = accounts.find(a => a.id === toAccountId);
+  const isFromCash = fromAccount?.type === 'cash';
+  const isToCash = toAccount?.type === 'cash';
+
+  const getTransferFromDenominationsTotal = useCallback(() => {
+    return Object.entries(transferFromDenominations).reduce((acc, [denom, count]) => {
+      return acc + (parseFloat(denom) * (count || 0));
+    }, 0);
+  }, [transferFromDenominations]);
+
+  const getTransferToDenominationsTotal = useCallback(() => {
+    return Object.entries(transferToDenominations).reduce((acc, [denom, count]) => {
+      return acc + (parseFloat(denom) * (count || 0));
+    }, 0);
+  }, [transferToDenominations]);
   
   const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; transactionId: string; description: string }>({
     isOpen: false,
@@ -489,7 +552,7 @@ export default function TransactionsPage() {
     const parsedAmount = parseFloat(amount);
 
     if (isCashAccount) {
-      const denomTotal = getDenominationsTotal();
+      const denomTotal = useChangeCalculator ? getChangeCalculatorTotal() : getDenominationsTotal();
       if (Math.abs(denomTotal - parsedAmount) > 0.01) {
         toast.error(
           lang === 'ar'
@@ -513,7 +576,9 @@ export default function TransactionsPage() {
         date,
         targetUserId: targetUserId,
         accountId: accountId && accountId !== 'none' ? accountId : undefined,
-        denominations: isCashAccount ? denominations : undefined,
+        denominations: isCashAccount 
+          ? (useChangeCalculator ? getChangeCalculatorDenominations() : denominations) 
+          : undefined,
       });
       
       toast.success(`تم إضافة معاملة ${selectedUser?.name || ''} بنجاح`);
@@ -523,15 +588,15 @@ export default function TransactionsPage() {
       setCategory('');
       setAccountId('');
       setDate(new Date().toISOString().split('T')[0]);
+      setUseChangeCalculator(false);
       setDenominations({
-        '200': 0,
-        '100': 0,
-        '50': 0,
-        '20': 0,
-        '10': 0,
-        '5': 0,
-        '1': 0,
-        '0.5': 0,
+        '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
+      });
+      setPaidDenominations({
+        '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
+      });
+      setReceivedDenominations({
+        '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
       });
       fetchTransactions();
       fetchAccounts();
@@ -552,14 +617,43 @@ export default function TransactionsPage() {
       toast.error(lang === 'ar' ? 'لا يمكن التحويل لنفس الحساب المالي' : 'Cannot transfer to the same account');
       return;
     }
+    
+    const parsedAmount = parseFloat(transferAmount);
+    
+    if (isFromCash) {
+      const fromTotal = getTransferFromDenominationsTotal();
+      if (Math.abs(fromTotal - parsedAmount) > 0.01) {
+        toast.error(
+          lang === 'ar'
+            ? `⚠️ فئات الكاش الصادر (${fromTotal} ج.م) يجب أن تساوي مبلغ التحويل (${parsedAmount} ج.م)`
+            : `⚠️ Outgoing cash denoms total (${fromTotal} EGP) must equal the transfer amount (${parsedAmount} EGP)`
+        );
+        return;
+      }
+    }
+
+    if (isToCash) {
+      const toTotal = getTransferToDenominationsTotal();
+      if (Math.abs(toTotal - parsedAmount) > 0.01) {
+        toast.error(
+          lang === 'ar'
+            ? `⚠️ فئات الكاش الوارد (${toTotal} ج.م) يجب أن تساوي مبلغ التحويل (${parsedAmount} ج.م)`
+            : `⚠️ Incoming cash denoms total (${toTotal} EGP) must equal the transfer amount (${parsedAmount} EGP)`
+        );
+        return;
+      }
+    }
+
     setTransferSubmitting(true);
     try {
       await transactionsApi.transfer({
         fromAccountId,
         toAccountId,
-        amount: parseFloat(transferAmount),
+        amount: parsedAmount,
         description: transferDesc,
-        date: transferDate
+        date: transferDate,
+        fromDenominations: isFromCash ? transferFromDenominations : undefined,
+        toDenominations: isToCash ? transferToDenominations : undefined,
       });
       toast.success(lang === 'ar' ? 'تمت عملية التحويل المالي بنجاح! 💸' : 'Transfer completed successfully! 💸');
       setTransferOpen(false);
@@ -568,6 +662,12 @@ export default function TransactionsPage() {
       setTransferAmount('');
       setTransferDesc('');
       setTransferDate(new Date().toISOString().split('T')[0]);
+      setTransferFromDenominations({
+        '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
+      });
+      setTransferToDenominations({
+        '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
+      });
       fetchTransactions();
       fetchAccounts();
     } catch (error: any) {
@@ -708,9 +808,228 @@ export default function TransactionsPage() {
                     />
                   </div>
 
+                  {/* Outgoing cash denominations */}
+                  {isFromCash && (
+                    <div className="space-y-3 p-4 rounded-2xl bg-white/5 border border-white/10 animate-fade-in text-right">
+                      <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                        <span className="text-xs font-bold text-slate-400">
+                          {lang === 'ar' ? '💵 فئات الكاش الصادر (من الكاش)' : '💵 Outgoing Cash Denominations (from Cash)'}
+                        </span>
+                        <span className="text-[10px] font-semibold text-slate-500">
+                          {lang === 'ar' ? 'حدد الأوراق الصادرة (إجباري)' : 'Specify outgoing counts (required)'}
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
+                        {EGYPTIAN_DENOMINATIONS_LIST.map(({ value: denom, ar, en }) => {
+                          const count = transferFromDenominations[denom] || 0;
+                          const subtotal = count * parseFloat(denom);
+                          return (
+                            <div key={denom} className="flex items-center justify-between p-2.5 rounded-xl bg-black/20 border border-white/5 gap-2 sm:gap-3">
+                              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                                <div className="shrink-0 w-16 h-10 rounded-xl border border-white/10 relative overflow-hidden shadow bg-slate-900/10">
+                                  <img
+                                    src={`/banknotes/egp_${denom}.png`}
+                                    alt={`${denom} EGP`}
+                                    className="w-full h-full object-cover rounded-xl"
+                                    loading="lazy"
+                                  />
+                                </div>
+                                <div className="flex flex-col min-w-0 flex-1">
+                                  <span className="text-[10px] font-bold text-[var(--foreground)] truncate">{lang === 'ar' ? ar : en}</span>
+                                  <span className="text-[10px] font-black text-emerald-400 tabular-nums truncate">
+                                    {subtotal > 0 ? `${subtotal} ج.م` : '—'}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setTransferFromDenominations(prev => ({
+                                      ...prev,
+                                      [denom]: Math.max(0, (prev[denom] || 0) - 1)
+                                    }));
+                                  }}
+                                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-xs border hover:bg-white/5 cursor-pointer"
+                                  style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                >
+                                  -
+                                </button>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={count || ''}
+                                  onChange={e => {
+                                    const val = parseInt(e.target.value) || 0;
+                                    setTransferFromDenominations(prev => ({
+                                      ...prev,
+                                      [denom]: Math.max(0, val)
+                                    }));
+                                  }}
+                                  className="w-10 h-7 rounded-lg text-center font-black text-[10px] focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums border"
+                                  style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                  placeholder="0"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setTransferFromDenominations(prev => ({
+                                      ...prev,
+                                      [denom]: (prev[denom] || 0) + 1
+                                    }));
+                                  }}
+                                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-xs border hover:bg-white/5 cursor-pointer"
+                                  style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      
+                      <div className="pt-2 border-t border-white/5 flex flex-col gap-1">
+                        <div className="flex items-center justify-between text-xs font-bold">
+                          <span className="text-slate-400">{lang === 'ar' ? 'إجمالي الكاش الصادر:' : 'Total Outgoing Cash:'}</span>
+                          <span className={cn(
+                            "tabular-nums font-black text-sm",
+                            Math.abs(getTransferFromDenominationsTotal() - parseFloat(transferAmount || '0')) < 0.01
+                              ? "text-emerald-400"
+                              : "text-amber-500"
+                          )}>
+                            {getTransferFromDenominationsTotal()} {lang === 'ar' ? 'ج.م' : 'EGP'}
+                          </span>
+                        </div>
+                        {transferAmount && Math.abs(getTransferFromDenominationsTotal() - parseFloat(transferAmount)) >= 0.01 && (
+                          <p className="text-[10px] text-amber-500 font-semibold leading-relaxed">
+                            {lang === 'ar' 
+                              ? `⚠️ المجموع لا يطابق مبلغ التحويل (${transferAmount} ج.م) - الفرق: ${parseFloat(transferAmount) - getTransferFromDenominationsTotal()} ج.م`
+                              : `⚠️ Total does not match transfer amount (${transferAmount} EGP) - Diff: ${parseFloat(transferAmount) - getTransferFromDenominationsTotal()} EGP`}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Incoming cash denominations */}
+                  {isToCash && (
+                    <div className="space-y-3 p-4 rounded-2xl bg-white/5 border border-white/10 animate-fade-in text-right">
+                      <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                        <span className="text-xs font-bold text-slate-400">
+                          {lang === 'ar' ? '💵 فئات الكاش الوارد (إلى الكاش)' : '💵 Incoming Cash Denominations (to Cash)'}
+                        </span>
+                        <span className="text-[10px] font-semibold text-slate-500">
+                          {lang === 'ar' ? 'حدد الأوراق الواردة (إجباري)' : 'Specify incoming counts (required)'}
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
+                        {EGYPTIAN_DENOMINATIONS_LIST.map(({ value: denom, ar, en }) => {
+                          const count = transferToDenominations[denom] || 0;
+                          const subtotal = count * parseFloat(denom);
+                          return (
+                            <div key={denom} className="flex items-center justify-between p-2.5 rounded-xl bg-black/20 border border-white/5 gap-2 sm:gap-3">
+                              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                                <div className="shrink-0 w-16 h-10 rounded-xl border border-white/10 relative overflow-hidden shadow bg-slate-900/10">
+                                  <img
+                                    src={`/banknotes/egp_${denom}.png`}
+                                    alt={`${denom} EGP`}
+                                    className="w-full h-full object-cover rounded-xl"
+                                    loading="lazy"
+                                  />
+                                </div>
+                                <div className="flex flex-col min-w-0 flex-1">
+                                  <span className="text-[10px] font-bold text-[var(--foreground)] truncate">{lang === 'ar' ? ar : en}</span>
+                                  <span className="text-[10px] font-black text-emerald-400 tabular-nums truncate">
+                                    {subtotal > 0 ? `${subtotal} ج.م` : '—'}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setTransferToDenominations(prev => ({
+                                      ...prev,
+                                      [denom]: Math.max(0, (prev[denom] || 0) - 1)
+                                    }));
+                                  }}
+                                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-xs border hover:bg-white/5 cursor-pointer"
+                                  style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                >
+                                  -
+                                </button>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={count || ''}
+                                  onChange={e => {
+                                    const val = parseInt(e.target.value) || 0;
+                                    setTransferToDenominations(prev => ({
+                                      ...prev,
+                                      [denom]: Math.max(0, val)
+                                    }));
+                                  }}
+                                  className="w-10 h-7 rounded-lg text-center font-black text-[10px] focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums border"
+                                  style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                  placeholder="0"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setTransferToDenominations(prev => ({
+                                      ...prev,
+                                      [denom]: (prev[denom] || 0) + 1
+                                    }));
+                                  }}
+                                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-xs border hover:bg-white/5 cursor-pointer"
+                                  style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      
+                      <div className="pt-2 border-t border-white/5 flex flex-col gap-1">
+                        <div className="flex items-center justify-between text-xs font-bold">
+                          <span className="text-slate-400">{lang === 'ar' ? 'إجمالي الكاش الوارد:' : 'Total Incoming Cash:'}</span>
+                          <span className={cn(
+                            "tabular-nums font-black text-sm",
+                            Math.abs(getTransferToDenominationsTotal() - parseFloat(transferAmount || '0')) < 0.01
+                              ? "text-emerald-400"
+                              : "text-amber-500"
+                          )}>
+                            {getTransferToDenominationsTotal()} {lang === 'ar' ? 'ج.م' : 'EGP'}
+                          </span>
+                        </div>
+                        {transferAmount && Math.abs(getTransferToDenominationsTotal() - parseFloat(transferAmount)) >= 0.01 && (
+                          <p className="text-[10px] text-amber-500 font-semibold leading-relaxed">
+                            {lang === 'ar' 
+                              ? `⚠️ المجموع لا يطابق مبلغ التحويل (${transferAmount} ج.م) - الفرق: ${parseFloat(transferAmount) - getTransferToDenominationsTotal()} ج.م`
+                              : `⚠️ Total does not match transfer amount (${transferAmount} EGP) - Diff: ${parseFloat(transferAmount) - getTransferToDenominationsTotal()} EGP`}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <Button 
                     type="submit" 
-                    disabled={transferSubmitting || !fromAccountId || !toAccountId || !transferAmount}
+                    disabled={
+                      transferSubmitting || 
+                      !fromAccountId || 
+                      !toAccountId || 
+                      !transferAmount || 
+                      (isFromCash && Math.abs(getTransferFromDenominationsTotal() - parseFloat(transferAmount || '0')) >= 0.01) ||
+                      (isToCash && Math.abs(getTransferToDenominationsTotal() - parseFloat(transferAmount || '0')) >= 0.01)
+                    }
                     className="w-full h-14 bg-amber-500 hover:bg-amber-600 text-black rounded-2xl font-black text-lg shadow-lg shadow-amber-500/20 active:scale-[0.98] transition-all disabled:opacity-50 mt-4"
                   >
                     {transferSubmitting ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : (lang === 'ar' ? 'إجراء التحويل المالي' : 'Execute Transfer')}
@@ -914,115 +1233,312 @@ export default function TransactionsPage() {
                 </div>
 
                 {isCashAccount && (
-                  <div className="space-y-3 p-4 rounded-2xl bg-white/5 border border-white/10 animate-fade-in text-right">
+                  <div className="space-y-4 p-4 rounded-2xl bg-white/5 border border-white/10 animate-fade-in text-right">
                     <div className="flex items-center justify-between border-b border-white/5 pb-2">
                       <span className="text-xs font-bold text-slate-400">
                         {lang === 'ar' ? '💵 فئات العملة الكاش' : '💵 Cash Denominations'}
                       </span>
                       <span className="text-[10px] font-semibold text-slate-500">
-                        {lang === 'ar' ? 'حدد عدد ورقات كل فئة (إجباري)' : 'Specify counts (required)'}
+                        {lang === 'ar' ? 'تحديد توزيع الفئات النقدية' : 'Specify cash banknote details'}
                       </span>
                     </div>
-                    
-                    <div className="grid grid-cols-1 gap-2">
-                      {EGYPTIAN_DENOMINATIONS_LIST.map(({ value: denom, ar, en }) => {
-                        const count = denominations[denom] || 0;
-                        const subtotal = count * parseFloat(denom);
-                        return (
-                          <div key={denom} className="flex items-center justify-between p-3 rounded-2xl bg-black/20 border border-white/5 gap-2 sm:gap-3">
-                            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                              {/* Mini Banknote Card */}
-                              <div className="shrink-0 w-16 h-10 sm:w-20 sm:h-12 rounded-xl border border-white/10 relative overflow-hidden shadow-md shadow-black/45 transition-all select-none bg-slate-900/10">
-                                <img
-                                  src={`/banknotes/egp_${denom}.png`}
-                                  alt={`${denom} EGP`}
-                                  className="w-full h-full object-cover rounded-xl"
-                                  loading="lazy"
-                                />
+
+                    {/* Mode Selector */}
+                    <div className="flex gap-2 p-1.5 bg-black/30 rounded-xl border border-white/5">
+                      <button 
+                        type="button" 
+                        onClick={() => setUseChangeCalculator(false)} 
+                        className={cn('flex-1 py-2 rounded-lg font-bold text-[10px] sm:text-xs transition-all cursor-pointer', !useChangeCalculator ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white')}
+                      >
+                        {lang === 'ar' ? '💵 فئات عادية' : '💵 Simple Denoms'}
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => setUseChangeCalculator(true)} 
+                        className={cn('flex-1 py-2 rounded-lg font-bold text-[10px] sm:text-xs transition-all cursor-pointer', useChangeCalculator ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white')}
+                      >
+                        {lang === 'ar' ? '🧮 حساب الباقي (المدفوع والباقي)' : '🧮 Change Calculator'}
+                      </button>
+                    </div>
+
+                    {!useChangeCalculator ? (
+                      <>
+                        <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
+                          {EGYPTIAN_DENOMINATIONS_LIST.map(({ value: denom, ar, en }) => {
+                            const count = denominations[denom] || 0;
+                            const subtotal = count * parseFloat(denom);
+                            return (
+                              <div key={denom} className="flex items-center justify-between p-2.5 rounded-xl bg-black/20 border border-white/5 gap-2 sm:gap-3">
+                                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                                  <div className="shrink-0 w-16 h-10 rounded-xl border border-white/10 relative overflow-hidden bg-slate-900/10">
+                                    <img
+                                      src={`/banknotes/egp_${denom}.png`}
+                                      alt={`${denom} EGP`}
+                                      className="w-full h-full object-cover rounded-xl"
+                                      loading="lazy"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold text-[var(--foreground)] truncate">{lang === 'ar' ? ar : en}</span>
+                                    <span className="text-[10px] font-black text-emerald-400 tabular-nums truncate">
+                                      {subtotal > 0 ? `${subtotal} ج.م` : '—'}
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setDenominations(prev => ({
+                                        ...prev,
+                                        [denom]: Math.max(0, (prev[denom] || 0) - 1)
+                                      }));
+                                    }}
+                                    className="w-7 h-7 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-xs border hover:bg-white/5 cursor-pointer"
+                                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                  >
+                                    -
+                                  </button>
+                                  
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={count || ''}
+                                    onChange={e => {
+                                      const val = parseInt(e.target.value) || 0;
+                                      setDenominations(prev => ({
+                                        ...prev,
+                                        [denom]: Math.max(0, val)
+                                      }));
+                                    }}
+                                    className="w-10 h-7 rounded-lg text-center font-black text-[10px] focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums border"
+                                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                    placeholder="0"
+                                  />
+                                  
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setDenominations(prev => ({
+                                        ...prev,
+                                        [denom]: (prev[denom] || 0) + 1
+                                      }));
+                                    }}
+                                    className="w-7 h-7 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-xs border hover:bg-white/5 cursor-pointer"
+                                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                  >
+                                    +
+                                  </button>
+                                </div>
                               </div>
-                              <div className="flex flex-col min-w-0 flex-1">
-                                <span className="text-[11px] font-bold text-[var(--foreground)] truncate">{lang === 'ar' ? ar : en}</span>
-                                <span className="text-[10px] font-black text-emerald-400 tabular-nums truncate">
-                                  {subtotal > 0 ? `${subtotal} ج.م` : '—'}
-                                </span>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-1 shrink-0">
-                              {/* Minus */}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setDenominations(prev => ({
-                                    ...prev,
-                                    [denom]: Math.max(0, (prev[denom] || 0) - 1)
-                                  }));
-                                }}
-                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-xs sm:text-sm border hover:bg-white/5 cursor-pointer"
-                                style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                              >
-                                -
-                              </button>
-                              
-                              {/* Input */}
-                              <input
-                                type="number"
-                                min="0"
-                                value={count || ''}
-                                onChange={e => {
-                                  const val = parseInt(e.target.value) || 0;
-                                  setDenominations(prev => ({
-                                    ...prev,
-                                    [denom]: Math.max(0, val)
-                                  }));
-                                }}
-                                className="w-10 h-7 sm:w-12 sm:h-8 rounded-lg text-center font-black text-[10px] sm:text-xs focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums border"
-                                style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                                placeholder="0"
-                              />
-                              
-                              {/* Plus */}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setDenominations(prev => ({
-                                    ...prev,
-                                    [denom]: (prev[denom] || 0) + 1
-                                  }));
-                                }}
-                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 font-black text-xs sm:text-sm border hover:bg-white/5 cursor-pointer"
-                                style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                              >
-                                +
-                              </button>
-                            </div>
+                            );
+                          })}
+                        </div>
+                        
+                        {/* Realtime sum checking */}
+                        <div className="pt-2 border-t border-white/5 flex flex-col gap-1">
+                          <div className="flex items-center justify-between text-xs font-bold">
+                            <span className="text-slate-400">{lang === 'ar' ? 'إجمالي فئات الكاش:' : 'Total Cash Denoms:'}</span>
+                            <span className={cn(
+                              "tabular-nums font-black text-sm",
+                              Math.abs(getDenominationsTotal() - parseFloat(amount || '0')) < 0.01
+                                ? "text-emerald-400"
+                                : "text-amber-500"
+                            )}>
+                              {getDenominationsTotal()} {lang === 'ar' ? 'ج.م' : 'EGP'}
+                            </span>
                           </div>
-                        );
-                      })}
-                    </div>
-                    
-                    {/* Realtime sum checking */}
-                    <div className="mt-3 pt-2 border-t border-white/5 flex flex-col gap-1.5">
-                      <div className="flex items-center justify-between text-xs font-bold">
-                        <span className="text-slate-400">{lang === 'ar' ? 'إجمالي فئات الكاش:' : 'Total Cash Denoms:'}</span>
-                        <span className={cn(
-                          "tabular-nums font-black text-sm",
-                          Math.abs(getDenominationsTotal() - parseFloat(amount || '0')) < 0.01
-                            ? "text-emerald-400"
-                            : "text-amber-500"
-                        )}>
-                          {getDenominationsTotal()} {lang === 'ar' ? 'ج.م' : 'EGP'}
-                        </span>
-                      </div>
-                      
-                      {amount && Math.abs(getDenominationsTotal() - parseFloat(amount)) >= 0.01 && (
-                        <p className="text-[10px] text-amber-500 font-semibold leading-relaxed">
-                          {lang === 'ar' 
-                            ? `⚠️ المجموع لا يطابق مبلغ المعاملة (${amount} ج.م) - الفرق: ${parseFloat(amount) - getDenominationsTotal()} ج.م`
-                            : `⚠️ Total does not match transaction amount (${amount} EGP) - Diff: ${parseFloat(amount) - getDenominationsTotal()} EGP`}
-                        </p>
-                      )}
-                    </div>
+                          
+                          {amount && Math.abs(getDenominationsTotal() - parseFloat(amount)) >= 0.01 && (
+                            <p className="text-[10px] text-amber-500 font-semibold leading-relaxed">
+                              {lang === 'ar' 
+                                ? `⚠️ المجموع لا يطابق مبلغ المعاملة (${amount} ج.م) - الفرق: ${parseFloat(amount) - getDenominationsTotal()} ج.م`
+                                : `⚠️ Total does not match transaction amount (${amount} EGP) - Diff: ${parseFloat(amount) - getDenominationsTotal()} EGP`}
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Paid Section */}
+                        <div className="space-y-2 border-b border-white/5 pb-3">
+                          <label className="text-[10px] font-bold text-indigo-300 block mb-1">
+                            {lang === 'ar' ? '💸 الأوراق المدفوعة (التي قمت بإعطائها):' : '💸 Paid Banknotes (What you paid):'}
+                          </label>
+                          <div className="grid grid-cols-1 gap-1.5 max-h-[170px] overflow-y-auto custom-scrollbar pr-1">
+                            {EGYPTIAN_DENOMINATIONS_LIST.map(({ value: denom, ar, en }) => {
+                              const count = paidDenominations[denom] || 0;
+                              const subtotal = count * parseFloat(denom);
+                              return (
+                                <div key={denom} className="flex items-center justify-between p-2 rounded-xl bg-black/20 border border-white/5 gap-2">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <div className="shrink-0 w-12 h-8 rounded-lg border border-white/10 relative overflow-hidden bg-slate-900/10">
+                                      <img
+                                        src={`/banknotes/egp_${denom}.png`}
+                                        alt={`${denom} EGP`}
+                                        className="w-full h-full object-cover rounded-lg"
+                                        loading="lazy"
+                                      />
+                                    </div>
+                                    <div className="flex flex-col min-w-0 flex-1">
+                                      <span className="text-[9px] font-bold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
+                                      <span className="text-[9px] font-black text-emerald-400 tabular-nums truncate">
+                                        {subtotal > 0 ? `${subtotal} ج.م` : '—'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setPaidDenominations(prev => ({
+                                          ...prev,
+                                          [denom]: Math.max(0, (prev[denom] || 0) - 1)
+                                        }));
+                                      }}
+                                      className="w-6 h-6 rounded-md flex items-center justify-center transition-all active:scale-95 font-black text-xs border hover:bg-white/5 cursor-pointer"
+                                      style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                    >
+                                      -
+                                    </button>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      value={count || ''}
+                                      onChange={e => {
+                                        const val = parseInt(e.target.value) || 0;
+                                        setPaidDenominations(prev => ({
+                                          ...prev,
+                                          [denom]: Math.max(0, val)
+                                        }));
+                                      }}
+                                      className="w-8 h-6 rounded-md text-center font-black text-[9px] focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums border"
+                                      style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                      placeholder="0"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setPaidDenominations(prev => ({
+                                          ...prev,
+                                          [denom]: (prev[denom] || 0) + 1
+                                        }));
+                                      }}
+                                      className="w-6 h-6 rounded-md flex items-center justify-center transition-all active:scale-95 font-black text-xs border hover:bg-white/5 cursor-pointer"
+                                      style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Received Section */}
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-amber-300 block mb-1">
+                            {lang === 'ar' ? '🪙 الباقي المستلم (الذي استرددته):' : '🪙 Change Received (What you got back):'}
+                          </label>
+                          <div className="grid grid-cols-1 gap-1.5 max-h-[170px] overflow-y-auto custom-scrollbar pr-1">
+                            {EGYPTIAN_DENOMINATIONS_LIST.map(({ value: denom, ar, en }) => {
+                              const count = receivedDenominations[denom] || 0;
+                              const subtotal = count * parseFloat(denom);
+                              return (
+                                <div key={denom} className="flex items-center justify-between p-2 rounded-xl bg-black/20 border border-white/5 gap-2">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <div className="shrink-0 w-12 h-8 rounded-lg border border-white/10 relative overflow-hidden bg-slate-900/10">
+                                      <img
+                                        src={`/banknotes/egp_${denom}.png`}
+                                        alt={`${denom} EGP`}
+                                        className="w-full h-full object-cover rounded-lg"
+                                        loading="lazy"
+                                      />
+                                    </div>
+                                    <div className="flex flex-col min-w-0 flex-1">
+                                      <span className="text-[9px] font-bold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
+                                      <span className="text-[9px] font-black text-amber-400 tabular-nums truncate">
+                                        {subtotal > 0 ? `${subtotal} ج.م` : '—'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setReceivedDenominations(prev => ({
+                                          ...prev,
+                                          [denom]: Math.max(0, (prev[denom] || 0) - 1)
+                                        }));
+                                      }}
+                                      className="w-6 h-6 rounded-md flex items-center justify-center transition-all active:scale-95 font-black text-xs border hover:bg-white/5 cursor-pointer"
+                                      style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                    >
+                                      -
+                                    </button>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      value={count || ''}
+                                      onChange={e => {
+                                        const val = parseInt(e.target.value) || 0;
+                                        setReceivedDenominations(prev => ({
+                                          ...prev,
+                                          [denom]: Math.max(0, val)
+                                        }));
+                                      }}
+                                      className="w-8 h-6 rounded-md text-center font-black text-[9px] focus:outline-none focus:border-emerald-500/50 select-all p-0 m-0 tabular-nums border"
+                                      style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                      placeholder="0"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setReceivedDenominations(prev => ({
+                                          ...prev,
+                                          [denom]: (prev[denom] || 0) + 1
+                                        }));
+                                      }}
+                                      className="w-6 h-6 rounded-md flex items-center justify-center transition-all active:scale-95 font-black text-xs border hover:bg-white/5 cursor-pointer"
+                                      style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Realtime sum checking for Change Calculator */}
+                        <div className="pt-2 border-t border-white/5 flex flex-col gap-1">
+                          <div className="flex items-center justify-between text-xs font-bold">
+                            <span className="text-slate-400">{lang === 'ar' ? 'صافي الحساب (المدفوع - الباقي):' : 'Net Calculated Amount:'}</span>
+                            <span className={cn(
+                              "tabular-nums font-black text-sm",
+                              Math.abs(getChangeCalculatorTotal() - parseFloat(amount || '0')) < 0.01
+                                ? "text-emerald-400"
+                                : "text-amber-500"
+                            )}>
+                              {getChangeCalculatorTotal()} {lang === 'ar' ? 'ج.م' : 'EGP'}
+                            </span>
+                          </div>
+                          
+                          {amount && Math.abs(getChangeCalculatorTotal() - parseFloat(amount)) >= 0.01 && (
+                            <p className="text-[10px] text-amber-500 font-semibold leading-relaxed">
+                              {lang === 'ar' 
+                                ? `⚠️ الصافي لا يطابق مبلغ المعاملة (${amount} ج.م) - الفرق: ${parseFloat(amount) - getChangeCalculatorTotal()} ج.م`
+                                : `⚠️ Net does not match transaction amount (${amount} EGP) - Diff: ${parseFloat(amount) - getChangeCalculatorTotal()} EGP`}
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -1057,7 +1573,11 @@ export default function TransactionsPage() {
 
                 <Button 
                   type="submit" 
-                  disabled={submitting || !amount || !category || (isCashAccount && Math.abs(getDenominationsTotal() - parseFloat(amount || '0')) >= 0.01)}
+                  disabled={submitting || !amount || !category || (isCashAccount && (
+                    useChangeCalculator 
+                      ? Math.abs(getChangeCalculatorTotal() - parseFloat(amount || '0')) >= 0.01
+                      : Math.abs(getDenominationsTotal() - parseFloat(amount || '0')) >= 0.01
+                  ))}
                   className={cn(
                     "w-full h-14 text-white rounded-2xl font-black text-lg shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 mt-4",
                     type === 'expense' ? "bg-red-500 hover:bg-red-600 shadow-red-500/20" : "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20"

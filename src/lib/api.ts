@@ -403,6 +403,8 @@ export const transactionsApi = {
     amount: number;
     description?: string;
     date: string;
+    fromDenominations?: Record<string, number>;
+    toDenominations?: Record<string, number>;
   }) =>
     request<{ fromTx: Transaction; toTx: Transaction }>('/transactions/transfer', {
       method: 'POST',

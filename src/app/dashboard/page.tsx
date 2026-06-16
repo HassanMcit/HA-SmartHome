@@ -1240,7 +1240,7 @@ export default function DashboardPage() {
 
                 <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
                   <Label className="text-xs font-bold text-slate-400 block mb-3">{lang === 'ar' ? 'توزيع الفئات النقدية (إجباري)' : 'Cash Denominations (Required)'}</Label>
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="grid grid-cols-1 gap-2 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
                     {EGYPTIAN_DENOMINATIONS.map(({ value: denom, ar, en }) => (
                       <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -1593,7 +1593,7 @@ export default function DashboardPage() {
 
                 <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
                   <Label className="text-xs font-bold text-slate-400 block mb-3">{lang === 'ar' ? 'توزيع الفئات النقدية (إجباري)' : 'Cash Denominations (Required)'}</Label>
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="grid grid-cols-1 gap-2 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
                     {EGYPTIAN_DENOMINATIONS.map(({ value: denom, ar, en }) => (
                       <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
