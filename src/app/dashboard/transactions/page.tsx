@@ -714,11 +714,11 @@ export default function TransactionsPage() {
                 <ArrowLeftRight className="w-5 h-5 ml-2" />
                 {lang === 'ar' ? 'تحويل مالي' : 'Transfer'}
               </DialogTrigger>
-              <DialogContent className="rounded-[24px] sm:rounded-[32px] p-0 outline-none sm:max-w-[480px] max-h-[90vh] flex flex-col overflow-hidden" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
+              <DialogContent className="rounded-[24px] sm:rounded-[32px] p-0 outline-none sm:max-w-[480px] max-h-[82dvh] flex flex-col overflow-hidden" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
                 <DialogHeader className="text-right p-5 sm:p-8 pb-0">
                   <DialogTitle className="text-2xl font-black mb-2" style={{ color: 'var(--foreground)' }}>{lang === 'ar' ? 'تحويل مالي بين الحسابات' : 'Transfer Between Accounts'}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleTransferSubmit} className="space-y-6 overflow-y-auto custom-scrollbar px-5 sm:px-8 pb-5 sm:pb-8 pt-2">
+                <form onSubmit={handleTransferSubmit} className="space-y-4 overflow-y-auto custom-scrollbar px-5 sm:px-8 pb-8 sm:pb-8 pt-2">
                   <div className="space-y-2 text-right">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'من الحساب' : 'From Account'}</label>
                     <Select value={fromAccountId} onValueChange={(val) => setFromAccountId(val || '')}>
@@ -1050,7 +1050,7 @@ export default function TransactionsPage() {
                 <Plus className="w-5 h-5 ml-2" />
                 إضافة معاملة
               </DialogTrigger>
-            <DialogContent className="rounded-[24px] sm:rounded-[32px] p-0 outline-none sm:max-w-[480px] max-h-[90vh] flex flex-col overflow-hidden" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
+            <DialogContent className="rounded-[24px] sm:rounded-[32px] p-0 outline-none sm:max-w-[480px] max-h-[82dvh] flex flex-col overflow-hidden" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
               <DialogHeader className="text-right p-5 sm:p-8 pb-3">
                 <div className="flex items-start justify-between">
                   <DialogTitle className="text-2xl font-black" style={{ color: 'var(--foreground)' }}>{lang === 'ar' ? 'إضافة معاملة جديدة' : 'Add New Transaction'}</DialogTitle>
@@ -1128,7 +1128,7 @@ export default function TransactionsPage() {
                   </div>
                 </div>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-5 overflow-y-auto custom-scrollbar px-5 sm:px-8 pb-5 sm:pb-8 pt-2">
+              <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto custom-scrollbar px-5 sm:px-8 pb-8 sm:pb-8 pt-2">
                 {isAdmin && (
                   <div className="space-y-2 text-right">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'المستخدم المستهدف' : 'Target User'}</label>
@@ -1749,11 +1749,11 @@ export default function TransactionsPage() {
 
       {/* Edit Transaction Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none sm:max-w-[480px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
+        <DialogContent className="rounded-[24px] sm:rounded-[32px] px-5 pt-5 pb-8 sm:p-8 outline-none sm:max-w-[480px] max-h-[82dvh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }}>
           <DialogHeader className="text-right">
             <DialogTitle className="text-2xl font-black mb-6" style={{ color: 'var(--foreground)' }}>تعديل المعاملة</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleEditSubmit} className="space-y-6">
+          <form onSubmit={handleEditSubmit} className="space-y-4">
             {isAdmin && (
               <div className="space-y-2 text-right">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">المستخدم المستهدف</label>
