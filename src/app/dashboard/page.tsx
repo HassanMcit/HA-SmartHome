@@ -49,14 +49,14 @@ import { useRouter } from 'next/navigation';
 
 
 const EGYPTIAN_DENOMINATIONS = [
-  { value: '200', ar: 'ميتين جنيه', en: '200 EGP' },
-  { value: '100', ar: 'مية جنيه', en: '100 EGP' },
-  { value: '50', ar: 'خمسين جنيه', en: '50 EGP' },
-  { value: '20', ar: 'عشرين جنيه', en: '20 EGP' },
-  { value: '10', ar: 'عشرة جنيه', en: '10 EGP' },
-  { value: '5', ar: 'خمسة جنيه', en: '5 EGP' },
-  { value: '1', ar: 'جنيه', en: '1 EGP' },
-  { value: '0.5', ar: 'نص جنيه', en: '50 PT' },
+  { value: '200', ar: '٢٠٠ ج.م', en: '200 EGP' },
+  { value: '100', ar: '١٠٠ ج.م', en: '100 EGP' },
+  { value: '50', ar: '٥٠ ج.م', en: '50 EGP' },
+  { value: '20', ar: '٢٠ ج.م', en: '20 EGP' },
+  { value: '10', ar: '١٠ ج.م', en: '10 EGP' },
+  { value: '5', ar: '٥ ج.م', en: '5 EGP' },
+  { value: '1', ar: '١ ج.م', en: '1 EGP' },
+  { value: '0.5', ar: '٠.٥ ج.م', en: '0.5 EGP' },
 ];
 
 
@@ -844,7 +844,7 @@ export default function DashboardPage() {
 
       {/* --- Onboarding Modal Dialog --- */}
       <Dialog open={showOnboarding} onOpenChange={() => {}}>
-        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[500px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
+        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[500px] max-h-[82dvh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
           <DialogHeader className="text-right">
             <DialogTitle className="text-2xl font-black mb-2 flex items-center gap-2" style={{ color: 'var(--foreground)' }}>
               {lang === 'ar' ? '💳 تهيئة حساباتك المالية' : '💳 Set Up Financial Accounts'}
@@ -1005,14 +1005,14 @@ export default function DashboardPage() {
 
       {/* --- Add Account Dialog (for existing users) --- */}
       <Dialog open={showAddAccount} onOpenChange={setShowAddAccount}>
-        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[460px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
+        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[460px] max-h-[82dvh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
           <DialogHeader className="text-right">
             <DialogTitle className="text-2xl font-black mb-4" style={{ color: 'var(--foreground)' }}>
               {lang === 'ar' ? 'إضافة حساب مالي جديد' : 'Add New Account'}
             </DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleAddAccountSubmit} className="space-y-6">
+          <form onSubmit={handleAddAccountSubmit} className="space-y-4">
             <div className="flex gap-2 p-1.5 bg-black/20 rounded-2xl border border-white/5" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
               {(['bank', 'cash', 'wallet'] as const).map(t => (
                 <button
@@ -1240,21 +1240,21 @@ export default function DashboardPage() {
 
                 <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
                   <Label className="text-xs font-bold text-slate-400 block mb-3">{lang === 'ar' ? 'توزيع الفئات النقدية (إجباري)' : 'Cash Denominations (Required)'}</Label>
-                  <div className="grid grid-cols-1 gap-2 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
+                  <div className="grid grid-cols-1 gap-2 max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
                     {EGYPTIAN_DENOMINATIONS.map(({ value: denom, ar, en }) => (
-                      <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div key={denom} className="flex items-center justify-between gap-2 bg-white/5 px-3 py-2 rounded-xl border border-white/5">
+                        <div className="flex items-center gap-2.5 flex-1 min-w-0">
                           {/* Mini Banknote Card */}
-                          <div className="shrink-0 w-24 h-14 rounded-xl border border-white/10 relative overflow-hidden shadow-md shadow-black/45 transition-all select-none bg-slate-900/10">
+                          <div className="shrink-0 w-16 h-10 sm:w-20 sm:h-12 rounded-xl border border-white/10 relative overflow-hidden shadow bg-slate-900/10">
                             <img
                               src={`/banknotes/egp_${denom}.png`}
                               alt={`${denom} EGP`}
                               className="w-full h-full object-cover rounded-xl"
                             />
                           </div>
-                          <span className="text-xs font-semibold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
+                          <span className="text-[11px] sm:text-xs font-semibold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <span className="text-[10px] text-slate-500 font-bold">{lang === 'ar' ? 'عدد' : 'qty'}</span>
                           <Input
                             type="number"
@@ -1262,7 +1262,7 @@ export default function DashboardPage() {
                             placeholder="0"
                             value={newAccDenominations[denom] || ''}
                             onChange={e => handleNewDenominationChange(denom, e.target.value)}
-                            className="h-9 w-20 text-center text-sm font-bold"
+                            className="h-8 w-14 text-center text-xs sm:text-sm font-bold"
                             style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                           />
                         </div>
@@ -1292,7 +1292,7 @@ export default function DashboardPage() {
 
       {/* --- Detail Log Modal of transactions for selected account --- */}
       <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
-        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[550px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
+        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[550px] max-h-[82dvh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
           {selectedAccount && (
             <>
               <DialogHeader className="text-right">
@@ -1472,14 +1472,14 @@ export default function DashboardPage() {
 
       {/* ─── Edit Account Dialog ─── */}
       <Dialog open={editDialog.isOpen} onOpenChange={(open) => setEditDialog(prev => ({ ...prev, isOpen: open }))}>
-        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[460px] max-h-[90vh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
+        <DialogContent className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 outline-none max-w-[460px] max-h-[82dvh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
           <DialogHeader className="text-right">
             <DialogTitle className="text-2xl font-black mb-4" style={{ color: 'var(--foreground)' }}>
               {lang === 'ar' ? 'تعديل الحساب المالي ✏️' : 'Edit Financial Account ✏️'}
             </DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleEditAccountSubmit} className="space-y-6">
+          <form onSubmit={handleEditAccountSubmit} className="space-y-4">
             {editDialog.account?.type === 'bank' && (
               <>
                 <div className="space-y-2 text-right">
@@ -1593,21 +1593,21 @@ export default function DashboardPage() {
 
                 <div className="space-y-3 border border-white/5 bg-black/10 p-4 rounded-2xl">
                   <Label className="text-xs font-bold text-slate-400 block mb-3">{lang === 'ar' ? 'توزيع الفئات النقدية (إجباري)' : 'Cash Denominations (Required)'}</Label>
-                  <div className="grid grid-cols-1 gap-2 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
+                  <div className="grid grid-cols-1 gap-2 max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
                     {EGYPTIAN_DENOMINATIONS.map(({ value: denom, ar, en }) => (
-                      <div key={denom} className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div key={denom} className="flex items-center justify-between gap-2 bg-white/5 px-3 py-2 rounded-xl border border-white/5">
+                        <div className="flex items-center gap-2.5 flex-1 min-w-0">
                           {/* Mini Banknote Card */}
-                          <div className="shrink-0 w-24 h-14 rounded-xl border border-white/10 relative overflow-hidden shadow-md shadow-black/45 transition-all select-none bg-slate-900/10">
+                          <div className="shrink-0 w-16 h-10 sm:w-20 sm:h-12 rounded-xl border border-white/10 relative overflow-hidden shadow bg-slate-900/10">
                             <img
                               src={`/banknotes/egp_${denom}.png`}
                               alt={`${denom} EGP`}
                               className="w-full h-full object-cover rounded-xl"
                             />
                           </div>
-                          <span className="text-xs font-semibold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
+                          <span className="text-[11px] sm:text-xs font-semibold text-slate-300 truncate">{lang === 'ar' ? ar : en}</span>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <span className="text-[10px] text-slate-500 font-bold">{lang === 'ar' ? 'عدد' : 'qty'}</span>
                           <Input
                             type="number"
@@ -1615,7 +1615,7 @@ export default function DashboardPage() {
                             placeholder="0"
                             value={editDenominations[denom] || ''}
                             onChange={e => handleDenominationChange(denom, e.target.value)}
-                            className="h-9 w-20 text-center text-sm font-bold"
+                            className="h-8 w-14 text-center text-xs sm:text-sm font-bold"
                             style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                           />
                         </div>
