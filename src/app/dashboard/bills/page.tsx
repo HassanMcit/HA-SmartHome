@@ -51,6 +51,7 @@ export default function BillsPage() {
   const [selectedAccountId, setSelectedAccountId] = useState<string>('none');
   const [paymentMethod, setPaymentMethod] = useState<'bank' | 'transfer' | 'cash' | 'wallet' | 'none'>('none');
   const [transferTargetAccountId, setTransferTargetAccountId] = useState<string>('');
+  const [transferFee, setTransferFee] = useState<string>('');
 
   const fetchUsers = async () => {
     if (!isAdmin) return;
@@ -171,6 +172,7 @@ export default function BillsPage() {
       setSelectedAccountId('none');
       setPaymentMethod('none');
       setTransferTargetAccountId('');
+      setTransferFee('');
     }
   };
 
@@ -179,6 +181,7 @@ export default function BillsPage() {
 
     let fromAccId: string | undefined = undefined;
     let toAccId: string | undefined = undefined;
+    let parsedFee: number | undefined = undefined;
 
     if (paymentMethod === 'transfer') {
       if (selectedAccountId === 'none' || !selectedAccountId || !transferTargetAccountId) {
@@ -191,11 +194,15 @@ export default function BillsPage() {
       }
       fromAccId = selectedAccountId;
       toAccId = transferTargetAccountId;
+      parsedFee = parseFloat(transferFee) || 0;
 
-      // Check balance
+      // Check balance including fee
+      const totalDeduct = payDialog.billAmount + parsedFee;
       const sourceAcc = accounts.find(a => a.id === selectedAccountId);
-      if (sourceAcc && sourceAcc.balance < payDialog.billAmount) {
-        toast.error(lang === 'ar' ? 'الرصيد في الحساب المرسل غير كافٍ لإتمام التحويل' : 'Insufficient balance in source account for transfer');
+      if (sourceAcc && sourceAcc.balance < totalDeduct) {
+        toast.error(lang === 'ar' 
+          ? `الرصيد في الحساب المرسل غير كافٍ لإتمام التحويل ومصاريفه (المطلوب: ${totalDeduct} ج.م)` 
+          : `Insufficient balance in source account for transfer and fee (Needed: ${totalDeduct} EGP)`);
         return;
       }
     } else if (paymentMethod !== 'none') {
@@ -214,7 +221,7 @@ export default function BillsPage() {
 
     setTogglingId(payDialog.billId);
     try {
-      await billsApi.toggle(payDialog.billId, fromAccId, toAccId);
+      await billsApi.toggle(payDialog.billId, fromAccId, toAccId, parsedFee);
       toast.success(lang === 'ar' ? 'تم سداد الفاتورة بنجاح' : 'Bill paid successfully');
       setPayDialog({ isOpen: false, billId: '', billAmount: 0, billName: '' });
       fetchBills();
@@ -785,6 +792,21 @@ export default function BillsPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                    {lang === 'ar' ? 'مصاريف التحويل (ج.م) (اختياري)' : 'Transfer Fee (EGP) (Optional)'}
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="0.00"
+                    value={transferFee}
+                    onChange={e => setTransferFee(e.target.value)}
+                    dir="ltr"
+                    className="bills-input h-11 text-center font-bold"
+                    style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)', borderRadius: '12px' }}
+                  />
                 </div>
               </div>
             )}

@@ -475,10 +475,10 @@ export const billsApi = {
       body: JSON.stringify(payload),
     }),
 
-  toggle: (id: string, accountId?: string, transferToAccountId?: string) =>
+  toggle: (id: string, accountId?: string, transferToAccountId?: string, transferFee?: number) =>
     request<Bill>(`/bills/${id}/toggle`, {
       method: 'PUT',
-      body: (accountId || transferToAccountId) ? JSON.stringify({ accountId, transferToAccountId }) : undefined,
+      body: (accountId || transferToAccountId) ? JSON.stringify({ accountId, transferToAccountId, transferFee }) : undefined,
     }),
 
   update: (
