@@ -49,6 +49,8 @@ export default function BillsPage() {
     billName: '',
   });
   const [selectedAccountId, setSelectedAccountId] = useState<string>('none');
+  const [paymentMethod, setPaymentMethod] = useState<'bank' | 'transfer' | 'cash' | 'wallet' | 'none'>('none');
+  const [transferTargetAccountId, setTransferTargetAccountId] = useState<string>('');
 
   const fetchUsers = async () => {
     if (!isAdmin) return;
@@ -167,20 +169,59 @@ export default function BillsPage() {
         billName: name
       });
       setSelectedAccountId('none');
+      setPaymentMethod('none');
+      setTransferTargetAccountId('');
     }
   };
 
   const confirmPayment = async () => {
     if (!payDialog.billId || togglingId) return;
+
+    let fromAccId: string | undefined = undefined;
+    let toAccId: string | undefined = undefined;
+
+    if (paymentMethod === 'transfer') {
+      if (selectedAccountId === 'none' || !selectedAccountId || !transferTargetAccountId) {
+        toast.error(lang === 'ar' ? 'يرجى اختيار الحساب المصدر والمستقبل' : 'Please select both source and target accounts');
+        return;
+      }
+      if (selectedAccountId === transferTargetAccountId) {
+        toast.error(lang === 'ar' ? 'لا يمكن التحويل لنفس الحساب المالي' : 'Cannot transfer to the same account');
+        return;
+      }
+      fromAccId = selectedAccountId;
+      toAccId = transferTargetAccountId;
+
+      // Check balance
+      const sourceAcc = accounts.find(a => a.id === selectedAccountId);
+      if (sourceAcc && sourceAcc.balance < payDialog.billAmount) {
+        toast.error(lang === 'ar' ? 'الرصيد في الحساب المرسل غير كافٍ لإتمام التحويل' : 'Insufficient balance in source account for transfer');
+        return;
+      }
+    } else if (paymentMethod !== 'none') {
+      if (selectedAccountId === 'none' || !selectedAccountId) {
+        toast.error(lang === 'ar' ? 'يرجى اختيار الحساب المالي المخصص للخصم' : 'Please select an account for deduction');
+        return;
+      }
+      fromAccId = selectedAccountId;
+
+      // Check balance warning
+      const sourceAcc = accounts.find(a => a.id === selectedAccountId);
+      if (sourceAcc && sourceAcc.balance < payDialog.billAmount) {
+        toast.warning(lang === 'ar' ? 'تنبيه: الرصيد الحالي للحساب أقل من قيمة الفاتورة' : 'Warning: Account balance is lower than the bill amount');
+      }
+    }
+
     setTogglingId(payDialog.billId);
     try {
-      await billsApi.toggle(payDialog.billId, selectedAccountId === 'none' ? undefined : selectedAccountId);
+      await billsApi.toggle(payDialog.billId, fromAccId, toAccId);
       toast.success(lang === 'ar' ? 'تم سداد الفاتورة بنجاح' : 'Bill paid successfully');
       setPayDialog({ isOpen: false, billId: '', billAmount: 0, billName: '' });
       fetchBills();
       fetchAccounts();
-    } catch {
-      toast.error(lang === 'ar' ? 'حدث خطأ أثناء دفع الفاتورة' : 'Error while paying bill');
+    } catch (err: any) {
+      const errMsg = err?.message || (lang === 'ar' ? 'حدث خطأ أثناء دفع الفاتورة' : 'Error while paying bill');
+      toast.error(errMsg);
     } finally {
       setTogglingId(null);
     }
@@ -485,9 +526,9 @@ export default function BillsPage() {
 
       {/* Account Selection Dialog for Bill Payment */}
       <Dialog open={payDialog.isOpen} onOpenChange={(isOpen) => setPayDialog(prev => ({ ...prev, isOpen }))}>
-        <DialogContent className="border p-6 sm:max-w-[440px] rounded-[32px] outline-none text-right" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
-          <div className="text-right">
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-6">
+        <DialogContent className="border p-5 sm:p-6 max-w-[460px] rounded-[32px] outline-none text-right max-h-[85dvh] overflow-y-auto custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
+          <div className="text-right pb-4">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-5">
               <CheckCircle2 className="w-7 h-7" />
             </div>
             <DialogHeader className="text-right">
@@ -495,33 +536,258 @@ export default function BillsPage() {
             </DialogHeader>
             <p className="text-sm font-medium mt-3 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
               {lang === 'ar' ? 'أنت على وشك تحديد فاتورة' : 'You are about to mark'} <span className="text-amber-500 font-bold">"{payDialog.billName}"</span> {lang === 'ar' ? 'بقيمة' : 'worth'} <span className="font-bold" style={{ color: 'var(--foreground)' }}>{formatCurrency(payDialog.billAmount)}</span> {lang === 'ar' ? 'كمدفوعة.' : 'as paid.'}
-              <br />
-              {lang === 'ar' ? 'يرجى اختيار الحساب المالي الذي تم السداد منه لخصم القيمة وتسجيل معاملة مصروف:' : 'Please select the account to deduct from and record an expense:'}
             </p>
 
-            <div className="mt-5 space-y-2 text-right">
-              <label className="text-xs font-bold uppercase tracking-widest mr-1" style={{ color: 'var(--muted-foreground)' }}>{lang === 'ar' ? 'الحساب المالي' : 'Financial Account'}</label>
-              <Select value={selectedAccountId} onValueChange={(val) => setSelectedAccountId(val || '')}>
-                <SelectTrigger className="w-full border text-right h-12 rounded-xl px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
-                  <SelectValue placeholder={lang === 'ar' ? 'اختر حساب الخصم' : 'Select deduction account'} />
-                </SelectTrigger>
-                <SelectContent className="border rounded-xl max-h-[300px] custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
-                  <SelectItem value="none" className="focus:bg-white/10 rounded-lg" style={{ color: 'var(--muted-foreground)' }}>
-                    {lang === 'ar' ? 'بدون ربط (سجل عام بدون خصم)' : 'No link (general record, no deduction)'}
-                  </SelectItem>
-                  {accounts.map(acc => (
-                    <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
-                        <span className="font-bold text-sm">
-                          {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}){acc.accountNum ? ` - ${acc.accountNum}` : ''} - {formatCurrency(acc.balance)}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="mt-5 space-y-4">
+              <label className="text-xs font-bold uppercase tracking-widest text-slate-500 block">
+                {lang === 'ar' ? 'اختر طريقة الدفع 💳' : 'Select Payment Method 💳'}
+              </label>
+
+              {/* Grid of payment options */}
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* Option 1: Bank Account */}
+                <button
+                  type="button"
+                  onClick={() => { setPaymentMethod('bank'); setSelectedAccountId('none'); }}
+                  className={cn(
+                    "flex flex-col items-center justify-center p-3 rounded-2xl border transition-all gap-1.5 cursor-pointer",
+                    paymentMethod === 'bank'
+                      ? "bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-500/10"
+                      : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                  )}
+                >
+                  <span className="text-xl">🏛️</span>
+                  <span className="text-xs font-bold">{lang === 'ar' ? 'حساب بنكي' : 'Bank Account'}</span>
+                </button>
+
+                {/* Option 2: Transfer between accounts */}
+                <button
+                  type="button"
+                  onClick={() => { setPaymentMethod('transfer'); setSelectedAccountId('none'); setTransferTargetAccountId(''); }}
+                  className={cn(
+                    "flex flex-col items-center justify-center p-3 rounded-2xl border transition-all gap-1.5 cursor-pointer",
+                    paymentMethod === 'transfer'
+                      ? "bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-500/10"
+                      : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                  )}
+                >
+                  <span className="text-xl">🔄</span>
+                  <span className="text-xs font-bold">{lang === 'ar' ? 'تحويل بين الحسابات' : 'Transfer Funds'}</span>
+                </button>
+
+                {/* Option 3: Cash */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPaymentMethod('cash');
+                    const cashAccs = accounts.filter(a => a.type === 'cash');
+                    if (cashAccs.length === 1) {
+                      setSelectedAccountId(cashAccs[0].id);
+                    } else {
+                      setSelectedAccountId('none');
+                    }
+                  }}
+                  className={cn(
+                    "flex flex-col items-center justify-center p-3 rounded-2xl border transition-all gap-1.5 cursor-pointer",
+                    paymentMethod === 'cash'
+                      ? "bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-500/10"
+                      : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                  )}
+                >
+                  <span className="text-xl">💵</span>
+                  <span className="text-xs font-bold">{lang === 'ar' ? 'دفع كاش' : 'Pay Cash'}</span>
+                </button>
+
+                {/* Option 4: Smart Wallet */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPaymentMethod('wallet');
+                    const walletAccs = accounts.filter(a => a.type === 'wallet');
+                    if (walletAccs.length === 1) {
+                      setSelectedAccountId(walletAccs[0].id);
+                    } else {
+                      setSelectedAccountId('none');
+                    }
+                  }}
+                  className={cn(
+                    "flex flex-col items-center justify-center p-3 rounded-2xl border transition-all gap-1.5 cursor-pointer",
+                    paymentMethod === 'wallet'
+                      ? "bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-500/10"
+                      : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                  )}
+                >
+                  <span className="text-xl">📱</span>
+                  <span className="text-xs font-bold">{lang === 'ar' ? 'محفظة ذكية' : 'Smart Wallet'}</span>
+                </button>
+              </div>
+
+              {/* Option 5: No link */}
+              <button
+                type="button"
+                onClick={() => { setPaymentMethod('none'); setSelectedAccountId('none'); }}
+                className={cn(
+                  "w-full flex items-center justify-center py-2.5 px-4 rounded-xl border transition-all gap-2 cursor-pointer text-xs font-bold",
+                  paymentMethod === 'none'
+                    ? "bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-500/10"
+                    : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                )}
+              >
+                <span>📝</span>
+                <span>{lang === 'ar' ? 'سداد بدون ربط بحساب مالي' : 'Record without Account Link'}</span>
+              </button>
             </div>
+
+            {/* Dynamic sections based on payment method */}
+            {paymentMethod === 'bank' && (
+              <div className="mt-4 space-y-2 text-right animate-fade-in">
+                <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                  {lang === 'ar' ? 'اختر حساب الخصم البنكي' : 'Select Bank Account'}
+                </label>
+                <Select
+                  value={selectedAccountId === 'none' ? '' : selectedAccountId}
+                  onValueChange={(val) => setSelectedAccountId(val)}
+                >
+                  <SelectTrigger className="w-full border text-right h-12 rounded-xl px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
+                    <SelectValue placeholder={lang === 'ar' ? 'اختر الحساب البنكي...' : 'Choose bank account...'} />
+                  </SelectTrigger>
+                  <SelectContent className="border rounded-xl max-h-[200px] custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
+                    {accounts.filter(a => a.type === 'bank').map(acc => (
+                      <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                          <span className="font-bold text-sm">
+                            {getTranslatedBankName(acc.name, lang)} {acc.alias ? `(${acc.alias})` : ''} - {formatCurrency(acc.balance)}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                    {accounts.filter(a => a.type === 'bank').length === 0 && (
+                      <div className="p-3 text-center text-xs text-slate-500 font-bold">
+                        {lang === 'ar' ? 'لا توجد حسابات بنكية مضافة' : 'No bank accounts added'}
+                      </div>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {paymentMethod === 'cash' && (
+              <div className="mt-4 space-y-2 text-right animate-fade-in">
+                <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                  {lang === 'ar' ? 'اختر خزينة الكاش' : 'Select Cash Account'}
+                </label>
+                <Select
+                  value={selectedAccountId === 'none' ? '' : selectedAccountId}
+                  onValueChange={(val) => setSelectedAccountId(val)}
+                >
+                  <SelectTrigger className="w-full border text-right h-12 rounded-xl px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
+                    <SelectValue placeholder={lang === 'ar' ? 'اختر حساب الكاش...' : 'Choose cash account...'} />
+                  </SelectTrigger>
+                  <SelectContent className="border rounded-xl max-h-[200px] custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
+                    {accounts.filter(a => a.type === 'cash').map(acc => (
+                      <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">💵</span>
+                          <span className="font-bold text-sm">
+                            {acc.alias || (lang === 'ar' ? 'كاش' : 'Cash')} - {formatCurrency(acc.balance)}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {paymentMethod === 'wallet' && (
+              <div className="mt-4 space-y-2 text-right animate-fade-in">
+                <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                  {lang === 'ar' ? 'اختر المحفظة الإلكترونية' : 'Select Mobile Wallet'}
+                </label>
+                <Select
+                  value={selectedAccountId === 'none' ? '' : selectedAccountId}
+                  onValueChange={(val) => setSelectedAccountId(val)}
+                >
+                  <SelectTrigger className="w-full border text-right h-12 rounded-xl px-4" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
+                    <SelectValue placeholder={lang === 'ar' ? 'اختر المحفظة...' : 'Choose wallet...'} />
+                  </SelectTrigger>
+                  <SelectContent className="border rounded-xl max-h-[200px] custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
+                    {accounts.filter(a => a.type === 'wallet').map(acc => (
+                      <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                          <span className="font-bold text-sm">
+                            {getTranslatedBankName(acc.name, lang)} {acc.alias ? `(${acc.alias})` : ''} - {formatCurrency(acc.balance)}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                    {accounts.filter(a => a.type === 'wallet').length === 0 && (
+                      <div className="p-3 text-center text-xs text-slate-500 font-bold">
+                        {lang === 'ar' ? 'لا توجد محافظ إلكترونية مضافة' : 'No mobile wallets added'}
+                      </div>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {paymentMethod === 'transfer' && (
+              <div className="mt-4 space-y-3 text-right animate-fade-in">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                    {lang === 'ar' ? 'من حساب (المرسل)' : 'From Account (Source)'}
+                  </label>
+                  <Select
+                    value={selectedAccountId === 'none' ? '' : selectedAccountId}
+                    onValueChange={(val) => setSelectedAccountId(val)}
+                  >
+                    <SelectTrigger className="w-full border text-right h-11 rounded-xl px-4 text-xs font-semibold" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
+                      <SelectValue placeholder={lang === 'ar' ? 'اختر حساب المصدر...' : 'Choose source account...'} />
+                    </SelectTrigger>
+                    <SelectContent className="border rounded-xl max-h-[180px] custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
+                      {accounts.map(acc => (
+                        <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                            <span className="font-bold text-xs">
+                              {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}) - {formatCurrency(acc.balance)}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                    {lang === 'ar' ? 'إلى حساب (المستقبل)' : 'To Account (Destination)'}
+                  </label>
+                  <Select
+                    value={transferTargetAccountId}
+                    onValueChange={(val) => setTransferTargetAccountId(val)}
+                  >
+                    <SelectTrigger className="w-full border text-right h-11 rounded-xl px-4 text-xs font-semibold" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
+                      <SelectValue placeholder={lang === 'ar' ? 'اختر حساب المستقبل...' : 'Choose destination account...'} />
+                    </SelectTrigger>
+                    <SelectContent className="border rounded-xl max-h-[180px] custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
+                      {accounts.filter(acc => acc.id !== selectedAccountId).map(acc => (
+                        <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                            <span className="font-bold text-xs">
+                              {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}) - {formatCurrency(acc.balance)}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
 
             <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
               <Button 
