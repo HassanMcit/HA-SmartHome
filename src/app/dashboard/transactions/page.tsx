@@ -121,6 +121,13 @@ export default function TransactionsPage() {
   const [transferDate, setTransferDate] = useState(new Date().toISOString().split('T')[0]);
   const [transferSubmitting, setTransferSubmitting] = useState(false);
 
+  // External Transfer State
+  const [isExternal, setIsExternal] = useState(false);
+  const [externalBank, setExternalBank] = useState('');
+  const [externalRecipient, setExternalRecipient] = useState('');
+  const [externalAccountNum, setExternalAccountNum] = useState('');
+  const [externalPurpose, setExternalPurpose] = useState('');
+
   // Transfer denominations states
   const [transferFromDenominations, setTransferFromDenominations] = useState<Record<string, number>>({
     '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
@@ -609,16 +616,35 @@ export default function TransactionsPage() {
 
   const handleTransferSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fromAccountId || !toAccountId || !transferAmount) {
-      toast.error(lang === 'ar' ? 'يرجى تحديد الحسابات والمبلغ' : 'Please select accounts and amount');
-      return;
-    }
-    if (fromAccountId === toAccountId) {
-      toast.error(lang === 'ar' ? 'لا يمكن التحويل لنفس الحساب المالي' : 'Cannot transfer to the same account');
-      return;
-    }
     
+    if (isExternal) {
+      if (!fromAccountId || !transferAmount || !externalBank || !externalRecipient || !externalPurpose) {
+        toast.error(lang === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة للتحويل الخارجي' : 'Please fill all required fields for external transfer');
+        return;
+      }
+    } else {
+      if (!fromAccountId || !toAccountId || !transferAmount) {
+        toast.error(lang === 'ar' ? 'يرجى تحديد الحسابات والمبلغ' : 'Please select accounts and amount');
+        return;
+      }
+      if (fromAccountId === toAccountId) {
+        toast.error(lang === 'ar' ? 'لا يمكن التحويل لنفس الحساب المالي' : 'Cannot transfer to the same account');
+        return;
+      }
+    }
+
     const parsedAmount = parseFloat(transferAmount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      toast.error(lang === 'ar' ? 'المبلغ يجب أن يكون أكبر من الصفر' : 'Amount must be greater than zero');
+      return;
+    }
+
+    // Balance check
+    const sourceAcc = accounts.find(a => a.id === fromAccountId);
+    if (sourceAcc && sourceAcc.balance < parsedAmount) {
+      toast.error(lang === 'ar' ? 'الرصيد غير كافٍ لإتمام عملية التحويل' : 'Insufficient balance for the transfer');
+      return;
+    }
     
     if (isFromCash) {
       const fromTotal = getTransferFromDenominationsTotal();
@@ -632,7 +658,7 @@ export default function TransactionsPage() {
       }
     }
 
-    if (isToCash) {
+    if (!isExternal && isToCash) {
       const toTotal = getTransferToDenominationsTotal();
       if (Math.abs(toTotal - parsedAmount) > 0.01) {
         toast.error(
@@ -646,22 +672,48 @@ export default function TransactionsPage() {
 
     setTransferSubmitting(true);
     try {
-      await transactionsApi.transfer({
-        fromAccountId,
-        toAccountId,
-        amount: parsedAmount,
-        description: transferDesc,
-        date: transferDate,
-        fromDenominations: isFromCash ? transferFromDenominations : undefined,
-        toDenominations: isToCash ? transferToDenominations : undefined,
-      });
-      toast.success(lang === 'ar' ? 'تمت عملية التحويل المالي بنجاح! 💸' : 'Transfer completed successfully! 💸');
+      if (isExternal) {
+        // Construct description
+        const extDesc = `تحويل خارجي إلى: ${externalRecipient} (${externalBank})` + 
+                        (externalAccountNum ? ` - رقم الحساب: ${externalAccountNum}` : '') + 
+                        ` - الغرض: ${externalPurpose}` + 
+                        (transferDesc ? ` | الوصف: ${transferDesc}` : '');
+        
+        // Create expense transaction
+        await transactionsApi.create({
+          type: 'expense',
+          amount: parsedAmount,
+          category: 'other', // default category
+          description: extDesc,
+          date: transferDate,
+          accountId: fromAccountId,
+          denominations: isFromCash ? transferFromDenominations : undefined
+        });
+        toast.success(lang === 'ar' ? 'تمت عملية التحويل الخارجي بنجاح! 💸' : 'External transfer completed successfully! 💸');
+      } else {
+        await transactionsApi.transfer({
+          fromAccountId,
+          toAccountId,
+          amount: parsedAmount,
+          description: transferDesc,
+          date: transferDate,
+          fromDenominations: isFromCash ? transferFromDenominations : undefined,
+          toDenominations: isToCash ? transferToDenominations : undefined,
+        });
+        toast.success(lang === 'ar' ? 'تمت عملية التحويل المالي بنجاح! 💸' : 'Transfer completed successfully! 💸');
+      }
+      
       setTransferOpen(false);
       setFromAccountId('');
       setToAccountId('');
       setTransferAmount('');
       setTransferDesc('');
       setTransferDate(new Date().toISOString().split('T')[0]);
+      setExternalBank('');
+      setExternalRecipient('');
+      setExternalAccountNum('');
+      setExternalPurpose('');
+      setIsExternal(false);
       setTransferFromDenominations({
         '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '1': 0, '0.5': 0
       });
@@ -719,6 +771,34 @@ export default function TransactionsPage() {
                   <DialogTitle className="text-2xl font-black mb-2" style={{ color: 'var(--foreground)' }}>{lang === 'ar' ? 'تحويل مالي بين الحسابات' : 'Transfer Between Accounts'}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleTransferSubmit} className="space-y-4 overflow-y-auto custom-scrollbar px-5 sm:px-8 pb-8 sm:pb-8 pt-2">
+                  {/* Internal vs. External Transfer Switcher */}
+                  <div className="flex gap-2 p-1 bg-black/20 rounded-xl border border-white/5 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsExternal(false)}
+                      className={cn(
+                        "flex-1 py-2 rounded-lg font-bold text-xs transition-all cursor-pointer",
+                        !isExternal 
+                          ? "bg-indigo-600 text-white shadow" 
+                          : "text-slate-400 hover:text-white"
+                      )}
+                    >
+                      {lang === 'ar' ? 'بين حساباتي الشخصية' : 'Between My Accounts'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsExternal(true)}
+                      className={cn(
+                        "flex-1 py-2 rounded-lg font-bold text-xs transition-all cursor-pointer",
+                        isExternal 
+                          ? "bg-indigo-600 text-white shadow" 
+                          : "text-slate-400 hover:text-white"
+                      )}
+                    >
+                      {lang === 'ar' ? 'إلى حساب خارجي 📤' : 'To External Account 📤'}
+                    </button>
+                  </div>
+
                   <div className="space-y-2 text-right">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'من الحساب' : 'From Account'}</label>
                     <Select value={fromAccountId} onValueChange={(val) => setFromAccountId(val || '')}>
@@ -740,26 +820,86 @@ export default function TransactionsPage() {
                     </Select>
                   </div>
 
-                  <div className="space-y-2 text-right">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'إلى الحساب' : 'To Account'}</label>
-                    <Select value={toAccountId} onValueChange={(val) => setToAccountId(val || '')}>
-                      <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
-                        <SelectValue placeholder={lang === 'ar' ? 'اختر الحساب المستهدف' : 'Select target account'} />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
-                        {accounts.map(acc => (
-                          <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
-                            <div className="flex items-center gap-2">
-                              <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
-                              <span>
-                                {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}){acc.accountNum ? ` - ${acc.accountNum}` : ''} - {formatCurrency(acc.balance)}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {!isExternal && (
+                    <div className="space-y-2 text-right animate-fade-in">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'إلى الحساب' : 'To Account'}</label>
+                      <Select value={toAccountId} onValueChange={(val) => setToAccountId(val || '')}>
+                        <SelectTrigger className="w-full bg-white/5 border-white/10 text-right h-12 rounded-xl px-4" dir="rtl" style={{ color: 'var(--foreground)' }}>
+                          <SelectValue placeholder={lang === 'ar' ? 'اختر الحساب المستهدف' : 'Select target account'} />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border" style={{ background: 'var(--card)', color: 'var(--card-foreground)', borderColor: 'var(--border)' }} dir="rtl">
+                          {accounts.filter(a => a.id !== fromAccountId).map(acc => (
+                            <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                              <div className="flex items-center gap-2">
+                                <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                                <span>
+                                  {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}){acc.accountNum ? ` - ${acc.accountNum}` : ''} - {formatCurrency(acc.balance)}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {isExternal && (
+                    <div className="space-y-4 animate-fade-in">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2 text-right">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'اسم البنك / المحفظة' : 'Bank/Wallet Name'}</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder={lang === 'ar' ? 'مثال: البنك الأهلي، فودافون كاش' : 'e.g. CIB, Vodafone Cash'}
+                            value={externalBank}
+                            onChange={e => setExternalBank(e.target.value)}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                            style={{ color: 'var(--foreground)' }}
+                          />
+                        </div>
+                        <div className="space-y-2 text-right">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'اسم المحول إليه' : 'Recipient Name'}</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder={lang === 'ar' ? 'مثال: محمد أحمد...' : 'e.g. John Doe...'}
+                            value={externalRecipient}
+                            onChange={e => setExternalRecipient(e.target.value)}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                            style={{ color: 'var(--foreground)' }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2 text-right">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'رقم الحساب / الهاتف (اختياري)' : 'Account/Phone No (Optional)'}</label>
+                          <input
+                            type="text"
+                            placeholder="EG00..."
+                            value={externalAccountNum}
+                            onChange={e => setExternalAccountNum(e.target.value)}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-sm font-semibold focus:outline-none focus:border-indigo-500 text-left"
+                            style={{ color: 'var(--foreground)' }}
+                            dir="ltr"
+                          />
+                        </div>
+                        <div className="space-y-2 text-right">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">{lang === 'ar' ? 'الغرض من التحويل' : 'Purpose of Transfer'}</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder={lang === 'ar' ? 'مثال: إيجار، سداد دين، عائلي' : 'e.g. Rent, Debt settlement, Family'}
+                            value={externalPurpose}
+                            onChange={e => setExternalPurpose(e.target.value)}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                            style={{ color: 'var(--foreground)' }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2 text-right">
@@ -1025,12 +1165,12 @@ export default function TransactionsPage() {
                     disabled={
                       transferSubmitting || 
                       !fromAccountId || 
-                      !toAccountId || 
                       !transferAmount || 
+                      (isExternal ? (!externalBank || !externalRecipient || !externalPurpose) : (!toAccountId)) ||
                       (isFromCash && Math.abs(getTransferFromDenominationsTotal() - parseFloat(transferAmount || '0')) >= 0.01) ||
-                      (isToCash && Math.abs(getTransferToDenominationsTotal() - parseFloat(transferAmount || '0')) >= 0.01)
+                      (!isExternal && isToCash && Math.abs(getTransferToDenominationsTotal() - parseFloat(transferAmount || '0')) >= 0.01)
                     }
-                    className="w-full h-14 bg-amber-500 hover:bg-amber-600 text-black rounded-2xl font-black text-lg shadow-lg shadow-amber-500/20 active:scale-[0.98] transition-all disabled:opacity-50 mt-4"
+                    className="w-full h-14 bg-amber-500 hover:bg-amber-600 text-black rounded-2xl font-black text-lg shadow-lg shadow-amber-500/20 active:scale-[0.98] transition-all disabled:opacity-50 mt-4 cursor-pointer"
                   >
                     {transferSubmitting ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : (lang === 'ar' ? 'إجراء التحويل المالي' : 'Execute Transfer')}
                   </Button>
