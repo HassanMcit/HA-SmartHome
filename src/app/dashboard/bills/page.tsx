@@ -49,9 +49,13 @@ export default function BillsPage() {
     billName: '',
   });
   const [selectedAccountId, setSelectedAccountId] = useState<string>('none');
-  const [paymentMethod, setPaymentMethod] = useState<'bank' | 'transfer' | 'cash' | 'wallet' | 'none'>('none');
+  const [paymentMethod, setPaymentMethod] = useState<'bank' | 'transfer' | 'external_transfer' | 'cash' | 'wallet' | 'none'>('none');
   const [transferTargetAccountId, setTransferTargetAccountId] = useState<string>('');
   const [transferFee, setTransferFee] = useState<string>('');
+  const [extBankName, setExtBankName] = useState<string>('');
+  const [extRecipientName, setExtRecipientName] = useState<string>('');
+  const [extAccountNum, setExtAccountNum] = useState<string>('');
+  const [extPurpose, setExtPurpose] = useState<string>('');
 
   const fetchUsers = async () => {
     if (!isAdmin) return;
@@ -173,6 +177,10 @@ export default function BillsPage() {
       setPaymentMethod('none');
       setTransferTargetAccountId('');
       setTransferFee('');
+      setExtBankName('');
+      setExtRecipientName('');
+      setExtAccountNum('');
+      setExtPurpose(lang === 'ar' ? `دفع فاتورة: ${name}` : `Pay bill: ${name}`);
     }
   };
 
@@ -182,6 +190,7 @@ export default function BillsPage() {
     let fromAccId: string | undefined = undefined;
     let toAccId: string | undefined = undefined;
     let parsedFee: number | undefined = undefined;
+    let customDescription: string | undefined = undefined;
 
     if (paymentMethod === 'transfer') {
       if (selectedAccountId === 'none' || !selectedAccountId || !transferTargetAccountId) {
@@ -205,6 +214,23 @@ export default function BillsPage() {
           : `Insufficient balance in source account for transfer and fee (Needed: ${totalDeduct} EGP)`);
         return;
       }
+    } else if (paymentMethod === 'external_transfer') {
+      if (selectedAccountId === 'none' || !selectedAccountId || !extBankName || !extRecipientName || !extPurpose) {
+        toast.error(lang === 'ar' ? 'يرجى اختيار حساب الخصم وملء جميع البيانات المطلوبة' : 'Please select debit account and fill all required fields');
+        return;
+      }
+      fromAccId = selectedAccountId;
+
+      // Check balance
+      const sourceAcc = accounts.find(a => a.id === selectedAccountId);
+      if (sourceAcc && sourceAcc.balance < payDialog.billAmount) {
+        toast.error(lang === 'ar' ? 'الرصيد في حساب المرسل غير كافٍ لإتمام التحويل الخارجي' : 'Insufficient balance in source account for external transfer');
+        return;
+      }
+
+      customDescription = `تحويل خارجي إلى: ${extRecipientName} (${extBankName})` + 
+                          (extAccountNum ? ` - رقم الحساب: ${extAccountNum}` : '') + 
+                          ` - الغرض: ${extPurpose}`;
     } else if (paymentMethod !== 'none') {
       if (selectedAccountId === 'none' || !selectedAccountId) {
         toast.error(lang === 'ar' ? 'يرجى اختيار الحساب المالي المخصص للخصم' : 'Please select an account for deduction');
@@ -221,7 +247,7 @@ export default function BillsPage() {
 
     setTogglingId(payDialog.billId);
     try {
-      await billsApi.toggle(payDialog.billId, fromAccId, toAccId, parsedFee);
+      await billsApi.toggle(payDialog.billId, fromAccId, toAccId, parsedFee, customDescription);
       toast.success(lang === 'ar' ? 'تم سداد الفاتورة بنجاح' : 'Bill paid successfully');
       setPayDialog({ isOpen: false, billId: '', billAmount: 0, billName: '' });
       fetchBills();
@@ -551,7 +577,7 @@ export default function BillsPage() {
               </label>
 
               {/* Grid of payment options */}
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {/* Option 1: Bank Account */}
                 <button
                   type="button"
@@ -564,7 +590,7 @@ export default function BillsPage() {
                   )}
                 >
                   <span className="text-xl">🏛️</span>
-                  <span className="text-xs font-bold">{lang === 'ar' ? 'حساب بنكي' : 'Bank Account'}</span>
+                  <span className="text-[10px] font-bold">{lang === 'ar' ? 'حساب بنكي' : 'Bank Account'}</span>
                 </button>
 
                 {/* Option 2: Transfer between accounts */}
@@ -579,10 +605,25 @@ export default function BillsPage() {
                   )}
                 >
                   <span className="text-xl">🔄</span>
-                  <span className="text-xs font-bold">{lang === 'ar' ? 'تحويل بين الحسابات' : 'Transfer Funds'}</span>
+                  <span className="text-[10px] font-bold">{lang === 'ar' ? 'تحويل داخلي' : 'Internal Transfer'}</span>
                 </button>
 
-                {/* Option 3: Cash */}
+                {/* Option 3: External Transfer */}
+                <button
+                  type="button"
+                  onClick={() => { setPaymentMethod('external_transfer'); setSelectedAccountId('none'); }}
+                  className={cn(
+                    "flex flex-col items-center justify-center p-3 rounded-2xl border transition-all gap-1.5 cursor-pointer",
+                    paymentMethod === 'external_transfer'
+                      ? "bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-500/10"
+                      : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                  )}
+                >
+                  <span className="text-xl">📤</span>
+                  <span className="text-[10px] font-bold">{lang === 'ar' ? 'تحويل خارجي' : 'External Transfer'}</span>
+                </button>
+
+                {/* Option 4: Cash */}
                 <button
                   type="button"
                   onClick={() => {
@@ -602,10 +643,10 @@ export default function BillsPage() {
                   )}
                 >
                   <span className="text-xl">💵</span>
-                  <span className="text-xs font-bold">{lang === 'ar' ? 'دفع كاش' : 'Pay Cash'}</span>
+                  <span className="text-[10px] font-bold">{lang === 'ar' ? 'دفع كاش' : 'Pay Cash'}</span>
                 </button>
 
-                {/* Option 4: Smart Wallet */}
+                {/* Option 5: Smart Wallet */}
                 <button
                   type="button"
                   onClick={() => {
@@ -625,11 +666,11 @@ export default function BillsPage() {
                   )}
                 >
                   <span className="text-xl">📱</span>
-                  <span className="text-xs font-bold">{lang === 'ar' ? 'محفظة ذكية' : 'Smart Wallet'}</span>
+                  <span className="text-[10px] font-bold">{lang === 'ar' ? 'محفظة ذكية' : 'Smart Wallet'}</span>
                 </button>
               </div>
 
-              {/* Option 5: No link */}
+              {/* Option 6: No link */}
               <button
                 type="button"
                 onClick={() => { setPaymentMethod('none'); setSelectedAccountId('none'); }}
@@ -807,6 +848,100 @@ export default function BillsPage() {
                     className="bills-input h-11 text-center font-bold"
                     style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)', borderRadius: '12px' }}
                   />
+                </div>
+              </div>
+            )}
+
+            {paymentMethod === 'external_transfer' && (
+              <div className="mt-4 space-y-3 text-right animate-fade-in">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                    {lang === 'ar' ? 'من حساب (المرسل)' : 'From Account (Source)'}
+                  </label>
+                  <Select
+                    value={selectedAccountId === 'none' ? '' : selectedAccountId}
+                    onValueChange={(val) => setSelectedAccountId(val)}
+                  >
+                    <SelectTrigger className="w-full border text-right h-11 rounded-xl px-4 text-xs font-semibold" style={{ background: 'var(--secondary)', borderColor: 'var(--border)', color: 'var(--foreground)' }} dir="rtl">
+                      <SelectValue placeholder={lang === 'ar' ? 'اختر حساب المصدر...' : 'Choose source account...'} />
+                    </SelectTrigger>
+                    <SelectContent className="border rounded-xl max-h-[180px] custom-scrollbar" style={{ background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--card-foreground)' }} dir="rtl">
+                      {accounts.map(acc => (
+                        <SelectItem key={acc.id} value={acc.id} className="focus:bg-white/10 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <BankLogo name={acc.name} size="sm" className="w-4 h-4 rounded border-0" />
+                            <span className="font-bold text-xs">
+                              {getTranslatedBankName(acc.name, lang)} ({acc.alias || (acc.type === 'cash' ? (lang === 'ar' ? 'كاش' : 'Cash') : acc.type === 'wallet' ? (lang === 'ar' ? 'محفظة' : 'Wallet') : (lang === 'ar' ? 'بنك' : 'Bank'))}) - {formatCurrency(acc.balance)}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                      {lang === 'ar' ? 'اسم البنك / المحفظة' : 'Bank/Wallet Name'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={lang === 'ar' ? 'مثال: البنك الأهلي، فودافون' : 'e.g. CIB, Vodafone'}
+                      value={extBankName}
+                      onChange={e => setExtBankName(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl h-11 px-3 text-xs font-semibold focus:outline-none focus:border-indigo-500 bills-input"
+                      style={{ color: 'var(--foreground)' }}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                      {lang === 'ar' ? 'اسم المحول إليه' : 'Recipient Name'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={lang === 'ar' ? 'اسم المستلم...' : 'Recipient name...'}
+                      value={extRecipientName}
+                      onChange={e => setExtRecipientName(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl h-11 px-3 text-xs font-semibold focus:outline-none focus:border-indigo-500 bills-input"
+                      style={{ color: 'var(--foreground)' }}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                      {lang === 'ar' ? 'رقم الحساب / الهاتف (اختياري)' : 'Account/Phone No (Optional)'}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="EG00..."
+                      value={extAccountNum}
+                      onChange={e => setExtAccountNum(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl h-11 px-3 text-xs font-semibold focus:outline-none focus:border-indigo-500 bills-input text-left"
+                      style={{ color: 'var(--foreground)' }}
+                      dir="ltr"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                      {lang === 'ar' ? 'الغرض من التحويل' : 'Purpose'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={lang === 'ar' ? 'الغرض...' : 'Purpose...'}
+                      value={extPurpose}
+                      onChange={e => setExtPurpose(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl h-11 px-3 text-xs font-semibold focus:outline-none focus:border-indigo-500 bills-input"
+                      style={{ color: 'var(--foreground)' }}
+                    />
+                  </div>
                 </div>
               </div>
             )}
