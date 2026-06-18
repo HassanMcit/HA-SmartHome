@@ -38,7 +38,7 @@ async function request<T>(
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const res = await fetch(`${API_URL}${path}`, { cache: 'no-store', ...options, headers });
 
   let data: any;
   try {
