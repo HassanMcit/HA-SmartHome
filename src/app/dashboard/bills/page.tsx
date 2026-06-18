@@ -220,11 +220,15 @@ export default function BillsPage() {
         return;
       }
       fromAccId = selectedAccountId;
+      parsedFee = parseFloat(transferFee) || 0;
 
-      // Check balance
+      // Check balance including fee
+      const totalDeduct = payDialog.billAmount + parsedFee;
       const sourceAcc = accounts.find(a => a.id === selectedAccountId);
-      if (sourceAcc && sourceAcc.balance < payDialog.billAmount) {
-        toast.error(lang === 'ar' ? 'الرصيد في حساب المرسل غير كافٍ لإتمام التحويل الخارجي' : 'Insufficient balance in source account for external transfer');
+      if (sourceAcc && sourceAcc.balance < totalDeduct) {
+        toast.error(lang === 'ar' 
+          ? `الرصيد في الحساب المرسل غير كافٍ لإتمام التحويل ومصاريفه (المطلوب: ${totalDeduct} ج.م)` 
+          : `Insufficient balance in source account for transfer and fee (Needed: ${totalDeduct} EGP)`);
         return;
       }
 
@@ -940,6 +944,23 @@ export default function BillsPage() {
                       onChange={e => setExtPurpose(e.target.value)}
                       className="w-full bg-white/5 border border-white/10 rounded-xl h-11 px-3 text-xs font-semibold focus:outline-none focus:border-indigo-500 bills-input"
                       style={{ color: 'var(--foreground)' }}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black tracking-widest text-slate-500 mr-1 block">
+                      {lang === 'ar' ? 'مصاريف التحويل (ج.م) (اختياري)' : 'Transfer Fee (EGP) (Optional)'}
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="0.00"
+                      value={transferFee}
+                      onChange={e => setTransferFee(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl h-11 px-3 text-xs font-semibold focus:outline-none focus:border-indigo-500 bills-input text-center font-bold"
+                      style={{ color: 'var(--foreground)' }}
+                      dir="ltr"
                     />
                   </div>
                 </div>
