@@ -127,6 +127,7 @@ export default function TransactionsPage() {
   const [externalRecipient, setExternalRecipient] = useState('');
   const [externalAccountNum, setExternalAccountNum] = useState('');
   const [externalPurpose, setExternalPurpose] = useState('');
+  const [transferFee, setTransferFee] = useState('');
 
   // Transfer denominations states
   const [transferFromDenominations, setTransferFromDenominations] = useState<Record<string, number>>({
@@ -639,10 +640,15 @@ export default function TransactionsPage() {
       return;
     }
 
+    const parsedFee = isExternal ? (parseFloat(transferFee) || 0) : 0;
+    const totalDeduct = parsedAmount + parsedFee;
+
     // Balance check
     const sourceAcc = accounts.find(a => a.id === fromAccountId);
-    if (sourceAcc && sourceAcc.balance < parsedAmount) {
-      toast.error(lang === 'ar' ? 'الرصيد غير كافٍ لإتمام عملية التحويل' : 'Insufficient balance for the transfer');
+    if (sourceAcc && sourceAcc.balance < totalDeduct) {
+      toast.error(lang === 'ar' 
+        ? `الرصيد غير كافٍ لإتمام عملية التحويل ومصاريفه (المطلوب: ${totalDeduct} ج.م)` 
+        : `Insufficient balance for the transfer and fee (Needed: ${totalDeduct} EGP)`);
       return;
     }
     
@@ -689,6 +695,19 @@ export default function TransactionsPage() {
           accountId: fromAccountId,
           denominations: isFromCash ? transferFromDenominations : undefined
         });
+
+        // Create separate transaction for transfer fee if applicable
+        if (parsedFee > 0) {
+          await transactionsApi.create({
+            type: 'expense',
+            amount: parsedFee,
+            category: 'bank_fees',
+            description: `مصاريف تحويل خارجي إلى: ${externalRecipient}`,
+            date: transferDate,
+            accountId: fromAccountId
+          });
+        }
+
         toast.success(lang === 'ar' ? 'تمت عملية التحويل الخارجي بنجاح! 💸' : 'External transfer completed successfully! 💸');
       } else {
         await transactionsApi.transfer({
@@ -707,6 +726,7 @@ export default function TransactionsPage() {
       setFromAccountId('');
       setToAccountId('');
       setTransferAmount('');
+      setTransferFee('');
       setTransferDesc('');
       setTransferDate(new Date().toISOString().split('T')[0]);
       setExternalBank('');
@@ -895,6 +915,23 @@ export default function TransactionsPage() {
                             onChange={e => setExternalPurpose(e.target.value)}
                             className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-sm font-semibold focus:outline-none focus:border-indigo-500"
                             style={{ color: 'var(--foreground)' }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2 text-right">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">
+                            {lang === 'ar' ? 'مصاريف التحويل (ج.م) (اختياري)' : 'Transfer Fee (EGP) (Optional)'}
+                          </label>
+                          <input
+                            type="number"
+                            placeholder="0.00"
+                            value={transferFee}
+                            onChange={e => setTransferFee(e.target.value)}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-sm font-semibold focus:outline-none focus:border-indigo-500 text-center font-bold"
+                            style={{ color: 'var(--foreground)' }}
+                            dir="ltr"
                           />
                         </div>
                       </div>
