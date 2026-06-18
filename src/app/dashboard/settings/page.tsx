@@ -4,19 +4,23 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { authApi } from '@/lib/api';
+import { useRealAvatar } from '@/hooks/useRealAvatar';
 import { ShieldCheck, User as UserIcon, Settings, KeyRound, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { lang } = useLanguage();
   const [name, setName] = useState(user?.name || '');
-  const [avatar, setAvatar] = useState(user?.avatar || '');
+  // localAvatar holds newly picked image (base64 preview), empty = no change
+  const [localAvatar, setLocalAvatar] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
+  // Fetch real avatar from DB (handles RESET: sentinel from JWT)
+  const realAvatar = useRealAvatar(user?.avatar);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,7 +45,7 @@ export default function SettingsPage() {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-          setAvatar(compressedBase64);
+          setLocalAvatar(compressedBase64);
         };
         img.src = reader.result as string;
       };
@@ -57,7 +61,12 @@ export default function SettingsPage() {
     }
     setProfileLoading(true);
     try {
-      const updatedUser = await authApi.updateProfile({ name, avatar: avatar.startsWith('RESET:') ? '' : avatar });
+      // Send localAvatar (newly picked) if set, else don't change the avatar
+      const payload: { name: string; avatar?: string } = { name };
+      if (localAvatar) payload.avatar = localAvatar;
+      const updatedUser = await authApi.updateProfile(payload);
+      // Update the session with the new user data so it reflects immediately
+      await updateUser(updatedUser);
       toast.success(lang === 'ar' ? 'تم تحديث الملف الشخصي بنجاح' : 'Profile updated successfully');
       setTimeout(() => { window.location.reload(); }, 700);
     } catch (error) {
@@ -117,8 +126,10 @@ export default function SettingsPage() {
                 <label className="relative group cursor-pointer">
                   <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                   <div className="w-[80px] h-[80px] rounded-full overflow-hidden border-2 flex items-center justify-center relative" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
-                    {avatar && !avatar.startsWith('RESET:') ? (
-                      <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    {localAvatar ? (
+                      <img src={localAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : realAvatar ? (
+                      <img src={realAvatar} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-[28px] font-bold text-indigo-400">{name ? name.charAt(0) : user?.name?.charAt(0)}</span>
                     )}
