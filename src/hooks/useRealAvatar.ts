@@ -1,70 +1,90 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const AVATAR_KEY_PREFIX = 'user_avatar_';
+
+/**
+ * Get avatar from localStorage for a given user ID
+ */
+export function getStoredAvatar(userId: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return localStorage.getItem(`${AVATAR_KEY_PREFIX}${userId}`);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Save avatar to localStorage for a given user ID
+ */
+export function storeAvatar(userId: string, avatar: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(`${AVATAR_KEY_PREFIX}${userId}`, avatar);
+  } catch {
+    // localStorage might be full or unavailable
+  }
+}
+
+/**
+ * Remove avatar from localStorage for a given user ID
+ */
+export function clearStoredAvatar(userId: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(`${AVATAR_KEY_PREFIX}${userId}`);
+  } catch {
+    // ignore
+  }
+}
 
 /**
  * useRealAvatar – resolves the actual avatar for a user.
  *
- * The JWT session stores at most a small avatar URL.
- * When the avatar is a large base64 image, it is stored as 'RESET:' in the
- * JWT to prevent cookie overflow. This hook detects that sentinel value and
- * fetches the real avatar from the backend /auth/me endpoint instead,
- * using the accessToken directly from the session (works on mobile too).
+ * Strategy (in order of priority):
+ * 1. If localStorage has a saved avatar for this user → use it immediately (fastest)
+ * 2. If the session JWT has a direct avatar value (not RESET:) → use it
+ * 3. Otherwise → show nothing (initials fallback)
  *
- * @param sessionAvatar  The avatar value coming from useAuth() / useSession()
- * @returns              The resolved avatar string (base64 or URL), or undefined if none
+ * This approach works on mobile because it avoids JWT cookie size limits
+ * and does not rely on async API calls that may fail before the session loads.
+ *
+ * @param userId        The user's ID (to namespace the localStorage key)
+ * @param sessionAvatar The avatar value from useAuth() / useSession()
+ * @returns             The resolved avatar string, or undefined if none
  */
-export function useRealAvatar(sessionAvatar: string | null | undefined): string | undefined {
-  const { data: session, status } = useSession();
-  const [resolvedAvatar, setResolvedAvatar] = useState<string | undefined>(
-    sessionAvatar && !sessionAvatar.startsWith('RESET:') ? sessionAvatar : undefined
-  );
+export function useRealAvatar(userId: string | undefined, sessionAvatar: string | null | undefined): string | undefined {
+  const [resolvedAvatar, setResolvedAvatar] = useState<string | undefined>(() => {
+    // On first render, try localStorage immediately (synchronous, works on mobile)
+    if (!userId) return undefined;
+    const stored = getStoredAvatar(userId);
+    if (stored) return stored;
+    // Fall back to session avatar if not a sentinel
+    if (sessionAvatar && !sessionAvatar.startsWith('RESET:')) return sessionAvatar;
+    return undefined;
+  });
 
   useEffect(() => {
-    // If the session has a real (non-sentinel) avatar value, use it directly
+    if (!userId) return;
+
+    // Check localStorage first (always up to date after a save)
+    const stored = getStoredAvatar(userId);
+    if (stored) {
+      setResolvedAvatar(stored);
+      return;
+    }
+
+    // Fall back to session avatar
     if (sessionAvatar && !sessionAvatar.startsWith('RESET:')) {
       setResolvedAvatar(sessionAvatar);
-      return;
-    }
-
-    // Wait until the session is fully loaded before making the API call
-    if (status === 'loading') return;
-
-    // Get the access token directly from the session (reliable on mobile)
-    const accessToken = (session?.user as any)?.accessToken;
-    if (!accessToken) {
+      // Also cache it in localStorage for next time
+      storeAvatar(userId, sessionAvatar);
+    } else {
       setResolvedAvatar(undefined);
-      return;
     }
-
-    // Fetch the real avatar from the backend using the session token
-    let cancelled = false;
-    fetch(`${API_URL}/auth/me`, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-store',
-    })
-      .then((res) => res.ok ? res.json() : null)
-      .then((freshUser) => {
-        if (!cancelled) {
-          if (freshUser?.avatar && !freshUser.avatar.startsWith('RESET:')) {
-            setResolvedAvatar(freshUser.avatar);
-          } else {
-            setResolvedAvatar(undefined);
-          }
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setResolvedAvatar(undefined);
-      });
-
-    return () => { cancelled = true; };
-  }, [sessionAvatar, status, session]);
+  }, [userId, sessionAvatar]);
 
   return resolvedAvatar;
 }

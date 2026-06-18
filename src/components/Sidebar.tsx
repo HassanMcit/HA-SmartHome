@@ -32,7 +32,7 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { t, lang, toggleLang } = useLanguage();
-  const realAvatar = useRealAvatar(user?.avatar);
+  const realAvatar = useRealAvatar(user?.id, user?.avatar);
 
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, labelKey: 'nav_home' as const },

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { authApi } from '@/lib/api';
-import { useRealAvatar } from '@/hooks/useRealAvatar';
+import { useRealAvatar, storeAvatar } from '@/hooks/useRealAvatar';
 import { ShieldCheck, User as UserIcon, Settings, KeyRound, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -20,7 +20,7 @@ export default function SettingsPage() {
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   // Fetch real avatar from DB (handles RESET: sentinel from JWT)
-  const realAvatar = useRealAvatar(user?.avatar);
+  const realAvatar = useRealAvatar(user?.id, user?.avatar);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,6 +65,10 @@ export default function SettingsPage() {
       const payload: { name: string; avatar?: string } = { name };
       if (localAvatar) payload.avatar = localAvatar;
       const updatedUser = await authApi.updateProfile(payload);
+      // Save avatar to localStorage so it shows immediately on all devices
+      if (localAvatar && user?.id) {
+        storeAvatar(user.id, localAvatar);
+      }
       // Update the session with the new user data so it reflects immediately
       await updateUser(updatedUser);
       toast.success(lang === 'ar' ? 'تم تحديث الملف الشخصي بنجاح' : 'Profile updated successfully');
