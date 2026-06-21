@@ -589,6 +589,8 @@ export const accountsApi = {
     }),
   delete: (id: string) =>
     request(`/accounts/${id}`, { method: 'DELETE' }),
+  recalcDenominations: (id: string) =>
+    request<Account>(`/accounts/${id}/recalc-denominations`, { method: 'POST' }),
 };
 
 // ─── Admin API ───────────────────────────────────────────────────────────────

@@ -31,7 +31,8 @@ import {
   Calendar,
   Clock,
   Trash2,
-  Pencil
+  Pencil,
+  RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -463,6 +464,17 @@ export default function DashboardPage() {
       toast.error(err.message || (lang === 'ar' ? 'حدث خطأ أثناء تعديل الحساب' : 'Error updating account'));
     } finally {
       setEditSubmitting(false);
+    }
+  };
+
+  // Recalculate cash denominations from actual balance (fix stale counts)
+  const handleRecalcDenominations = async (accountId: string) => {
+    try {
+      const updated = await accountsApi.recalcDenominations(accountId);
+      toast.success(lang === 'ar' ? 'تم إعادة حساب الأوراق النقدية بناءً على الرصيد الفعلي ✅' : 'Cash denominations recalculated from actual balance ✅');
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || (lang === 'ar' ? 'حدث خطأ أثناء إعادة الحساب' : 'Error recalculating'));
     }
   };
 
@@ -1458,9 +1470,16 @@ export default function DashboardPage() {
                       );
                     })}
                   </div>
-                  {/* Total */}
+                  {/* Total + Recalc button */}
                   <div className="mt-3 flex items-center justify-between px-1">
-                    <span className="text-[10px] font-bold text-slate-500">{lang === 'ar' ? 'إجمالي من الفئات' : 'Total from denominations'}</span>
+                    <button
+                      onClick={() => handleRecalcDenominations(selectedAccount.id)}
+                      className="flex items-center gap-1.5 text-[10px] font-bold text-amber-400 hover:text-amber-300 transition-colors px-2 py-1 rounded-lg hover:bg-amber-500/10"
+                      title={lang === 'ar' ? 'إعادة حساب عدد الأوراق بناءً على الرصيد الفعلي' : 'Recalculate from actual balance'}
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      {lang === 'ar' ? 'إعادة حساب' : 'Recalculate'}
+                    </button>
                     <span className="text-sm font-black text-emerald-400">{formatCurrency(selectedAccount.balance)}</span>
                   </div>
                 </div>
