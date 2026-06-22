@@ -25,14 +25,12 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useRealAvatar } from '@/hooks/useRealAvatar';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { t, lang, toggleLang } = useLanguage();
-  const realAvatar = useRealAvatar(user?.id, user?.avatar);
 
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, labelKey: 'nav_home' as const },
@@ -92,7 +90,7 @@ export default function Sidebar() {
         <div className="p-4 rounded-[20px] bg-white/5 border border-white/5 shadow-inner">
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10 border border-white/10">
-              <AvatarImage src={realAvatar} />
+              <AvatarImage src={user?.avatar ?? undefined} />
               <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-pink-500 text-white font-black">
                 {user?.name?.charAt(0)}
               </AvatarFallback>

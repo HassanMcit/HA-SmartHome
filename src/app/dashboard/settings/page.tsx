@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { authApi } from '@/lib/api';
-import { useRealAvatar } from '@/hooks/useRealAvatar';
 import { ShieldCheck, User as UserIcon, Settings, KeyRound, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -126,10 +125,8 @@ export default function SettingsPage() {
                 <label className="relative group cursor-pointer">
                   <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                   <div className="w-[80px] h-[80px] rounded-full overflow-hidden border-2 flex items-center justify-center relative" style={{ background: 'var(--secondary)', borderColor: 'var(--border)' }}>
-                    {localAvatar ? (
-                      <img src={localAvatar} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : realAvatar ? (
-                      <img src={realAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                    {(localAvatar || user?.avatar) ? (
+                      <img src={localAvatar || user?.avatar!} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-[28px] font-bold text-indigo-400">{name ? name.charAt(0) : user?.name?.charAt(0)}</span>
                     )}
