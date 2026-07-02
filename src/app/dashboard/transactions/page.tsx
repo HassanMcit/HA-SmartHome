@@ -1808,6 +1808,7 @@ export default function TransactionsPage() {
           <p className="text-slate-500 max-w-xs mx-auto">{lang === 'ar' ? 'ابدأ بتسجيل أولى معاملاتك المالية لتتبع دخلك ومصروفاتك.' : 'Start recording your first financial transactions to track your income and expenses.'}</p>
         </div>
       ) : (
+        <>
         <div className="grid grid-cols-1 gap-4">
           {transactions.slice(0, visibleCount).map((tx) => {
             const cat = getCategoryInfo(tx.category, tx.type, lang);
@@ -1912,6 +1913,7 @@ export default function TransactionsPage() {
             {lang === 'ar' ? '✅ تم عرض جميع المعاملات' : '✅ All transactions loaded'}
           </p>
         )}
+        </>
       )}
 
       {/* Delete Confirmation */}
