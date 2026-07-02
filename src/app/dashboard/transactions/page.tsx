@@ -31,6 +31,7 @@ export default function TransactionsPage() {
   const isAdmin = currentUser?.role === 'admin';
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [visibleCount, setVisibleCount] = useState(20);
   const [users, setUsers] = useState<User[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>(currentUser?.id || '');
@@ -512,6 +513,7 @@ export default function TransactionsPage() {
       const apiUserId = (selectedUserId === 'all' || !selectedUserId) ? undefined : selectedUserId;
       const data = await transactionsApi.getAll({ userId: apiUserId });
       setTransactions(data || []);
+      setVisibleCount(20);
     } catch {
       toast.error('حدث خطأ في تحميل المعاملات');
     } finally {
@@ -1807,7 +1809,7 @@ export default function TransactionsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {transactions.map((tx) => {
+          {transactions.slice(0, visibleCount).map((tx) => {
             const cat = getCategoryInfo(tx.category, tx.type, lang);
             const isIncome = tx.type === 'income';
             
@@ -1887,6 +1889,29 @@ export default function TransactionsPage() {
             );
           })}
         </div>
+
+        {/* Load More Button */}
+        {visibleCount < transactions.length && (
+          <div className="flex flex-col items-center gap-2 pt-2 pb-4">
+            <p className="text-xs text-slate-500 font-semibold">
+              {lang === 'ar'
+                ? `تم عرض ${Math.min(visibleCount, transactions.length)} من أصل ${transactions.length} معاملة`
+                : `Showing ${Math.min(visibleCount, transactions.length)} of ${transactions.length} transactions`}
+            </p>
+            <button
+              onClick={() => setVisibleCount(prev => prev + 20)}
+              className="flex items-center gap-2 px-8 py-3 rounded-2xl font-black text-sm text-white bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all shadow-lg shadow-indigo-500/20"
+            >
+              <Activity className="w-4 h-4" />
+              {lang === 'ar' ? 'اعرض المزيد' : 'Load More'}
+            </button>
+          </div>
+        )}
+        {visibleCount >= transactions.length && transactions.length > 20 && (
+          <p className="text-center text-xs text-slate-600 font-semibold py-4">
+            {lang === 'ar' ? '✅ تم عرض جميع المعاملات' : '✅ All transactions loaded'}
+          </p>
+        )}
       )}
 
       {/* Delete Confirmation */}

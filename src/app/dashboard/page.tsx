@@ -380,7 +380,9 @@ export default function DashboardPage() {
       setSelectedAccount(account);
       // Fetch all transactions for this user, then filter locally
       const allTx = await transactionsApi.getAll();
-      const filtered = allTx.filter(t => t.accountId === account.id);
+      const filtered = allTx
+        .filter(t => t.accountId === account.id)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setAccountTransactions(filtered);
       setDetailModalOpen(true);
     } catch {

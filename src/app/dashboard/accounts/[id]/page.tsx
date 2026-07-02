@@ -160,7 +160,9 @@ export default function AccountDetailPage() {
       setAccount(accData);
       
       // Filter transactions for this specific account
-      const filteredTx = txData.filter(t => t.accountId === id);
+      const filteredTx = txData
+        .filter(t => t.accountId === id)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setTransactions(filteredTx);
       setFilteredTransactions(filteredTx);
 
@@ -210,6 +212,7 @@ export default function AccountDetailPage() {
       result = result.filter(t => t.type === typeFilter);
     }
 
+    result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     setFilteredTransactions(result);
   }, [searchQuery, typeFilter, transactions]);
 
