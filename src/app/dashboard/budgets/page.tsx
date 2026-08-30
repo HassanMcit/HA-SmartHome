@@ -145,13 +145,44 @@ export default function BudgetsPage() {
   // ── Delete budget ───────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deleteDialog.budgetId) return;
+    const idToDelete = deleteDialog.budgetId;
+    const categoryToDelete = deleteDialog.categoryName;
     try {
-      await budgetsApi.delete(deleteDialog.budgetId);
-      toast.success(lang === 'ar' ? 'تم حذف الميزانية بنجاح' : 'Budget deleted successfully');
+      await budgetsApi.delete(idToDelete);
+
+      // ✅ تحقق من قاعدة البيانات إن السجل اتحذف فعلاً
+      const now = new Date();
+      const afterDelete = await budgetsApi.getAll(
+        selectedUserId === 'all' ? undefined : selectedUserId,
+        now.getMonth() + 1,
+        now.getFullYear()
+      );
+      const stillExists = afterDelete.some(
+        (b) => b.id === idToDelete || b.category === categoryToDelete
+      );
+
+      if (stillExists) {
+        toast.error(
+          lang === 'ar'
+            ? '⚠️ الحذف لم يكتمل في قاعدة البيانات — حاول مرة أخرى'
+            : '⚠️ Delete did not complete in database — please try again'
+        );
+        fetchBudgets();
+        return;
+      }
+
+      toast.success(lang === 'ar' ? 'تم حذف الميزانية بنجاح ✅' : 'Budget deleted successfully ✅');
       setDeleteDialog({ isOpen: false, budgetId: '', categoryName: '' });
-      fetchBudgets();
+      setBudgets(afterDelete);
     } catch (error: any) {
-      toast.error(error.message || (lang === 'ar' ? 'حدث خطأ أثناء الحذف' : 'Error while deleting'));
+      console.error('[Budget Delete] Error:', error);
+      toast.error(
+        error.message ||
+          (lang === 'ar'
+            ? '❌ تعذّر الاتصال بالسيرفر — تأكد من الاتصال وحاول مرة أخرى'
+            : '❌ Could not reach server — check connection and try again')
+      );
+      fetchBudgets();
     }
   };
 
