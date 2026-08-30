@@ -146,6 +146,27 @@ export default function BudgetsPage() {
     }
   };
 
+  // ── Reset budget (new amount + zero spending from now) ─────────────────────
+  const handleReset = async () => {
+    if (!editDialog.budget || !editAmount) return;
+    const parsed = parseFloat(editAmount);
+    if (isNaN(parsed) || parsed <= 0) {
+      toast.error(lang === 'ar' ? 'أدخل مبلغاً صحيحاً أكبر من الصفر' : 'Enter a valid amount');
+      return;
+    }
+    setEditSubmitting(true);
+    try {
+      await budgetsApi.reset(editDialog.budget.id, parsed);
+      toast.success(lang === 'ar' ? 'تم تصفير الميزانية وتحديث المبلغ ✅' : 'Budget reset successfully ✅');
+      setEditDialog({ isOpen: false, budget: null });
+      fetchBudgets();
+    } catch (error: any) {
+      toast.error(error.message || (lang === 'ar' ? 'حدث خطأ أثناء التصفير' : 'Error resetting budget'));
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
   // ── Delete budget ───────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deleteDialog.budgetId) return;
@@ -439,21 +460,41 @@ export default function BudgetsPage() {
               )}
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3">
+              {/* Save amount only (no reset) */}
               <Button
                 type="submit"
                 disabled={editSubmitting || !editAmount}
-                className="flex-1 h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-base shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
+                className="w-full h-12 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
               >
                 {editSubmitting
                   ? <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                  : (lang === 'ar' ? 'حفظ التعديل' : 'Save Changes')}
+                  : (lang === 'ar' ? '💾 تعديل المبلغ فقط' : '💾 Update Amount Only')}
               </Button>
+
+              {/* Reset spending + new amount */}
+              <Button
+                type="button"
+                disabled={editSubmitting || !editAmount}
+                onClick={handleReset}
+                className="w-full h-12 bg-orange-500 hover:bg-orange-400 text-white rounded-2xl font-black text-sm shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all disabled:opacity-50"
+              >
+                {editSubmitting
+                  ? <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                  : (lang === 'ar' ? '🔄 تصفير المصروف + مبلغ جديد' : '🔄 Reset Spending + New Amount')}
+              </Button>
+
+              <p className="text-[10px] text-slate-500 text-center leading-relaxed">
+                {lang === 'ar'
+                  ? '🔄 التصفير يجعل المصروف يبدأ من الصفر من الآن، مع تحديث الهدف'
+                  : '🔄 Reset zeroes out past spending from now, with a new target amount'}
+              </p>
+
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setEditDialog({ isOpen: false, budget: null })}
-                className="flex-1 h-14 font-bold rounded-2xl transition-all"
+                className="w-full h-11 font-bold rounded-2xl transition-all"
                 style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
               >
                 {lang === 'ar' ? 'إلغاء' : 'Cancel'}

@@ -435,6 +435,12 @@ export const budgetsApi = {
       body: JSON.stringify({ amount }),
     }),
 
+  reset: (id: string, amount: number) =>
+    request<Budget>(`/budgets/${id}/reset`, {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    }),
+
   delete: (id: string) =>
     request(`/budgets/${id}`, { method: 'DELETE' }),
 
