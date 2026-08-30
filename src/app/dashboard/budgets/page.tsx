@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { budgetsApi, adminApi, Budget, User, formatCurrency, EXPENSE_CATEGORIES } from '@/lib/api';
+import { budgetsApi, budgetResets, adminApi, Budget, User, formatCurrency, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Plus, Target, Trash2, Users, Loader2, Pencil, Eraser } from 'lucide-react';
@@ -156,8 +156,11 @@ export default function BudgetsPage() {
     }
     setEditSubmitting(true);
     try {
-      await budgetsApi.reset(editDialog.budget.id, parsed);
-      toast.success(lang === 'ar' ? 'تم تصفير الميزانية وتحديث المبلغ ✅' : 'Budget reset successfully ✅');
+      // 1. تحديث المبلغ في قاعدة البيانات
+      await budgetsApi.update(editDialog.budget.id, parsed);
+      // 2. حفظ تاريخ التصفير في localStorage
+      budgetResets.set(editDialog.budget.id, new Date().toISOString());
+      toast.success(lang === 'ar' ? 'تم تصفير المصروف وتحديث المبلغ ✅' : 'Budget reset successfully ✅');
       setEditDialog({ isOpen: false, budget: null });
       fetchBudgets();
     } catch (error: any) {

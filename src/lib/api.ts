@@ -413,12 +413,34 @@ export const transactionsApi = {
 };
 
 // ─── Budgets API ─────────────────────────────────────────────────────────────
+// localStorage helpers for budget reset dates
+export const budgetResets = {
+  getAll: (): Record<string, string> => {
+    if (typeof window === 'undefined') return {};
+    try { return JSON.parse(localStorage.getItem('budgetResets') || '{}'); } catch { return {}; }
+  },
+  set: (budgetId: string, isoDate: string) => {
+    if (typeof window === 'undefined') return;
+    const all = budgetResets.getAll();
+    all[budgetId] = isoDate;
+    localStorage.setItem('budgetResets', JSON.stringify(all));
+  },
+  clear: (budgetId: string) => {
+    if (typeof window === 'undefined') return;
+    const all = budgetResets.getAll();
+    delete all[budgetId];
+    localStorage.setItem('budgetResets', JSON.stringify(all));
+  },
+};
+
 export const budgetsApi = {
   getAll: (userId?: string, month?: number, year?: number) => {
     const params: Record<string, string> = {};
     if (userId) params.userId = userId;
     if (month !== undefined) params.month = String(month);
     if (year !== undefined) params.year = String(year);
+    const resets = budgetResets.getAll();
+    if (Object.keys(resets).length) params.resetDates = JSON.stringify(resets);
     const q = Object.keys(params).length ? '?' + new URLSearchParams(params) : '';
     return request<Budget[]>(`/budgets${q}`);
   },
@@ -432,12 +454,6 @@ export const budgetsApi = {
   update: (id: string, amount: number) =>
     request<Budget>(`/budgets/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ amount }),
-    }),
-
-  reset: (id: string, amount: number) =>
-    request<Budget>(`/budgets/${id}/reset`, {
-      method: 'POST',
       body: JSON.stringify({ amount }),
     }),
 
