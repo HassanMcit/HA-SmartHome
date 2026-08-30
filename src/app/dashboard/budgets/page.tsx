@@ -98,11 +98,19 @@ export default function BudgetsPage() {
     const selectedUser = users.find(u => u.id === targetUserId);
     setSubmitting(true);
     try {
-      await budgetsApi.create({
+      const created = await budgetsApi.create({
         category,
         amount: parseFloat(amount),
         targetUserId: targetUserId,
       } as any);
+
+      // 💡 تسجيل تاريخ إنشاء الميزانية لمنع المصروفات القديمة في هذه الفئة
+      const nowStr = new Date().toISOString();
+      if (created && (created as any).id) {
+        budgetResets.set((created as any).id, nowStr);
+      }
+      budgetResets.setCategory(category, nowStr);
+
       toast.success(
         lang === 'ar'
           ? `تم حفظ ميزانية ${selectedUser?.name || ''} بنجاح`
@@ -156,10 +164,10 @@ export default function BudgetsPage() {
     }
     setEditSubmitting(true);
     try {
-      // 1. تحديث المبلغ في قاعدة البيانات
       await budgetsApi.update(editDialog.budget.id, parsed);
-      // 2. حفظ تاريخ التصفير في localStorage
-      budgetResets.set(editDialog.budget.id, new Date().toISOString());
+      const nowStr = new Date().toISOString();
+      budgetResets.set(editDialog.budget.id, nowStr);
+      budgetResets.setCategory(editDialog.budget.category, nowStr);
       toast.success(lang === 'ar' ? 'تم تصفير المصروف وتحديث المبلغ ✅' : 'Budget reset successfully ✅');
       setEditDialog({ isOpen: false, budget: null });
       fetchBudgets();

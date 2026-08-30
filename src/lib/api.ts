@@ -425,10 +425,16 @@ export const budgetResets = {
     all[budgetId] = isoDate;
     localStorage.setItem('budgetResets', JSON.stringify(all));
   },
-  clear: (budgetId: string) => {
+  setCategory: (category: string, isoDate: string) => {
     if (typeof window === 'undefined') return;
     const all = budgetResets.getAll();
-    delete all[budgetId];
+    all[category] = isoDate;
+    localStorage.setItem('budgetResets', JSON.stringify(all));
+  },
+  clear: (key: string) => {
+    if (typeof window === 'undefined') return;
+    const all = budgetResets.getAll();
+    delete all[key];
     localStorage.setItem('budgetResets', JSON.stringify(all));
   },
 };
