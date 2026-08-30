@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { budgetsApi, adminApi, Budget, User, formatCurrency, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Plus, Target, Trash2, Users, Loader2, Pencil } from 'lucide-react';
+import { Plus, Target, Trash2, Users, Loader2, Pencil, Eraser } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,10 @@ export default function BudgetsPage() {
     budgetId: '',
     categoryName: '',
   });
+
+  // Clear all dialog state
+  const [clearAllOpen, setClearAllOpen] = useState(false);
+  const [clearAllSubmitting, setClearAllSubmitting] = useState(false);
 
   const fetchUsers = async () => {
     if (!isAdmin) return;
@@ -186,6 +190,22 @@ export default function BudgetsPage() {
     }
   };
 
+  // ── Clear all budgets ─────────────────────────────────────────────────────
+  const handleClearAll = async () => {
+    setClearAllSubmitting(true);
+    try {
+      const uid = selectedUserId === 'all' ? undefined : selectedUserId;
+      await budgetsApi.deleteAll(uid);
+      toast.success(lang === 'ar' ? 'تم تفريغ جميع الميزانيات ✅' : 'All budgets cleared ✅');
+      setClearAllOpen(false);
+      setBudgets([]);
+    } catch (error: any) {
+      toast.error(error.message || (lang === 'ar' ? 'حدث خطأ أثناء التفريغ' : 'Error clearing budgets'));
+    } finally {
+      setClearAllSubmitting(false);
+    }
+  };
+
   if (!currentUser) return null;
 
   return (
@@ -210,16 +230,29 @@ export default function BudgetsPage() {
             </p>
           </div>
 
-          <Button
-            onClick={() => {
-              setTargetUserId(currentUser?.id || '');
-              setOpen(true);
-            }}
-            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
-          >
-            <Plus className="w-5 h-5 ml-2" />
-            {lang === 'ar' ? 'إضافة ميزانية' : 'Add Budget'}
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            {budgets.length > 0 && (
+              <Button
+                onClick={() => setClearAllOpen(true)}
+                variant="outline"
+                className="w-full sm:w-auto border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 rounded-xl px-5 h-12 sm:h-11 font-bold active:scale-95 transition-all"
+                style={{ background: 'transparent' }}
+              >
+                <Eraser className="w-4 h-4 ml-2" />
+                {lang === 'ar' ? 'تفريغ الميزانية' : 'Clear All'}
+              </Button>
+            )}
+            <Button
+              onClick={() => {
+                setTargetUserId(currentUser?.id || '');
+                setOpen(true);
+              }}
+              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 h-12 sm:h-11 font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+            >
+              <Plus className="w-5 h-5 ml-2" />
+              {lang === 'ar' ? 'إضافة ميزانية' : 'Add Budget'}
+            </Button>
+          </div>
         </div>
 
         {isAdmin && (
@@ -585,6 +618,50 @@ export default function BudgetsPage() {
                 className="flex-1 h-14 font-bold rounded-2xl transition-all"
                 style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
                 onClick={() => setDeleteDialog({ isOpen: false, budgetId: '', categoryName: '' })}
+              >
+                {lang === 'ar' ? 'إلغاء' : 'Cancel'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Clear All Confirmation Dialog ─────────────────────────────────────── */}
+      <Dialog open={clearAllOpen} onOpenChange={setClearAllOpen}>
+        <DialogContent
+          className="border-white/10 p-8 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none"
+          style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}
+        >
+          <div className="text-right">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
+              <Eraser className="w-7 h-7" />
+            </div>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black" style={{ color: 'var(--foreground)' }}>
+                {lang === 'ar' ? 'تفريغ الميزانية' : 'Clear All Budgets'}
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-slate-400 text-base font-medium mt-4 leading-relaxed">
+              {lang === 'ar'
+                ? `سيتم حذف جميع الميزانيات (${budgets.length}) نهائياً. لا يمكن التراجع عن هذا الإجراء.`
+                : `All ${budgets.length} budgets will be permanently deleted. This cannot be undone.`}
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
+              <Button
+                className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all disabled:opacity-50"
+                onClick={handleClearAll}
+                disabled={clearAllSubmitting}
+              >
+                {clearAllSubmitting
+                  ? <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                  : (lang === 'ar' ? '🗑️ تفريغ كل الميزانيات' : '🗑️ Clear All Budgets')}
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 h-14 font-bold rounded-2xl transition-all"
+                style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
+                onClick={() => setClearAllOpen(false)}
+                disabled={clearAllSubmitting}
               >
                 {lang === 'ar' ? 'إلغاء' : 'Cancel'}
               </Button>

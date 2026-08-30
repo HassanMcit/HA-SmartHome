@@ -437,6 +437,11 @@ export const budgetsApi = {
 
   delete: (id: string) =>
     request(`/budgets/${id}`, { method: 'DELETE' }),
+
+  deleteAll: (targetUserId?: string) => {
+    const q = targetUserId ? `?targetUserId=${targetUserId}` : '';
+    return request(`/budgets/all${q}`, { method: 'DELETE' });
+  },
 };
 
 // ─── Savings API ─────────────────────────────────────────────────────────────
