@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { budgetsApi, adminApi, Budget, User, formatCurrency, EXPENSE_CATEGORIES } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Plus, Target, Trash2, Users, Loader2 } from 'lucide-react';
+import { Plus, Target, Trash2, Users, Loader2, Pencil } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -21,13 +21,22 @@ export default function BudgetsPage() {
   const [selectedUserId, setSelectedUserId] = useState<string>(currentUser?.id || '');
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  
-  // Form state
+
+  // Add form state
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [targetUserId, setTargetUserId] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
 
+  // Edit dialog state
+  const [editDialog, setEditDialog] = useState<{ isOpen: boolean; budget: Budget | null }>({
+    isOpen: false,
+    budget: null,
+  });
+  const [editAmount, setEditAmount] = useState('');
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
+  // Delete dialog state
   const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; budgetId: string; categoryName: string }>({
     isOpen: false,
     budgetId: '',
@@ -47,7 +56,6 @@ export default function BudgetsPage() {
   const fetchBudgets = async () => {
     try {
       setLoading(true);
-      // If selectedUserId is 'all', we pass undefined to get all family budgets
       const apiUserId = (selectedUserId === 'all' || !selectedUserId) ? undefined : selectedUserId;
       const now = new Date();
       const m = now.getMonth() + 1;
@@ -76,25 +84,21 @@ export default function BudgetsPage() {
     }
   }, [selectedUserId]);
 
+  // ── Add new budget ──────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!amount || !category) {
       toast.error(lang === 'ar' ? 'يرجى اختيار الفئة والمبلغ' : 'Please select category and amount');
       return;
     }
-    
     const selectedUser = users.find(u => u.id === targetUserId);
-    console.log(`[Budget Form] Attempting to save for: ${selectedUser?.name} (ID: ${targetUserId})`);
-
     setSubmitting(true);
     try {
-      await budgetsApi.create({ 
-        category, 
+      await budgetsApi.create({
+        category,
         amount: parseFloat(amount),
-        targetUserId: targetUserId
-      } as any); // Casting as any to allow sending extra fields if needed
-      
+        targetUserId: targetUserId,
+      } as any);
       toast.success(
         lang === 'ar'
           ? `تم حفظ ميزانية ${selectedUser?.name || ''} بنجاح`
@@ -111,6 +115,34 @@ export default function BudgetsPage() {
     }
   };
 
+  // ── Edit budget amount ──────────────────────────────────────────────────────
+  const handleOpenEdit = (budget: Budget) => {
+    setEditDialog({ isOpen: true, budget });
+    setEditAmount(String(budget.amount));
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editDialog.budget || !editAmount) return;
+    const parsed = parseFloat(editAmount);
+    if (isNaN(parsed) || parsed <= 0) {
+      toast.error(lang === 'ar' ? 'أدخل مبلغاً صحيحاً أكبر من الصفر' : 'Enter a valid amount greater than zero');
+      return;
+    }
+    setEditSubmitting(true);
+    try {
+      await budgetsApi.update(editDialog.budget.id, parsed);
+      toast.success(lang === 'ar' ? 'تم تعديل الميزانية بنجاح ✅' : 'Budget updated successfully ✅');
+      setEditDialog({ isOpen: false, budget: null });
+      fetchBudgets();
+    } catch (error: any) {
+      toast.error(error.message || (lang === 'ar' ? 'حدث خطأ أثناء التعديل' : 'Error updating budget'));
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  // ── Delete budget ───────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deleteDialog.budgetId) return;
     try {
@@ -118,8 +150,8 @@ export default function BudgetsPage() {
       toast.success(lang === 'ar' ? 'تم حذف الميزانية بنجاح' : 'Budget deleted successfully');
       setDeleteDialog({ isOpen: false, budgetId: '', categoryName: '' });
       fetchBudgets();
-    } catch {
-      toast.error(lang === 'ar' ? 'حدث خطأ أثناء الحذف' : 'Error while deleting');
+    } catch (error: any) {
+      toast.error(error.message || (lang === 'ar' ? 'حدث خطأ أثناء الحذف' : 'Error while deleting'));
     }
   };
 
@@ -147,7 +179,7 @@ export default function BudgetsPage() {
             </p>
           </div>
 
-          <Button 
+          <Button
             onClick={() => {
               setTargetUserId(currentUser?.id || '');
               setOpen(true);
@@ -192,6 +224,7 @@ export default function BudgetsPage() {
         )}
       </div>
 
+      {/* ── Add Budget Dialog ─────────────────────────────────────────────────── */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           className="border-white/10 rounded-[32px] p-8 outline-none sm:max-w-[440px]"
@@ -231,7 +264,6 @@ export default function BudgetsPage() {
               </div>
             )}
 
-
             <div className="space-y-2 text-right">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">
                 {lang === 'ar' ? 'الفئة' : 'Category'}
@@ -269,12 +301,12 @@ export default function BudgetsPage() {
                 {lang === 'ar' ? 'المبلغ الأقصى' : 'Maximum Amount'}
               </label>
               <div className="relative">
-                <input 
-                  type="number" 
-                  step="0.01" 
-                  required 
-                  value={amount} 
-                  onChange={e => setAmount(e.target.value)} 
+                <input
+                  type="number"
+                  step="0.01"
+                  required
+                  value={amount}
+                  onChange={e => setAmount(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white font-bold focus:border-indigo-500/50 outline-none transition-all text-center"
                   placeholder="0.00"
                 />
@@ -284,8 +316,8 @@ export default function BudgetsPage() {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={submitting || !amount || !category}
               className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
             >
@@ -297,7 +329,77 @@ export default function BudgetsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Main Content */}
+      {/* ── Edit Budget Dialog ────────────────────────────────────────────────── */}
+      <Dialog open={editDialog.isOpen} onOpenChange={(v) => setEditDialog(prev => ({ ...prev, isOpen: v }))}>
+        <DialogContent
+          className="border-white/10 rounded-[32px] p-8 outline-none sm:max-w-[440px]"
+          style={{ background: 'var(--card)', color: 'var(--card-foreground)' }}
+        >
+          <DialogHeader className="text-right">
+            <DialogTitle className="text-2xl font-black mb-2">
+              {lang === 'ar' ? 'تعديل الميزانية' : 'Edit Budget'}
+            </DialogTitle>
+            {editDialog.budget && (
+              <p className="text-slate-400 text-sm font-semibold">
+                {EXPENSE_CATEGORIES.find(c => c.value === editDialog.budget!.category)?.icon}{' '}
+                {EXPENSE_CATEGORIES.find(c => c.value === editDialog.budget!.category)?.label || editDialog.budget.category}
+              </p>
+            )}
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-6 mt-4">
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mr-1">
+                {lang === 'ar' ? 'المبلغ الجديد' : 'New Amount'}
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="1"
+                  required
+                  autoFocus
+                  value={editAmount}
+                  onChange={e => setEditAmount(e.target.value)}
+                  className="w-full bg-white/5 border border-indigo-500/40 rounded-xl h-14 px-4 text-white font-black text-xl focus:border-indigo-500 outline-none transition-all text-center"
+                  placeholder="0.00"
+                />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xs">
+                  {lang === 'ar' ? 'ج.م' : 'EGP'}
+                </span>
+              </div>
+              {editDialog.budget && (
+                <p className="text-xs text-slate-500 text-right mr-1">
+                  {lang === 'ar' ? 'المبلغ الحالي:' : 'Current amount:'}{' '}
+                  <span className="text-indigo-400 font-bold">{formatCurrency(editDialog.budget.amount)}</span>
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                type="submit"
+                disabled={editSubmitting || !editAmount}
+                className="flex-1 h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-base shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all disabled:opacity-50"
+              >
+                {editSubmitting
+                  ? <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                  : (lang === 'ar' ? 'حفظ التعديل' : 'Save Changes')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditDialog({ isOpen: false, budget: null })}
+                className="flex-1 h-14 font-bold rounded-2xl transition-all"
+                style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
+              >
+                {lang === 'ar' ? 'إلغاء' : 'Cancel'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Main Content ─────────────────────────────────────────────────────── */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
@@ -347,12 +449,24 @@ export default function BudgetsPage() {
                       </p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => setDeleteDialog({ isOpen: true, budgetId: budget.id, categoryName: budget.category })}
-                    className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => handleOpenEdit(budget)}
+                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-indigo-500/10 hover:text-indigo-400 transition-all active:scale-90"
+                      title={lang === 'ar' ? 'تعديل المبلغ' : 'Edit amount'}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setDeleteDialog({ isOpen: true, budgetId: budget.id, categoryName: budget.category })}
+                      className="p-2 rounded-lg bg-white/5 text-slate-500 hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
+                      title={lang === 'ar' ? 'حذف' : 'Delete'}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -377,7 +491,7 @@ export default function BudgetsPage() {
                   </div>
 
                   <div className="w-full h-3 bg-black/20 rounded-full overflow-hidden border border-white/5">
-                    <div 
+                    <div
                       className={cn(
                         "h-full rounded-full transition-all duration-1000 ease-out",
                         isOverLimit ? "bg-red-500" : isNearLimit ? "bg-orange-500" : "bg-indigo-500"
@@ -406,7 +520,7 @@ export default function BudgetsPage() {
         </div>
       )}
 
-      {/* Delete Confirmation */}
+      {/* ── Delete Confirmation Dialog ────────────────────────────────────────── */}
       <Dialog open={deleteDialog.isOpen} onOpenChange={(isOpen) => setDeleteDialog(prev => ({ ...prev, isOpen }))}>
         <DialogContent
           className="border-white/10 p-8 overflow-hidden sm:max-w-[440px] rounded-[32px] outline-none"
@@ -429,14 +543,14 @@ export default function BudgetsPage() {
               {lang === 'ar' ? '؟ لا يمكن التراجع عن هذا الإجراء.' : '? This action cannot be undone.'}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
-              <Button 
-                className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all" 
+              <Button
+                className="flex-1 h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all"
                 onClick={handleDelete}
               >
                 {lang === 'ar' ? 'حذف نهائي' : 'Delete Permanently'}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex-1 h-14 font-bold rounded-2xl transition-all"
                 style={{ borderColor: 'var(--border)', background: 'transparent', color: 'var(--foreground)' }}
                 onClick={() => setDeleteDialog({ isOpen: false, budgetId: '', categoryName: '' })}
@@ -450,4 +564,3 @@ export default function BudgetsPage() {
     </div>
   );
 }
-

@@ -429,6 +429,12 @@ export const budgetsApi = {
       body: JSON.stringify(payload),
     }),
 
+  update: (id: string, amount: number) =>
+    request<Budget>(`/budgets/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ amount }),
+    }),
+
   delete: (id: string) =>
     request(`/budgets/${id}`, { method: 'DELETE' }),
 };
