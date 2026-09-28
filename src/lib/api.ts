@@ -61,6 +61,10 @@ async function request<T>(
       }
 
       if (!res.ok) {
+        if (res.status === 401 && typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken');
+          (window as any).__authToken = null;
+        }
         const error = new Error(data?.message || `HTTP ${res.status}`) as any;
         error.status = res.status;
         throw error;
