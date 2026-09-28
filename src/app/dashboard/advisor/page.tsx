@@ -36,7 +36,7 @@ export default function AdvisorPage() {
     setLoading(true);
     setAnalysis(null);
     try {
-      const token = localStorage.getItem('token');
+      const token = (typeof window !== 'undefined' ? (window as any).__authToken || localStorage.getItem('accessToken') : null);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const res = await fetch(
         `${apiUrl}/ai/analysis?month=${selectedMonth}&year=${selectedYear}`,

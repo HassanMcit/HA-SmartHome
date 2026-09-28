@@ -29,31 +29,59 @@ async function request<T>(
   options: RequestInit = {},
   accessToken?: string | null
 ): Promise<T> {
-  // If no explicit token, try to read from the session via a global accessor.
-  // This is set by AuthSessionProvider when the session loads.
-  const token = accessToken ?? (typeof window !== 'undefined' ? (window as any).__authToken : null);
+  const token =
+    accessToken ??
+    (typeof window !== 'undefined'
+      ? (window as any).__authToken || localStorage.getItem('accessToken')
+      : null);
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${path}`, { cache: 'no-store', ...options, headers });
+  let lastError: any;
+  const maxRetries = 3;
 
-  let data: any;
-  try {
-    data = await res.json();
-  } catch {
-    data = {};
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(`${API_URL}${path}`, { cache: 'no-store', ...options, headers });
+
+      let data: any;
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
+
+      // If server is spinning up on Render free tier (502/503/504), wait and retry
+      if ([502, 503, 504].includes(res.status) && attempt < maxRetries) {
+        await new Promise((r) => setTimeout(r, 2000 * attempt));
+        continue;
+      }
+
+      if (!res.ok) {
+        const error = new Error(data?.message || `HTTP ${res.status}`) as any;
+        error.status = res.status;
+        throw error;
+      }
+
+      return data as T;
+    } catch (err: any) {
+      lastError = err;
+      // Retry on network errors or fetch timeouts
+      if (
+        (err.name === 'TypeError' || err.message?.includes('fetch') || err.message?.includes('Network')) &&
+        attempt < maxRetries
+      ) {
+        await new Promise((r) => setTimeout(r, 2500 * attempt));
+        continue;
+      }
+      throw err;
+    }
   }
 
-  if (!res.ok) {
-    const error = new Error(data?.message || `HTTP ${res.status}`) as any;
-    error.status = res.status;
-    throw error;
-  }
-
-  return data as T;
+  throw lastError;
 }
 
 // ─── Types ───────────────────────────────────────────────────────────────────

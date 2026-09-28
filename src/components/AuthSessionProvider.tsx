@@ -11,7 +11,11 @@ function TokenSync() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      (window as any).__authToken = (session?.user as any)?.accessToken ?? null;
+      const token = (session?.user as any)?.accessToken ?? null;
+      (window as any).__authToken = token;
+      if (token) {
+        localStorage.setItem('accessToken', token);
+      }
     }
   }, [session]);
 
