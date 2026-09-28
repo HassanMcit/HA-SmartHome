@@ -173,34 +173,46 @@ export default function DashboardPage() {
       const m = now.getMonth() + 1;
       const y = now.getFullYear();
       
-      const [statsData, txData, billsData, accountsData] = await Promise.all([
+      const results = await Promise.allSettled([
         transactionsApi.getStats({ month: m, year: y }),
         transactionsApi.getAll({ limit: 8 }),
         billsApi.getAll(false, user.id),
         accountsApi.getAll()
       ]);
 
-      setStats(statsData);
-      setRecentTransactions(txData);
-      setUnpaidBills(billsData);
-      
-      const sortedAccs = (accountsData || []).sort((a: any, b: any) => {
-        const typeOrder = { cash: 1, bank: 2, wallet: 3 };
-        const orderA = typeOrder[a.type as keyof typeof typeOrder] || 99;
-        const orderB = typeOrder[b.type as keyof typeof typeOrder] || 99;
-        if (orderA !== orderB) return orderA - orderB;
-        return (a.name || '').localeCompare(b.name || '', 'ar');
-      });
-      setAccounts(sortedAccs);
+      const statsRes = results[0];
+      const txRes = results[1];
+      const billsRes = results[2];
+      const accountsRes = results[3];
 
+      if (statsRes.status === 'fulfilled') setStats(statsRes.value);
+      if (txRes.status === 'fulfilled') setRecentTransactions(txRes.value || []);
+      if (billsRes.status === 'fulfilled') setUnpaidBills(billsRes.value || []);
       
-      // Auto-trigger onboarding if user has NO accounts registered
-      if (!accountsData || accountsData.length === 0) {
-        setShowOnboarding(true);
+      if (accountsRes.status === 'fulfilled') {
+        const accountsData = accountsRes.value || [];
+        const sortedAccs = accountsData.sort((a: any, b: any) => {
+          const typeOrder = { cash: 1, bank: 2, wallet: 3 };
+          const orderA = typeOrder[a.type as keyof typeof typeOrder] || 99;
+          const orderB = typeOrder[b.type as keyof typeof typeOrder] || 99;
+          if (orderA !== orderB) return orderA - orderB;
+          return (a.name || '').localeCompare(b.name || '', 'ar');
+        });
+        setAccounts(sortedAccs);
+
+        // Auto-trigger onboarding if user has NO accounts registered
+        if (accountsData.length === 0) {
+          setShowOnboarding(true);
+        }
+      }
+
+      // Only toast error if ALL requests failed
+      const allFailed = results.every(r => r.status === 'rejected');
+      if (allFailed) {
+        toast.error(t('data_load_error'));
       }
     } catch (err) {
-      console.error(err);
-      toast.error(t('data_load_error'));
+      console.error('[Dashboard fetchData Error]:', err);
     } finally {
       setLoading(false);
     }
